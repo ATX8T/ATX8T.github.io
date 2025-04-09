@@ -1,0 +1,9 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
+  <g fill='none' stroke='#FFD700'>
+    <circle cx='50' cy='50' r='45' stroke-width='2'/>
+    <path d='M30 50L50 20L70 50L50 80Z' stroke-width='1.5'/>
+    <path d='M50 35L60 50L50 65L40 50Z' stroke-width='1'/>
+    <path d='M50 30V70M30 50H70' stroke-linecap='round'/>
+  </g>
+  <path d='M50 45Q55 40 60 45Q55 50 60 55Q55 60 50 55Q45 60 40 55Q45 50 40 45Q45 40 50 45Z' fill='rgba(255,215,0,0.3)'/>
+</svg>

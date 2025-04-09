@@ -3,141 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>独立游戏开发者 - ATX8T</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <title>玄天宗修真阁</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-            background-color: #f4f4f9;
+        :root {
+            --primary-color: #8b0000;
+            --secondary-color: #ffd700;
+            --bg-pattern: repeating-linear-gradient(45deg, transparent, transparent 15px, rgba(0,0,0,0.1) 15px, rgba(0,0,0,0.1) 30px);
         }
+
+        body {
+            font-family: 'Ma Shan Zheng', cursive;
+            background: var(--bg-pattern), url('assets/images/rice-paper.jpg'), url('assets/bg.jpg');
+            background-blend-mode: multiply;
+            color: #3e2723;
+            margin: 0;
+            line-height: 1.8;
+        }
+
         header {
-            background-color: #2c3e50;
-            padding: 20px 0;
+            position: relative;
+            background: rgba(139, 0, 0, 0.9);
+            padding: 2rem 0;
+            text-align: center;
+            border-bottom: 3px solid var(--secondary-color);
+        }
+        
+        .sect-icon {
+            position: absolute;
+            left: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            filter: drop-shadow(0 0 5px rgba(255,215,0,0.5));
+        }
+
+        nav {
+            background: rgba(62, 39, 35, 0.95);
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        nav a:hover {
+            border-bottom: 2px solid var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .sect-title {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin: 2rem 0;
             text-align: center;
         }
-        nav {
-            background-color: #34495e;
+
+        .elixir-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border-left: 5px solid var(--primary-color);
+            transition: all 0.3s ease;
+            transform-origin: top center;
+            position: relative;
             overflow: hidden;
         }
-        nav a {
-            float: left;
-            display: block;
-            color: #ecf0f1;
-            text-align: center;
-            padding: 14px 16px;
-            text-decoration: none;
-            transition: background-color 0.3s;
+        
+        .elixir-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            z-index: 10;
         }
-        nav a:hover {
-            background-color: #2980b9;
-            color: #fff;
-        }
-        .container {
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .section {
-            margin-bottom: 40px;
-        }
-        .section h2 {
-            border-bottom: 2px solid #2c3e50;
-            padding-bottom: 10px;
-            color: #2c3e50;
-        }
-        .card {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .card h3 {
-            margin-top: 0;
-        }
-        footer {
-            background-color: #2c3e50;
-            color: #fff;
-            text-align: center;
-            padding: 10px 0;
-            position: fixed;
-            width: 100%;
+        
+        .elixir-card::after {
+            content: '';
+            position: absolute;
             bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: url('assets/images/cloud-pattern.svg') repeat-x;
+            opacity: 0.8;
         }
-        @media (max-width: 768px) {
-            nav a {
-                float: none;
-                width: 100%;
-                text-align: left;
-            }
+
+        .download-btn {
+            background: linear-gradient(to bottom, var(--primary-color), #6a0000);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: transform 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>独立游戏开发者</h1>
+        <h1>玄天宗修真阁</h1>
+        <p>丹道无极 · 修真证道</p>
     </header>
+    
     <nav>
-        <a href="#about">关于我</a>
-        <a href="#portfolio">作品集</a>
-        <a href="#blog">博客</a>
-        <a href="#contact">联系</a>
+        <a href="#about">宗门介绍</a>
+        <a href="#elixirs">丹药秘籍</a>
+        <a href="#download">功法下载</a>
+        <a href="#contact">仙缘联系</a>
     </nav>
+
     <div class="container">
-        <section id="about" class="section">
-            <h2>关于我</h2>
-            <div class="card">
-                <p>你好，我是ATX8T，一个热爱游戏开发的独立开发者。我专注于创造有趣且具有挑战性的游戏体验。在这里，你可以了解我的作品和开发历程。</p>
+        <section id="about" class="elixir-card">
+            <h2 class="sect-title">宗门传承</h2>
+            <p>玄天宗创立于太初年间，以丹道入修真之门。本宗秘传《九转金丹诀》可助修士突破桎梏，成就无上大道。</p>
+        </section>
+
+        <section id="elixirs" class="elixir-card">
+            <h2 class="sect-title">丹药宝鉴</h2>
+            <div>
+                <h3>筑基丹</h3>
+                <p>初入修真必备，可固本培元增强经脉强度</p>
+            </div>
+            <div>
+                <h3>元婴丹</h3>
+                <p>突破元婴期关键丹药，需配合心法使用</p>
             </div>
         </section>
-        <section id="portfolio" class="section">
-            <h2>作品集</h2>
-            <div class="card">
-                <h3>游戏1: 游戏名称</h3>
-                <p>游戏描述...</p>
-                <a href="https://example.com/game1" target="_blank">查看游戏</a>
-            </div>
-            <div class="card">
-                <h3>游戏2: 游戏名称</h3>
-                <p>游戏描述...</p>
-                <a href="https://example.com/game2" target="_blank">查看游戏</a>
-            </div>
-            <div class="card">
-                <h3>Clash for Android</h3>
-                <p>Clash for Android 是一个强大的网络代理工具。</p>
-                <a href="https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/software/clash_for_android_2.5.12.apk" download>下载 APK</a>
-            </div>
-        </section>
-        <section id="blog" class="section">
-            <h2>博客</h2>
-            <div class="card">
-                <h3>博客文章1: 文章标题</h3>
-                <p>文章摘要...</p>
-                <a href="https://example.com/blog1" target="_blank">阅读更多</a>
-            </div>
-            <div class="card">
-                <h3>博客文章2: 文章标题</h3>
-                <p>文章摘要...</p>
-                <a href="https://example.com/blog2" target="_blank">阅读更多</a>
-            </div>
-        </section>
-        <section id="contact" class="section">
-            <h2>联系</h2>
-            <div class="card">
-                <p>如果你有任何问题或想合作，请通过以下方式联系我：</p>
-                <ul>
-                    <li>Email: <a href="mailto:your-email@example.com">your-email@example.com</a></li>
-                    <li>Twitter: <a href="https://twitter.com/yourtwitter" target="_blank">@yourtwitter</a></li>
-                    <li>GitHub: <a href="https://github.com/yourgithub" target="_blank">yourgithub</a></li>
-                </ul>
-            </div>
+
+        <section id="download" class="elixir-card">
+            <h2 class="sect-title">功法下载</h2>
+            <button class="download-btn" onclick="window.location.href='software/clash_for_android_2.5.12.apk'">
+                🎴 下载《玄天秘录》安卓版
+            </button>
         </section>
     </div>
+
     <footer>
-        <p>&copy; 2023 ATX8T. All rights reserved.</p>
+        <p>© 甲辰年 玄天宗 版权所有</p>
     </footer>
 </body>
 </html>
