@@ -9,7 +9,7 @@
 - [在HTML中播放GitHub上的mp4](Resource/mp4/mp4.html)
 
 # 随机密码项目
-[随机密码项目](Password/index.html)
+- [随机密码项目](Password/index.html)
 - 部署到 GitHub Pages 等在线平台需要用在线地址
 
 
