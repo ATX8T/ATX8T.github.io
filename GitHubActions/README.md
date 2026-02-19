@@ -17,6 +17,7 @@ mkdir -p .github/workflows
 touch .github/workflows/hello.yml
 ```
 
+```
 你的仓库名/                  # 仓库根目录
 ├── .github/                 # GitHub 专属配置目录（隐藏目录）
 │   └── workflows/           # GitHub Actions 工作流目录（固定名称）
@@ -27,6 +28,7 @@ touch .github/workflows/hello.yml
 ├── package.json             # 项目依赖文件（示例，Node.js 项目）
 ├── README.md                # 仓库说明文档
 └── .gitignore               # Git 忽略文件
+```
 
 #### 2. 编写最简 Workflow（Hello World）
 ```yaml
