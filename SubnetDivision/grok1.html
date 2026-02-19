@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>子网划分大师 | 互动练习</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        body { font-family: 'Noto Sans SC', system-ui, sans-serif; }
+        .tab-button.active { border-bottom: 3px solid #22c55e; color: #22c55e; font-weight: 600; }
+        .binary { font-family: ui-monospace, monospace; letter-spacing: 3px; }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen pb-12">
+<div class="max-w-6xl mx-auto px-6">
+    <!-- 顶部导航 -->
+    <header class="flex justify-between items-center py-8 border-b border-zinc-800">
+        <div class="flex items-center gap-4">
+            <div class="w-11 h-11 bg-gradient-to-br from-green-400 to-emerald-600 rounded-2xl flex items-center justify-center text-3xl shadow-lg">🌐</div>
+            <div>
+                <h1 class="text-3xl font-bold">子网划分大师</h1>
+                <p class="text-emerald-400 text-sm -mt-1">IPv4 互动学习平台</p>
+            </div>
+        </div>
+        <div class="flex gap-8 text-lg">
+            <button onclick="showTab('home')" id="btn-home" class="tab-button active px-5 py-2">首页</button>
+            <button onclick="showTab('tutorial')" id="btn-tutorial" class="tab-button px-5 py-2">学习中心</button>
+            <button onclick="showTab('calculator')" id="btn-calculator" class="tab-button px-5 py-2">实时计算器</button>
+            <button onclick="showTab('practice')" id="btn-practice" class="tab-button px-5 py-2">练习场</button>
+        </div>
+    </header>
+
+    <!-- 首页 -->
+    <div id="home-section" class="tab-content">
+        <div class="text-center py-20">
+            <div class="inline-flex items-center gap-3 bg-zinc-900 px-8 py-4 rounded-3xl mb-8">
+                <span class="text-5xl">🚀</span>
+                <span class="text-4xl font-bold text-emerald-400">开始掌握子网划分</span>
+            </div>
+            <p class="max-w-lg mx-auto text-xl text-zinc-400">从零基础到熟练计算，包含详细教学 + 实时计算器 + 随机练习题，即时反馈，适合 CCNA / 网络工程师备考</p>
+            <button onclick="showTab('tutorial')" class="mt-12 bg-emerald-500 hover:bg-emerald-600 text-xl px-12 py-6 rounded-3xl font-semibold flex items-center gap-3 mx-auto">
+                立即开始学习 <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 学习中心 -->
+    <div id="tutorial-section" class="tab-content hidden">
+        <h2 class="text-4xl font-bold mb-10 flex items-center gap-4"><i class="fa-solid fa-graduation-cap text-emerald-400"></i>学习中心</h2>
+        
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="space-y-8">
+                <div class="bg-zinc-900 rounded-3xl p-8">
+                    <h3 class="text-2xl font-semibold mb-6">1. IPv4 基础知识</h3>
+                    <div class="prose prose-invert">
+                        <p>IPv4 地址共 32 位，由 4 个 8 位组（octet）组成，用点分十进制表示。</p>
+                        <div class="bg-black p-6 rounded-2xl my-6 font-mono text-emerald-300">
+                            示例：192.168.10.45<br>
+                            二进制：11000000.10101000.00001010.00101101
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-zinc-900 rounded-3xl p-8">
+                    <h3 class="text-2xl font-semibold mb-6">3. 快速计算口诀</h3>
+                    <ul class="grid grid-cols-2 gap-4 text-sm">
+                        <li class="bg-zinc-800 px-5 py-4 rounded-2xl flex items-center gap-3"><span class="text-emerald-400 font-bold">2⁷</span> = 128</li>
+                        <li class="bg-zinc-800 px-5 py-4 rounded-2xl flex items-center gap-3"><span class="text-emerald-400 font-bold">2⁶</span> = 64</li>
+                        <li class="bg-zinc-800 px-5 py-4 rounded-2xl flex items-center gap-3"><span class="text-emerald-400 font-bold">2⁵</span> = 32</li>
+                        <li class="bg-zinc-800 px-5 py-4 rounded-2xl flex items-center gap-3"><span class="text-emerald-400 font-bold">2⁴</span> = 16</li>
+                        <li class="bg-zinc-800 px-5 py-4 rounded-2xl flex items-center gap-3"><span class="text-emerald-400 font-bold">2³</span> = 8</li>
+                        <li class="bg-zinc-800 px-5 py-4 rounded-2xl flex items-center gap-3"><span class="text-emerald-400 font-bold">2²</span> = 4</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-zinc-900 rounded-3xl p-8">
+                <h3 class="text-2xl font-semibold mb-6">2. 子网掩码速查表</h3>
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-zinc-700">
+                            <th class="py-3 px-4">CIDR</th>
+                            <th class="py-3 px-4">子网掩码</th>
+                            <th class="py-3 px-4 text-right">可用主机数</th>
+                        </tr>
+                    </thead>
+                    <tbody class="font-mono divide-y divide-zinc-800">
+                        <tr><td class="py-3 px-4">/16</td><td class="py-3 px-4">255.255.0.0</td><td class="py-3 px-4 text-right">65,534</td></tr>
+                        <tr><td class="py-3 px-4">/20</td><td class="py-3 px-4">255.255.240.0</td><td class="py-3 px-4 text-right">4,094</td></tr>
+                        <tr><td class="py-3 px-4">/24</td><td class="py-3 px-4">255.255.255.0</td><td class="py-3 px-4 text-right">254</td></tr>
+                        <tr><td class="py-3 px-4">/25</td><td class="py-3 px-4">255.255.255.128</td><td class="py-3 px-4 text-right">126</td></tr>
+                        <tr><td class="py-3 px-4">/27</td><td class="py-3 px-4">255.255.255.224</td><td class="py-3 px-4 text-right">30</td></tr>
+                        <tr><td class="py-3 px-4">/28</td><td class="py-3 px-4">255.255.255.240</td><td class="py-3 px-4 text-right">14</td></tr>
+                        <tr><td class="py-3 px-4">/30</td><td class="py-3 px-4">255.255.255.252</td><td class="py-3 px-4 text-right">2</td></tr>
+                    </tbody>
+                </table>
+                <p class="text-xs text-zinc-500 mt-6">主机数公式：2^(32-CIDR) - 2</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 实时计算器 -->
+    <div id="calculator-section" class="tab-content hidden">
+        <div class="flex flex-col lg:flex-row gap-10">
+            <!-- 输入区 -->
+            <div class="lg:w-96 bg-zinc-900 rounded-3xl p-8">
+                <h2 class="text-3xl font-bold mb-8">实时子网计算器</h2>
+                <div class="space-y-8">
+                    <div>
+                        <label class="block text-zinc-400 mb-2 text-sm">IP 地址</label>
+                        <input id="calc-ip" type="text" value="192.168.10.45" 
+                               class="w-full bg-zinc-800 border border-zinc-700 focus:border-emerald-500 rounded-2xl px-6 py-5 text-xl font-mono outline-none"
+                               oninput="liveCalculate()">
+                    </div>
+                    <div>
+                        <label class="block text-zinc-400 mb-2 text-sm">前缀长度 <span id="prefix-val" class="text-emerald-400 font-bold">/24</span></label>
+                        <input id="calc-prefix" type="range" min="8" max="32" value="24" step="1"
+                               class="w-full accent-emerald-500" oninput="updatePrefix(this); liveCalculate()">
+                    </div>
+                </div>
+                <div class="mt-10 text-xs text-zinc-500">输入任意主机IP，实时显示子网信息</div>
+            </div>
+
+            <!-- 结果区 -->
+            <div class="flex-1 bg-zinc-900 rounded-3xl p-8">
+                <div class="flex justify-between items-baseline mb-8">
+                    <h3 class="text-2xl font-semibold">计算结果</h3>
+                    <span id="calc-cidr" class="text-4xl font-mono text-emerald-400"></span>
+                </div>
+
+                <div id="calc-result-grid" class="grid grid-cols-2 gap-6"></div>
+
+                <div id="binary-section" class="mt-12 pt-8 border-t border-zinc-700 hidden">
+                    <p class="text-zinc-400 text-sm mb-4">二进制可视化</p>
+                    <div class="flex gap-12 font-mono text-sm">
+                        <div>
+                            <div class="text-emerald-400 text-xs mb-1">IP 地址</div>
+                            <div id="bin-ip" class="binary text-emerald-300"></div>
+                        </div>
+                        <div>
+                            <div class="text-amber-400 text-xs mb-1">子网掩码</div>
+                            <div id="bin-mask" class="binary text-amber-300"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 练习场 -->
+    <div id="practice-section" class="tab-content hidden">
+        <div class="flex justify-between mb-8 items-end">
+            <h2 class="text-3xl font-bold">练习场 <span class="text-sm font-normal text-zinc-400">随机生成 · 即时反馈</span></h2>
+            <div class="flex gap-3">
+                <button onclick="generateNewPractice()" class="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 px-6 py-3 rounded-2xl">
+                    <i class="fa-solid fa-rotate"></i> 新题目
+                </button>
+                <button onclick="showCorrectAnswers()" class="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 px-6 py-3 rounded-2xl">
+                    <i class="fa-solid fa-eye"></i> 显示答案
+                </button>
+            </div>
+        </div>
+
+        <div id="practice-card" class="bg-zinc-900 rounded-3xl p-10">
+            <div class="text-center mb-10">
+                <div class="inline-block bg-zinc-800 rounded-3xl px-10 py-4 text-xl font-mono">
+                    题目：<span id="practice-cidr" class="text-emerald-400"></span>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-x-12 gap-y-8">
+                <div class="space-y-8">
+                    <div>
+                        <label class="text-zinc-400 block mb-2">网络地址</label>
+                        <input id="ans-net" class="w-full bg-zinc-800 border border-transparent focus:border-emerald-500 rounded-2xl px-6 py-4 font-mono text-lg" placeholder="192.168.10.0">
+                    </div>
+                    <div>
+                        <label class="text-zinc-400 block mb-2">广播地址</label>
+                        <input id="ans-bcast" class="w-full bg-zinc-800 border border-transparent focus:border-emerald-500 rounded-2xl px-6 py-4 font-mono text-lg" placeholder="192.168.10.255">
+                    </div>
+                    <div>
+                        <label class="text-zinc-400 block mb-2">第一可用主机</label>
+                        <input id="ans-first" class="w-full bg-zinc-800 border border-transparent focus:border-emerald-500 rounded-2xl px-6 py-4 font-mono text-lg" placeholder="192.168.10.1">
+                    </div>
+                </div>
+                <div class="space-y-8">
+                    <div>
+                        <label class="text-zinc-400 block mb-2">子网掩码</label>
+                        <input id="ans-mask" class="w-full bg-zinc-800 border border-transparent focus:border-emerald-500 rounded-2xl px-6 py-4 font-mono text-lg" placeholder="255.255.255.0">
+                    </div>
+                    <div>
+                        <label class="text-zinc-400 block mb-2">可用主机数量</label>
+                        <input id="ans-hosts" type="number" class="w-full bg-zinc-800 border border-transparent focus:border-emerald-500 rounded-2xl px-6 py-4 font-mono text-lg" placeholder="254">
+                    </div>
+                    <div>
+                        <label class="text-zinc-400 block mb-2">最后可用主机</label>
+                        <input id="ans-last" class="w-full bg-zinc-800 border border-transparent focus:border-emerald-500 rounded-2xl px-6 py-4 font-mono text-lg" placeholder="192.168.10.254">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-4 justify-center mt-12">
+                <button onclick="checkAnswers()" class="bg-emerald-500 hover:bg-emerald-600 font-semibold text-xl px-16 py-5 rounded-3xl">提交答案</button>
+            </div>
+
+            <div id="feedback" class="mt-8 text-center text-2xl font-medium hidden"></div>
+        </div>
+
+        <div class="text-center mt-6">
+            <span class="text-emerald-400 font-mono text-xl" id="score-display">0 / 0</span>
+            <span class="text-zinc-500 text-sm ml-3">本轮得分</span>
+        </div>
+    </div>
+</div>
+
+<script>
+// ==================== 核心计算函数 ====================
+function ipToInt(ip) {
+    return ip.split('.').reduce((acc, x) => (acc << 8) | parseInt(x), 0) >>> 0;
+}
+
+function intToIp(n) {
+    return [(n >> 24) & 255, (n >> 16) & 255, (n >> 8) & 255, n & 255].join('.');
+}
+
+function calculate(ipStr, prefix) {
+    const ip = ipToInt(ipStr);
+    const mask = (0xffffffff << (32 - prefix)) >>> 0;
+    const network = ip & mask;
+    const broadcast = network | (~mask >>> 0);
+
+    let hosts = (1 << (32 - prefix)) - 2;
+    if (prefix >= 31) hosts = 0;
+
+    return {
+        network: intToIp(network),
+        broadcast: intToIp(broadcast),
+        first: prefix === 32 ? intToIp(network) : intToIp(network + 1),
+        last: prefix === 32 ? intToIp(network) : intToIp(broadcast - 1),
+        hosts: Math.max(0, hosts),
+        mask: intToIp(mask)
+    };
+}
+
+// ==================== Tab 切换 ====================
+function showTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    document.getElementById(tab + '-section').classList.remove('hidden');
+
+    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-' + tab).classList.add('active');
+
+    if (tab === 'calculator') liveCalculate();
+    if (tab === 'practice' && !currentPractice) generateNewPractice();
+}
+
+// ==================== 计算器 ====================
+function updatePrefix(slider) {
+    document.getElementById('prefix-val').textContent = '/' + slider.value;
+}
+
+function liveCalculate() {
+    const ip = document.getElementById('calc-ip').value.trim();
+    const prefix = parseInt(document.getElementById('calc-prefix').value);
+
+    if (!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)) return;
+
+    const res = calculate(ip, prefix);
+
+    const grid = document.getElementById('calc-result-grid');
+    grid.innerHTML = `
+        <div class="bg-zinc-800 rounded-2xl p-6">
+            <div class="text-zinc-400 text-xs">网络地址</div>
+            <div class="font-mono text-3xl mt-1">${res.network}</div>
+        </div>
+        <div class="bg-zinc-800 rounded-2xl p-6">
+            <div class="text-zinc-400 text-xs">广播地址</div>
+            <div class="font-mono text-3xl mt-1">${res.broadcast}</div>
+        </div>
+        <div class="bg-zinc-800 rounded-2xl p-6">
+            <div class="text-zinc-400 text-xs">可用主机范围</div>
+            <div class="font-mono text-xl mt-1">${res.first} ─ ${res.last}</div>
+        </div>
+        <div class="bg-zinc-800 rounded-2xl p-6">
+            <div class="text-zinc-400 text-xs">可用主机数</div>
+            <div class="font-mono text-4xl text-emerald-400 mt-1">${res.hosts}</div>
+        </div>
+        <div class="bg-zinc-800 rounded-2xl p-6 col-span-2">
+            <div class="text-zinc-400 text-xs">子网掩码</div>
+            <div class="font-mono text-2xl">${res.mask}</div>
+        </div>
+    `;
+
+    // 二进制显示
+    const binIp = ip.split('.').map(o => parseInt(o).toString(2).padStart(8,'0')).join('.');
+    const binMask = res.mask.split('.').map(o => parseInt(o).toString(2).padStart(8,'0')).join('.');
+    document.getElementById('bin-ip').textContent = binIp;
+    document.getElementById('bin-mask').textContent = binMask;
+    document.getElementById('binary-section').classList.remove('hidden');
+    document.getElementById('calc-cidr').textContent = `/${prefix}`;
+}
+
+// ==================== 练习场 ====================
+let currentPractice = null;
+let totalCorrect = 0, totalQuestions = 0;
+
+function getRandomPrivateIP() {
+    const r = Math.random();
+    if (r < 0.33) return `10.${Math.floor(Math.random()*256)}.${Math.floor(Math.random()*256)}.${Math.floor(Math.random()*256)}`;
+    if (r < 0.66) return `172.${16+Math.floor(Math.random()*16)}.${Math.floor(Math.random()*256)}.${Math.floor(Math.random()*256)}`;
+    return `192.168.${Math.floor(Math.random()*256)}.${Math.floor(Math.random()*256)}`;
+}
+
+function generateNewPractice() {
+    const ip = getRandomPrivateIP();
+    const prefix = 16 + Math.floor(Math.random() * 13); // 16~28
+    currentPractice = { ip, prefix, ...calculate(ip, prefix) };
+
+    document.getElementById('practice-cidr').innerHTML = `<span class="text-white">${ip}</span><span class="text-emerald-400">/${prefix}</span>`;
+
+    // 清空输入
+    ['ans-net','ans-bcast','ans-first','ans-mask','ans-hosts','ans-last'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    document.getElementById('feedback').classList.add('hidden');
+}
+
+function checkAnswers() {
+    if (!currentPractice) return;
+    const user = {
+        net: document.getElementById('ans-net').value.trim(),
+        bcast: document.getElementById('ans-bcast').value.trim(),
+        first: document.getElementById('ans-first').value.trim(),
+        mask: document.getElementById('ans-mask').value.trim(),
+        hosts: parseInt(document.getElementById('ans-hosts').value),
+        last: document.getElementById('ans-last').value.trim()
+    };
+
+    let correct = 0;
+    if (user.net === currentPractice.network) correct++;
+    if (user.bcast === currentPractice.broadcast) correct++;
+    if (user.first === currentPractice.first) correct++;
+    if (user.mask === currentPractice.mask) correct++;
+    if (user.hosts === currentPractice.hosts) correct++;
+    if (user.last === currentPractice.last) correct++;
+
+    totalCorrect += correct;
+    totalQuestions += 6;
+    document.getElementById('score-display').textContent = `${totalCorrect} / ${totalQuestions}`;
+
+    const fb = document.getElementById('feedback');
+    fb.classList.remove('hidden');
+    if (correct === 6) {
+        fb.innerHTML = `<span class="text-emerald-400">🎉 全部正确！太棒了！</span>`;
+    } else {
+        fb.innerHTML = `本次正确 <span class="text-emerald-400">${correct}/6</span><br><span class="text-sm text-zinc-400">点击“显示答案”查看正确值</span>`;
+    }
+}
+
+function showCorrectAnswers() {
+    if (!currentPractice) return;
+    document.getElementById('ans-net').value = currentPractice.network;
+    document.getElementById('ans-bcast').value = currentPractice.broadcast;
+    document.getElementById('ans-first').value = currentPractice.first;
+    document.getElementById('ans-mask').value = currentPractice.mask;
+    document.getElementById('ans-hosts').value = currentPractice.hosts;
+    document.getElementById('ans-last').value = currentPractice.last;
+}
+
+// ==================== 初始化 ====================
+window.onload = () => {
+    showTab('home');
+    // 预热计算器
+    setTimeout(() => {
+        if (document.getElementById('calculator-section').classList.contains('hidden') === false) liveCalculate();
+    }, 800);
+};
+</script>
+</body>
+</html>
