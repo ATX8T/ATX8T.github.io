@@ -4,5 +4,15 @@ GitHub Pages 不支持跨仓库直接引用私有仓库的资源，但支持跨�
 公开仓库：你可以在一个 Pages 站点中通过 URL 直接引用另一个公开仓库的图片、JS、CSS html  hexo等资源。例如：
 ```
 <img src="https://用户名.github.io/另一个仓库名/路径/图片.png">
+
+https://atx8t.github.io/
+https://github.com/ATX8T/SoftwareDownload/blob/main/index.html
+
+组合
+https://ATX8T.github.io/SoftwareDownload/index.html
+
 ```
 私有仓库：即使你有权限，GitHub Pages 也不会公开私有仓库的资源，无法跨仓库引用。
+
+
+[跨仓库列子：](https://github.com/ATX8T/SoftwareDownload)
