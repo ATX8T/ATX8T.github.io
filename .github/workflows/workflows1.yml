@@ -1,5 +1,4 @@
-name: Extract Navigation Links
-
+name: 提取导航链接
 on:
   push:
     paths:
