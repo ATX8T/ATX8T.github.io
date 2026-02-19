@@ -3,6 +3,19 @@
 - https://atx8t.github.io/
 
 
+# GitHub中Markdown的图床实现功能
+- [GitHub中Markdown的图床实现功能](Imge/README.md)
+
+
+
+
+
+
+
+
+
+
+
 
 # 在GitHub Pages中使用GitHub做图床 并且在GitHub Pages实现
 - 在根目录的 README 中显示仓库中的图片方法
