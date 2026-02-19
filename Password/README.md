@@ -1,5 +1,5 @@
 # 随机密码项目
-- [随机密码项目资源地址](Password/index.html)
+实现方式
 - 要改链接形式
 ```
 原来链接---就是在GitHub上资源地址---浏览器地址
@@ -11,4 +11,4 @@ https://atx8t.github.io/Password/index.html
 [随机密码项目](https://atx8t.github.io/Password/index.html)
 ```
 - 可以打开页面的地址====随机密码项目
-- 🔐 [密码生成器](https://atx8t.github.io/Password/index.html)
+- 🔐 [打开预览](https://atx8t.github.io/Password/index.html)
