@@ -8,6 +8,9 @@
 # 在HTML中播放GitHub上的mp4
 - [在HTML中播放GitHub上的mp4](Resource/mp4/mp4.html)
 
+# 随机密码项目
+[随机密码项目](Password/index.html)
+
 
 
 
