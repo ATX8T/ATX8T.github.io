@@ -24,7 +24,8 @@ https://atx8t.github.io/Password/index.html
 - [随机密码项目](https://atx8t.github.io/Password/index.html)
 
 # 下载功能
-- [text](Resource/apk/Download.html)
+- [随机密码项目](https://atx8t.github.io/Resource/apk/Download.html)
+
 
 
 
