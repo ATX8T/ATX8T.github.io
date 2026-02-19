@@ -1,0 +1,59 @@
+name: Extract NavigationBar Links
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  extract-links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Extract Links from md files (with exclude dirs)
+        run: |
+          mkdir -p scripts
+          cat << EOF > scripts/extract_nav_links.py
+import os
+import re
+
+out_path = "NavigationBar.txt"
+pattern = re.compile(r'- \\[直接打开\\]\\(([^)]+)\\)')
+result = set()
+# 在这里添加要排除的文件夹
+exclude_dirs = ['bootstrap537', 'AllTests']  # <<<<<<<<<< 在此处添加排除的目录
+
+for root, dirs, files in os.walk('.'):
+    # 排除指定目录
+    dirs[:] = [d for d in dirs if d not in exclude_dirs]
+    for file in files:
+        if file.lower().endswith('.md'):
+            path = os.path.join(root, file)
+            with open(path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    match = pattern.search(line)
+                    if match:
+                        result.add(match.group(1))
+
+with open(out_path, 'w', encoding='utf-8') as out_f:
+    for url in sorted(result):
+        out_f.write(url + '\\n')
+EOF
+
+          python3 scripts/extract_nav_links.py
+
+      - name: Commit and push NavigationBar.txt
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add NavigationBar.txt
+          git diff --cached --quiet && echo "No changes to commit" || git commit -m "Update NavigationBar.txt via workflow"
+          git diff --cached --quiet || git push
