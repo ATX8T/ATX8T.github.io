@@ -3,87 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APK下载页面</title>
-    <link rel="stylesheet" href="../../bootstrap537/css/bootstrap.min.css">
+    <title>APK下载中心</title>
     <style>
-        .download-box {
-            background: rgba(255,255,255,0.9);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            max-width: 500px;
-            margin: 0 auto;
+        /* 极简样式 - 仅保留核心下载按钮和页面基础布局 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #f5f5f5;
+            font-family: Arial, sans-serif;
+        }
+
+        .download-container {
+            background: white;
+            padding: 40px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
         .download-btn {
-            font-size: 1.2rem;
-            padding: 12px 0;
+            background: linear-gradient(to right, #2196F3, #1976D2);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(33, 150, 243, 0.3);
+        }
+
+        .download-btn:active {
+            transform: translateY(0);
         }
     </style>
 </head>
-<body class="bg-light min-vh-100 d-flex align-items-center py-5">
-    <div class="container">
-        <div class="download-box p-5">
-            <h1 class="mb-4 text-center">📱 TapTap APK 下载</h1>
-            
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">文件信息</h5>
-                    <p class="card-text">文件名：taptap.apk</p>
-                    <p class="card-text">来源：GitHub 资源库</p>
-                    <p class="card-text text-muted">请确保在下载后检查文件安全性</p>
-                </div>
-            </div>
-
-            <div class="d-grid gap-3">
-                <button class="btn btn-primary btn-lg download-btn" onclick="downloadAPK()">
-                    📥 点击下载 APK 文件
-                </button>
-                <button class="btn btn-outline-secondary btn-lg" onclick="openSourcePage()">
-                    🔗 查看源文件页面
-                </button>
-            </div>
-
-            <!-- 下载状态提示 -->
-            <div class="alert alert-success mt-4 d-none" id="successAlert" role="alert">
-                下载已开始！如果没有自动开始，请点击下方链接手动下载
-                <a href="https://github.com/ATX8T/ATX8T.github.io/blob/main/Resource/apk/taptap.apk" 
-                   class="alert-link" target="_blank">手动下载</a>
-            </div>
-        </div>
+<body>
+    <div class="download-container">
+        <h1>📱 APK下载</h1>
+        <!-- 核心下载按钮 - 替换为你的实际APK下载链接 -->
+        <button class="download-btn" onclick="window.location.href='https://atx8t.github.io/SoftwareDownload/AndroidApp/Telegram(1).apk'">
+            立即下载安装包
+        </button>
     </div>
-
-
-    
-    <script>
-        // 处理APK下载逻辑
-        function downloadAPK() {
-            // GitHub原始文件地址（blob地址需要转换为raw地址才能直接下载）
-            const rawDownloadUrl = 'https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/Resource/apk/taptap.apk';
-            
-            // 创建隐藏的下载链接
-            const link = document.createElement('a');
-            link.href = rawDownloadUrl;
-            link.download = 'taptap.apk'; // 指定下载的文件名
-            link.target = '_blank';
-            
-            // 触发点击
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // 显示成功提示
-            const alert = document.getElementById('successAlert');
-            alert.classList.remove('d-none');
-            
-            // 3秒后自动隐藏提示
-            setTimeout(() => {
-                alert.classList.add('d-none');
-            }, 5000);
-        }
-
-        // 打开源文件页面
-        function openSourcePage() {
-            window.open('https://github.com/ATX8T/ATX8T.github.io/blob/main/Resource/apk/taptap.apk', '_blank');
-        }
-    </script>
 </body>
 </html>
