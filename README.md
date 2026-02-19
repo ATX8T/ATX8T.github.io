@@ -21,7 +21,7 @@ https://atx8t.github.io/Password/index.html
 [随机密码项目](https://atx8t.github.io/Password/index.html)
 ```
 - 可以打开页面的地址====随机密码项目
-- - 🔐 [密码生成器](https://atx8t.github.io/Password/index.html)
+- 🔐 [密码生成器](https://atx8t.github.io/Password/index.html)
 
 # 下载功能
 - 📱 [APK 下载页面](https://atx8t.github.io/Resource/apk/Download.html)
