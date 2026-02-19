@@ -38,18 +38,21 @@
             font-size: 24px;
         }
 
-        .download-btn {
-            background: linear-gradient(to right, #2196F3, #1976D2);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            width: 100%;
-        }
+.download-btn {
+    display: inline-block; /* 关键：让a标签支持宽高/内边距 */
+    background: linear-gradient(to right, #2196F3, #1976D2);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    width: 100%;
+    text-align: center; /* 文字居中 */
+    text-decoration: none; /* 去掉下划线 */
+    border: none; /* 去掉默认边框 */
+}
 
         .download-btn:hover {
             transform: translateY(-2px);
@@ -62,12 +65,15 @@
     </style>
 </head>
 <body>
-    <div class="download-container">
-        <h1>📱 APK下载</h1>
-        <!-- 核心下载按钮 - 替换为你的实际APK下载链接 -->
-        <button class="download-btn" onclick="window.location.href='https://atx8t.github.io/Resource/apk/taptap.apk'">
-            立即下载安装包
-        </button>
-    </div>
+<div class="download-container">
+    <h1>📱 APK下载</h1>
+    <!-- 用a标签替代button，强制指定下载文件名 -->
+    <a href="https://atx8t.github.io/Resource/apk/taptap.apk" 
+       class="download-btn" 
+       download="taptap.apk"
+       style="text-decoration: none; color: white;">
+        立即下载安装包
+    </a>
+</div>
 </body>
 </html>
