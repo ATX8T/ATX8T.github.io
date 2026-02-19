@@ -10,7 +10,7 @@
 
 # 随机密码项目
 [随机密码项目](Password/index.html)
-
+- 部署到 GitHub Pages 等在线平台需要用在线地址
 
 
 
