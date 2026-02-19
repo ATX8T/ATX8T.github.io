@@ -1,59 +1,56 @@
-name: Extract "直接打开" Links to NavigationBar.txt
+name: Extract Navigation Links
 
-# 触发条件：推送到任意分支时执行；并支持手动触发
 on:
   push:
-    branches: [ "**" ]
-  workflow_dispatch:
-
-# 允许工作流在需要时写入仓库（用于自动提交）
-permissions:
-  contents: write
+    paths:
+      - '**/*.md'
+  workflow_dispatch: {}
 
 jobs:
-  extract-links:
+  extract:
     runs-on: ubuntu-latest
+
     steps:
-      # 1. 检出仓库代码
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 确保能获取所有历史（可选，根据需求）
-          persist-credentials: true
+          fetch-depth: 0
 
-      # 2. 安装依赖（Ubuntu 内置 awk/grep，无需额外安装）
-      - name: Setup environment
+      - name: Extract links from Markdown files
         run: |
-          sudo apt-get update && sudo apt-get install -y dos2unix  # 处理换行符兼容
+          set -euo pipefail
+          out="NavigationBar/NavigationBar.txt"
+          mkdir -p NavigationBar
+          > "$out"
 
-      # 3. 遍历MD文件，提取链接并写入目标文件
-      - name: Extract links from MD files
+          # Iterate over all tracked .md files
+          while IFS= read -r -d '' file; do
+            awk '{
+              if ($0 ~ /直接打开/) {
+                if (match($0, /(https?:\/\/[^ )\t\"]+)/, m)) {
+                  print m[1]
+                } else {
+                  if (getline > 0) {
+                    if (match($0, /(https?:\/\/[^ )\t\"]+)/, m2)) print m2[1]
+                  }
+                }
+              }
+            }' "$file" >> "$out"
+          done < <(git ls-files -z -- '*.md')
+
+          # Deduplicate while preserving order
+          if [ -f "$out" ]; then
+            awk '!seen[$0]++' "$out" > "$out.tmp" && mv "$out.tmp" "$out"
+          fi
+
+      - name: Commit and push NavigationBar
         run: |
-          # 定义目标文件路径（仓库根下 NavigationBar 目录）
-          TARGET_FILE="NavigationBar/NavigationBar.txt"
-          
-          # 创建目标目录（如果不存在）
-          mkdir -p $(dirname "$TARGET_FILE")
-          
-          # 清空目标文件（避免历史内容残留）
-          > "$TARGET_FILE"
-          
-          # 遍历所有.md文件，提取 "- 直接打开 (链接)" 格式的链接
-          # 解释：
-          # - find . -name "*.md"：遍历所有md文件
-          # - grep -oP '- 直接打开 \(\K[^)]+'：匹配 "- 直接打开 (xxx)" 并提取括号内的xxx
-          # - dos2unix：统一换行符为LF（兼容Windows/Mac）
-          # - sort -u：可选，去重（根据需求决定是否保留）
-          find . -type f -name "*.md" -exec grep -oP '- 直接打开 \(\K[^)]+' {} \; | dos2unix | sort -u >> "$TARGET_FILE"
-          
-          # 输出验证（可选）
-          echo "提取的链接列表："
-          cat "$TARGET_FILE"
-
-      # 4. 提交并推送修改后的文件到仓库
-      - name: Commit and push changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: update NavigationBar.txt with extracted links"
-          file_pattern: "NavigationBar/NavigationBar.txt"
-          branch: ${{ github.ref_name }}  # 推送到触发工作流的分支
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add NavigationBar/NavigationBar.txt || true
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update NavigationBar links"
+            git push
+          fi
