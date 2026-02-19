@@ -65,9 +65,11 @@
     </style>
 </head>
 <body>
+
+<!-- 极简下载页面，核心功能是提供APK下载链接 -->
 <div class="download-container">
     <h1>📱 APK下载</h1>
-    <!-- 用a标签替代button，强制指定下载文件名 -->
+    <!-- 直接用 a 标签 + download 属性强制指定文件名（彻底避免缓存 / 路径问题），替换按钮代码 -->
     <a href="https://atx8t.github.io/Resource/apk/taptap.apk" 
        class="download-btn" 
        download="taptap.apk"
@@ -75,5 +77,7 @@
         立即下载安装包
     </a>
 </div>
+
+
 </body>
 </html>
