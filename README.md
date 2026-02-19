@@ -8,6 +8,7 @@
 - [在HTML中播放GitHub上的mp4](Resource/mp4/README.md)
 - [随机密码项目资源地址](Password/README.md)
 - [下载功能](Resource/apk/README.md)
+- [Cloudflare图床功能](Cloudflare/README.md)
 
 
 
