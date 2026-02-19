@@ -1,0 +1,2 @@
+- [实现代码](mp4.html)
+- [直接打开](https://atx8t.github.io/Resource/mp4/mp4.html)

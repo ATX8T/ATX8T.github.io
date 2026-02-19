@@ -1,0 +1,2 @@
+[实现代码](Download.html)
+- [APK 下载页面直接打开](https://atx8t.github.io/Resource/apk/Download.html)
