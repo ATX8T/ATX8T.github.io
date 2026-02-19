@@ -1,59 +1,53 @@
-name: Extract NavigationBar Links
+name: Extract "直接打开" Links to NavigationBar.txt
 
+# 触发条件：推送到任意分支时执行
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [ "**" ]
 
 jobs:
   extract-links:
     runs-on: ubuntu-latest
     steps:
+      # 1. 检出仓库代码
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          fetch-depth: 0  # 确保能获取所有历史（可选，根据需求）
 
-      - name: Extract Links from md files (with exclude dirs)
+      # 2. 安装依赖（Ubuntu 内置 awk/grep，无需额外安装）
+      - name: Setup environment
         run: |
-          mkdir -p scripts
-          cat << EOF > scripts/extract_nav_links.py
-import os
-import re
+          sudo apt-get update && sudo apt-get install -y dos2unix  # 处理换行符兼容
 
-out_path = "NavigationBar.txt"
-pattern = re.compile(r'- \\[直接打开\\]\\(([^)]+)\\)')
-result = set()
-# 在这里添加要排除的文件夹
-exclude_dirs = ['bootstrap537', 'AllTests']  # <<<<<<<<<< 在此处添加排除的目录
-
-for root, dirs, files in os.walk('.'):
-    # 排除指定目录
-    dirs[:] = [d for d in dirs if d not in exclude_dirs]
-    for file in files:
-        if file.lower().endswith('.md'):
-            path = os.path.join(root, file)
-            with open(path, 'r', encoding='utf-8') as f:
-                for line in f:
-                    match = pattern.search(line)
-                    if match:
-                        result.add(match.group(1))
-
-with open(out_path, 'w', encoding='utf-8') as out_f:
-    for url in sorted(result):
-        out_f.write(url + '\\n')
-EOF
-
-          python3 scripts/extract_nav_links.py
-
-      - name: Commit and push NavigationBar.txt
+      # 3. 遍历MD文件，提取链接并写入目标文件
+      - name: Extract links from MD files
         run: |
-          git config --local user.name "github-actions[bot]"
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add NavigationBar.txt
-          git diff --cached --quiet && echo "No changes to commit" || git commit -m "Update NavigationBar.txt via workflow"
-          git diff --cached --quiet || git push
+          # 定义目标文件路径
+          TARGET_FILE="ATX8T.github.io/NavigationBar/NavigationBar.txt"
+          
+          # 创建目标目录（如果不存在）
+          mkdir -p $(dirname "$TARGET_FILE")
+          
+          # 清空目标文件（避免历史内容残留）
+          > "$TARGET_FILE"
+          
+          # 遍历所有.md文件，提取 "- 直接打开 (链接)" 格式的链接
+          # 解释：
+          # - find . -name "*.md"：遍历所有md文件
+          # - grep -oP '- 直接打开 \(\K[^)]+'：匹配 "- 直接打开 (xxx)" 并提取括号内的xxx
+          # - dos2unix：统一换行符为LF（兼容Windows/Mac）
+          # - sort -u：可选，去重（根据需求决定是否保留）
+          find . -type f -name "*.md" -exec grep -oP '- 直接打开 \(\K[^)]+' {} \; | dos2unix | sort -u >> "$TARGET_FILE"
+          
+          # 输出验证（可选）
+          echo "提取的链接列表："
+          cat "$TARGET_FILE"
+
+      # 4. 提交并推送修改后的文件到仓库
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update NavigationBar.txt with extracted links"
+          file_pattern: "ATX8T.github.io/NavigationBar/NavigationBar.txt"
+          branch: ${{ github.ref_name }}  # 推送到触发工作流的分支
