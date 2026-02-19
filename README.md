@@ -13,15 +13,6 @@
 
 
 
-
-
-
-
-# 在GitHub Pages中使用GitHub做图床 并且在GitHub Pages实现
-- 在根目录的 README 中显示仓库中的图片方法
-![GitHub Pages 预览图片](/Imge/githubpage.png)
-
-
 # 项目规则
 - ATX8T.github.io 根目录，根目录下有唯一的一个index.html与README.md 作为根index.html与README.md
 - ATX8T.github.io 下面的每一个文件夹为一个单独的项目文件
