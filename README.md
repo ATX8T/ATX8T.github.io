@@ -3,8 +3,9 @@
 - https://atx8t.github.io/
 
 
-# GitHub中Markdown的图床实现功能
-- [GitHub中Markdown的图床实现功能](Imge/README.md)
+# 点击  GitHub中Markdown的图床实现功能
+- [GitHub中Markdown的图床实现功能](Resource/README.md)
+
 
 
 

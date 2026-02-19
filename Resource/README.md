@@ -9,5 +9,6 @@ IntroductionInfo：用来存放图片资源
 ![初音未来.png](ImgRes/初音未来.png)
 ```
 
+- 使用VS code快捷实现
 ![GitHub图床1](ImgRes/githubpage.png)
 ![初音未来.png](ImgRes/初音未来.png)
