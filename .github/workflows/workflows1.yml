@@ -1,9 +1,14 @@
 name: Extract "直接打开" Links to NavigationBar.txt
 
-# 触发条件：推送到任意分支时执行
+# 触发条件：推送到任意分支时执行；并支持手动触发
 on:
   push:
     branches: [ "**" ]
+  workflow_dispatch:
+
+# 允许工作流在需要时写入仓库（用于自动提交）
+permissions:
+  contents: write
 
 jobs:
   extract-links:
@@ -14,6 +19,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # 确保能获取所有历史（可选，根据需求）
+          persist-credentials: true
 
       # 2. 安装依赖（Ubuntu 内置 awk/grep，无需额外安装）
       - name: Setup environment
@@ -23,8 +29,8 @@ jobs:
       # 3. 遍历MD文件，提取链接并写入目标文件
       - name: Extract links from MD files
         run: |
-          # 定义目标文件路径
-          TARGET_FILE="ATX8T.github.io/NavigationBar/NavigationBar.txt"
+          # 定义目标文件路径（仓库根下 NavigationBar 目录）
+          TARGET_FILE="NavigationBar/NavigationBar.txt"
           
           # 创建目标目录（如果不存在）
           mkdir -p $(dirname "$TARGET_FILE")
@@ -49,5 +55,5 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: update NavigationBar.txt with extracted links"
-          file_pattern: "ATX8T.github.io/NavigationBar/NavigationBar.txt"
+          file_pattern: "NavigationBar/NavigationBar.txt"
           branch: ${{ github.ref_name }}  # 推送到触发工作流的分支
