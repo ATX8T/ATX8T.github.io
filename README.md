@@ -16,7 +16,7 @@
 | 🎬 视频播放器 | [查看文档](Resource/mp4/README.md) |
 | 📦 文件下载服务 | [查看文档](Resource/apk/README.md) |
 | 📖 Hexo博客 | [查看文档](Hexo/README.md) |
-
+| 在GitHub上的图床 | [演示](Resource/README.md) |
 ---
 
 ## 🔗 另一个账户的hexo
