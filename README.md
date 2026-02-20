@@ -20,13 +20,14 @@
 - [跨仓库作为软仓下载](https://github.com/ATX8T/SoftwareDownload)
 - [使用GitHub在线脚本运维服务器](https://github.com/ATX8T/OpenSSHorSSL)
 - [使用GitHub Actions下载Docker就像](https://github.com/ATX8T/DockerTarBuilder)
+- [在线服务器运维脚本](https://github.com/ATX8T/OpenSSHorSSL)
+
+  
+# Hexo跨仓库站点
 - [Hexo跨仓库站点源码](https://github.com/ATX8T/Hexo)
 - [Hexo跨仓库站点演示预览](https://atx8t.github.io/Hexo/)
 - [Hexo笔记](Hexo/README.md)
-
-- [在线服务器运维脚本](https://github.com/ATX8T/OpenSSHorSSL)
-  
-
+- [Hexo简化操作](Hexo/简化.md)
 
 
 
