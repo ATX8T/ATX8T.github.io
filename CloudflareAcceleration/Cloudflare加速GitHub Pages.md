@@ -1,3 +1,7 @@
+# 另一个GitHub Pages地址
+[https://chuyanzhio.github.io/](https://chuyanzhio.github.io/)
+
+# Cloudflare 加速
 - Cloudflare 可以对两个甚至更多个 GitHub Pages 站点进行加速。
 - Cloudflare 的 CDN 加速功能无法直接加速GitHub Pages中跨仓库的资源。
 
