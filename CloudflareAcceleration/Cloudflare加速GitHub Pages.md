@@ -5,3 +5,27 @@
 - 使用账户GitHub
 - ChuYanZhi3026@outlook.com
 - GitHub挂入--->cloudflare
+
+
+配置git
+```
+git config --global user.name "ChuYanZhi3026"
+git config --global user.email "ChuYanZhi3026@outlook.com"
+```
+配置_config.yml 文件
+```
+# Deployment
+## Docs: https://hexo.io/docs/one-command-deployment
+deploy:
+  type: ''
+````
+  如下
+  ```
+# Deployment
+## Docs: https://hexo.io/docs/one-command-deployment
+deploy:
+  type: git  # 部署类型为git
+  repo: https://github.com/ChuYanZhio/ChuYanZhio.github.io.git  # 你的GitHub仓库地址
+  branch: main  # 部署到的分支（GitHub Pages通常用main或master，根据你的仓库默认分支调整）
+  message: "Site updated: {{ now('YYYY-MM-DD HH:mm:ss') }}"  # 部署时的提交信息，可选
+  ```
