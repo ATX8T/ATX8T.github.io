@@ -10,12 +10,12 @@
 
 | 工具名称 | 描述 | 链接 |
 |---------|------|------|
-| 🔐 随机密码生成器 | 生成高强度随机密码，支持自定义长度、字符类型 | [访问](Password/index.html) |
-| 🌐 子网划分工具 | IP地址分类、子网掩码计算、子网划分练习 | [访问](SubnetDivision/calcul451.html) |
-| ☁️ R2 图床管理 | Cloudflare R2 存储图片批量管理 | [访问](Cloudflare/CloudflareR2Worker.html) |
-| 🖼️ 图片画廊 | 在线图片展示与链接管理 | [访问](Cloudflare/Gallery.html) |
-| 🎬 视频播放器 | 在线播放 GitHub 托管的视频 | [访问](Resource/mp4/mp4.html) |
-| 📦 文件下载 | APK 等文件资源下载服务 | [访问](Resource/apk/Download.html) |
+| 🔐 随机密码生成器 | 生成高强度随机密码，支持自定义长度、字符类型 | [文档](Password/README.md) |
+| 🌐 子网划分工具 | IP地址分类、子网掩码计算、子网划分练习 | [文档](SubnetDivision/SubnetDivision.md) |
+| ☁️ R2 图床管理 | Cloudflare R2 存储图片批量管理 | [文档](Cloudflare/README.md) |
+| 🖼️ 图片画廊 | 在线图片展示与链接管理 | [文档](Cloudflare/README.md) |
+| 🎬 视频播放器 | 在线播放 GitHub 托管的视频 | [文档](Resource/mp4/README.md) |
+| 📦 文件下载 | APK 等文件资源下载服务 | [文档](Resource/apk/README.md) |
 
 ---
 
