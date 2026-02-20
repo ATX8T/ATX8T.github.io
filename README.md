@@ -19,6 +19,13 @@
 
 ---
 
+## 🔗 另一个账户的hexo
+
+[Cloudflare加速GitHub Pages](<CloudflareAcceleration/Cloudflare加速GitHub Pages.md>)
+
+
+---
+
 ## 🔗 相关仓库
 
 | 仓库 | 描述 |
