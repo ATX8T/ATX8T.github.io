@@ -1,44 +1,78 @@
-# GitHub Pages
-- GitHub Pages的创建 从创建仓库开始 必须是用户名.github.io
-- https://atx8t.github.io/
+# ATX8T 个人工具集
 
+> 一个精心打造的在线工具集合，助力日常工作与学习。
 
-# 实现的项目列表
-- [图床项目](Resource/README.md)
-- [在HTML中播放GitHub上的mp4](Resource/mp4/README.md)
-- [随机密码项目资源地址](Password/README.md)
-- [下载功能](Resource/apk/README.md)
-- [Cloudflare图床功能](Cloudflare/README.md)
-- [子网掩码](SubnetDivision/SubnetDivision.md)
-- [GitHub Pages跨仓库](GitHubCrossRepository/README.md)
-- [GitHub Actions工作流](.github/workflows/README.md)
-- [导航栏](NavigationBar/README.md)
+🌐 **在线访问**: [https://atx8t.github.io/](https://atx8t.github.io/)
 
+---
 
+## 📦 工具列表
 
-# 跨仓库项目
-- [跨仓库作为软仓下载](https://github.com/ATX8T/SoftwareDownload)
-- [使用GitHub在线脚本运维服务器](https://github.com/ATX8T/OpenSSHorSSL)
-- [使用GitHub Actions下载Docker就像](https://github.com/ATX8T/DockerTarBuilder)
-- [在线服务器运维脚本](https://github.com/ATX8T/OpenSSHorSSL)
+| 工具名称 | 描述 | 链接 |
+|---------|------|------|
+| 🔐 随机密码生成器 | 生成高强度随机密码，支持自定义长度、字符类型 | [访问](Password/index.html) |
+| 🌐 子网划分工具 | IP地址分类、子网掩码计算、子网划分练习 | [访问](SubnetDivision/calcul451.html) |
+| ☁️ R2 图床管理 | Cloudflare R2 存储图片批量管理 | [访问](Cloudflare/CloudflareR2Worker.html) |
+| 🖼️ 图片画廊 | 在线图片展示与链接管理 | [访问](Cloudflare/Gallery.html) |
+| 🎬 视频播放器 | 在线播放 GitHub 托管的视频 | [访问](Resource/mp4/mp4.html) |
+| 📦 文件下载 | APK 等文件资源下载服务 | [访问](Resource/apk/Download.html) |
 
-  
-# Hexo跨仓库站点
-- [Hexo跨仓库站点源码](https://github.com/ATX8T/Hexo)
-- [Hexo跨仓库站点演示预览](https://atx8t.github.io/Hexo/)
-- [Hexo笔记](Hexo/README.md)
-- [Hexo简化操作](Hexo/简化.md)
+---
 
+## 🗂️ 项目结构
 
+```
+ATX8T.github.io/
+├── index.html              # 主页
+├── Password/               # 密码生成器
+│   ├── index.html          # 1.0 版本
+│   ├── index02.html        # 2.0 版本 (Windows 11 风格)
+│   └── index03.html        # 3.0 版本
+├── SubnetDivision/         # 子网划分工具
+├── Cloudflare/             # Cloudflare 相关工具
+├── Resource/               # 公共资源
+│   ├── js/                 # 公共 JS 组件
+│   ├── mp4/                # 视频播放
+│   └── apk/                # 下载服务
+├── bootstrap537/           # Bootstrap 5.3.7
+└── README.md               # 项目说明
+```
 
-# 日志
-- 2026年2月20日 自己编写hexo主题，Cloudflare加速GitHub Pages
+---
 
+## 🔗 相关仓库
 
+- [Hexo 博客源码](https://github.com/ATX8T/Hexo) - [在线预览](https://atx8t.github.io/Hexo/)
+- [软件下载仓库](https://github.com/ATX8T/SoftwareDownload)
+- [Docker 镜像构建](https://github.com/ATX8T/DockerTarBuilder)
+- [服务器运维脚本](https://github.com/ATX8T/OpenSSHorSSL)
 
+---
 
+## 📝 更新日志
 
+| 日期 | 更新内容 |
+|------|---------|
+| 2026-02-20 | 自编写 Hexo 主题，Cloudflare 加速 GitHub Pages |
+| 2026-02-20 | 全站优化：统一导航栏、SEO 优化、资源整理 |
 
+---
 
+## 🛠️ 技术栈
 
+- **前端框架**: 原生 HTML/CSS/JavaScript
+- **UI 框架**: Bootstrap 5.3.7
+- **托管平台**: GitHub Pages
+- **CDN 加速**: Cloudflare
 
+---
+
+## 📄 许可证
+
+[MIT License](LICENSE)
+
+---
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
