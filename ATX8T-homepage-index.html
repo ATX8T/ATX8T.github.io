@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATX8T - 个人工具集</title>
+    <meta name="description" content="ATX8T 个人工具集合，包含密码生成器、子网划分工具、图床管理等实用工具">
+    <meta name="keywords" content="密码生成器,子网划分,图床,工具集,ATX8T">
+    <meta name="author" content="ATX8T">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="ATX8T - 个人工具集">
+    <meta property="og:description" content="ATX8T 个人工具集合，包含密码生成器、子网划分工具、图床管理等实用工具">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://atx8t.github.io/">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a3e 100%);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(15, 15, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-brand {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: #fff;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            transition: width 0.3s;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* 背景动画 */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 浮动粒子 */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .particle.small { width: 5px; height: 5px; animation: float 6s infinite; }
+        .particle.medium { width: 10px; height: 10px; animation: float 8s infinite; }
+        .particle.large { width: 15px; height: 15px; animation: float 10s infinite; }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+        }
+
+        /* 主内容区 */
+        .main-content {
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+
+        /* Hero区域 */
+        .hero {
+            text-align: center;
+            padding: 60px 20px 40px;
+            animation: slideInDown 1s ease-out;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 25px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .avatar::before {
+            content: '🛠️';
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 20px 80px rgba(102, 126, 234, 0.5); }
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #fff;
+            margin-bottom: 15px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+        }
+
+        .description {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* 项目卡片区域 */
+        .projects-section {
+            padding: 40px 20px 80px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            color: #fff;
+            font-size: 1.8rem;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            margin: 15px auto 0;
+            border-radius: 2px;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+            animation: slideInUp 0.6s ease-out both;
+        }
+
+        .project-card:nth-child(1) { animation-delay: 0.1s; }
+        .project-card:nth-child(2) { animation-delay: 0.2s; }
+        .project-card:nth-child(3) { animation-delay: 0.3s; }
+        .project-card:nth-child(4) { animation-delay: 0.4s; }
+        .project-card:nth-child(5) { animation-delay: 0.5s; }
+        .project-card:nth-child(6) { animation-delay: 0.6s; }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(102, 126, 234, 0.5);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
+        }
+
+        .project-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .project-title {
+            color: #fff;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .project-desc {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .project-tag {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 5px 12px;
+            background: rgba(102, 126, 234, 0.2);
+            color: #a8b4ff;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        @keyframes slideInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 12px 20px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .hero {
+                padding: 40px 15px 30px;
+            }
+            
+            .projects-section {
+                padding: 30px 15px 60px;
+            }
+            
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <div class="particles" id="particles"></div>
+
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <a href="/" class="nav-brand">ATX8T</a>
+        <div class="nav-links">
+            <a href="https://github.com/ATX8T" class="nav-link" target="_blank">GitHub</a>
+            <a href="https://atx8t.github.io/Hexo/" class="nav-link">博客</a>
+            <a href="#projects" class="nav-link">工具</a>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <!-- Hero区域 -->
+        <section class="hero">
+            <div class="avatar"></div>
+            <h1>实用工具集合</h1>
+            <p class="subtitle">创意 × 技术 × 效率</p>
+            <p class="description">
+                精心打造的在线工具集，助力日常工作与学习。密码生成、网络计算、图床管理，一键搞定。
+            </p>
+        </section>
+
+        <!-- 项目卡片区域 -->
+        <section class="projects-section" id="projects">
+            <h2 class="section-title">在线工具</h2>
+            <div class="projects-grid">
+                <a href="Password/index.html" class="project-card">
+                    <div class="project-icon">🔐</div>
+                    <h3 class="project-title">随机密码生成器</h3>
+                    <p class="project-desc">生成高强度随机密码，支持自定义长度、字符类型，无重复字符设计</p>
+                    <span class="project-tag">安全工具</span>
+                </a>
+
+                <a href="SubnetDivision/calcul451.html" class="project-card">
+                    <div class="project-icon">🌐</div>
+                    <h3 class="project-title">子网划分工具</h3>
+                    <p class="project-desc">IP地址分类识别、子网掩码计算、子网划分练习与教学</p>
+                    <span class="project-tag">网络工具</span>
+                </a>
+
+                <a href="https://atx8t.github.io/R2ImageBed/" class="project-card">
+                    <div class="project-icon">🌩️</div>
+                    <h3 class="project-title">R2 图床 Pro</h3>
+                    <p class="project-desc">完整图床管理后台：拖拽上传、文件夹管理、批量删除、批量获取链接。基于 Cloudflare Worker + R2 Binding 的全免费方案</p>
+                    <span class="project-tag">存储工具 · v3.0</span>
+                </a>
+
+                <a href="Cloudflare/CloudflareR2Worker.html" class="project-card">
+                    <div class="project-icon">☁️</div>
+                    <h3 class="project-title">R2 图床浏览器（旧版）</h3>
+                    <p class="project-desc">Cloudflare R2 存储图片批量获取与管理，支持导出链接</p>
+                    <span class="project-tag">存储工具</span>
+                </a>
+
+                <a href="Cloudflare/Gallery.html" class="project-card">
+                    <div class="project-icon">🖼️</div>
+                    <h3 class="project-title">图片画廊</h3>
+                    <p class="project-desc">在线图片展示画廊，支持预览与复制链接</p>
+                    <span class="project-tag">图床</span>
+                </a>
+
+                <a href="Resource/mp4/mp4.html" class="project-card">
+                    <div class="project-icon">🎬</div>
+                    <h3 class="project-title">视频播放器</h3>
+                    <p class="project-desc">在线播放GitHub托管的MP4视频资源</p>
+                    <span class="project-tag">媒体工具</span>
+                </a>
+
+                <a href="Resource/apk/Download.html" class="project-card">
+                    <div class="project-icon">📦</div>
+                    <h3 class="project-title">文件下载</h3>
+                    <p class="project-desc">APK等文件资源下载服务</p>
+                    <span class="project-tag">下载</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <p>© 2024 ATX8T · <a href="https://github.com/ATX8T/ATX8T.github.io" target="_blank">GitHub 仓库</a></p>
+        </footer>
+    </div>
+
+    <script>
+        // 生成浮动粒子
+        function generateParticles() {
+            const container = document.getElementById('particles');
+            const sizes = ['small', 'medium', 'large'];
+            for (let i = 0; i < 25; i++) {
+                const particle = document.createElement('div');
+                particle.className = `particle ${sizes[Math.floor(Math.random() * sizes.length)]}`;
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particle.style.animationDuration = (6 + Math.random() * 4) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        window.addEventListener('load', generateParticles);
+    </script>
+</body>
+</html>
