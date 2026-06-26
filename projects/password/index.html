@@ -59,9 +59,10 @@
             font-size: 1.8rem; font-weight: 600; letter-spacing: .06em;
             word-break: break-all; line-height: 1.35;
             user-select: all; cursor: text; min-height: 1.35em;
-            padding: 4px 0;
+            padding: 10px 16px; border-radius: 10px;
+            background: rgba(0,0,0,.04);
         }
-        .pw-display.placeholder { font-family: -apple-system,'SF Pro Text',sans-serif; font-size: 1.05rem; letter-spacing: 0; color: var(--text-3); }
+        .pw-display.placeholder { font-family: -apple-system,'SF Pro Text',sans-serif; font-size: 1.05rem; letter-spacing: 0; color: var(--text-3); background: transparent; }
         .pw-actions { display: flex; justify-content: center; gap: 12px; margin-top: 10px; }
         .pw-btn {
             width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
@@ -162,11 +163,12 @@
         .batch-list { display: flex; flex-direction: column; gap: 6px; }
         .batch-item {
             display:flex; align-items:center; gap:10px;
-            padding:9px 12px; border-radius:10px; background:var(--fill-2);
+            padding:8px 12px; border-radius:10px; background:rgba(0,0,0,.04);
         }
         .batch-pw {
             flex:1; font-family:'SF Mono','Menlo',monospace;
-            font-size:.82rem; font-weight:500; word-break:break-all; letter-spacing:.03em;
+            font-size:.84rem; font-weight:500; word-break:break-all; letter-spacing:.03em;
+            user-select: all; cursor: text;
         }
         .batch-copy {
             font-size:.76rem; padding:5px 12px; border-radius:14px;
@@ -186,6 +188,7 @@
         .h-pw {
             font-family:'SF Mono','Menlo',monospace; font-size:.8rem;
             font-weight:500; flex:1; word-break:break-all; letter-spacing:.02em;
+            user-select: all; cursor: text;
         }
         .h-time {
             font-size:.74rem; color:var(--text-3); font-variant-numeric:tabular-nums;
