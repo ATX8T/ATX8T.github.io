@@ -10,7 +10,7 @@ var CHARS = {
     lower: 'abcdefghijklmnopqrstuvwxyz',
     upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
     number: '0123456789',
-    symbol: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+    symbol: '!@#$%^&*()-_=+[]{},.?'
 };
 var AMB = { l:1, I:1, '1':1, '0':1, O:1, o:1 };
 var pwList = [], MAX = 10;
@@ -82,7 +82,7 @@ function batch(arr) {
     card.style.display = ''; list.innerHTML = '';
     arr.forEach(function(v) {
         var d = document.createElement('div'); d.className = 'batch-item';
-        d.innerHTML = '<span class="batch-pw">'+v+'</span><button class="batch-copy" onclick="copyText(\''+esq(v)+'\',this)">复制</button>';
+        d.innerHTML = '<span class="batch-pw">'+esc(v)+'</span><button class="batch-copy" onclick="copyText(\''+esq(v)+'\',this)">复制</button>';
         list.appendChild(d);
     });
 }
@@ -127,7 +127,7 @@ function renderH() {
     c.innerHTML = '';
     pwList.forEach(function(x) {
         var d = document.createElement('div'); d.className = 'history-item';
-        d.innerHTML = '<span class="h-pw">'+x.pw+'</span><span class="h-time">'+x.time+'</span><button class="h-copy" onclick="copyText(\''+esq(x.pw)+'\',this)">复制</button>';
+        d.innerHTML = '<span class="h-pw">'+esc(x.pw)+'</span><span class="h-time">'+x.time+'</span><button class="h-copy" onclick="copyText(\''+esq(x.pw)+'\',this)">复制</button>';
         c.appendChild(d);
     });
 }
@@ -164,6 +164,7 @@ function toast(m) {
     clearTimeout(b._t); b._t = setTimeout(function(){b.style.display='none';},1600);
 }
 function Q(id) { return document.getElementById(id); }
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function esq(s) { return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 
 // ====== 启动 ======
