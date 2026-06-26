@@ -1,7 +1,7 @@
 {
   "site": {
     "title": "ATX8T",
-    "desc": "GitHub 资源一站管理 — 链接转换、资源浏览、图床加速，全部在浏览器端完成",
+    "desc": "GitHub 资源一站管理 — 链接转换、密码生成、全部在浏览器端完成",
     "footer": "Powered by GitHub Pages · 纯前端 · 无需登录"
   },
   "projects": [
@@ -12,14 +12,6 @@
       "desc": "将 GitHub 文件链接转为可直接下载或嵌入网页的直链地址，支持 Raw / jsDelivr / Staticaly",
       "path": "projects/converter/",
       "tags": ["github", "图床", "url"]
-    },
-    {
-      "id": "browser",
-      "name": "资源浏览器",
-      "icon": "📁",
-      "desc": "浏览 GitHub 仓库中的文件列表，支持图片/视频预览与下载",
-      "path": "projects/browser/",
-      "tags": ["github", "文件", "浏览"]
     },
     {
       "id": "password",
