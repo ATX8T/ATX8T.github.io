@@ -18,7 +18,6 @@
             --accent2: #8b5cf6;
             --green: #22c55e;
             --red: #ef4444;
-            --orange: #f59e0b;
             --cyan: #06b6d4;
             --radius: 16px;
             --radius-sm: 10px;
@@ -36,6 +35,12 @@
             -webkit-font-smoothing: antialiased;
         }
 
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.2); }
+
         /* Nav */
         .nav {
             display: flex; justify-content: space-between; align-items: center;
@@ -48,12 +53,14 @@
         .nav img { width:24px; height:24px; border-radius:50%; }
         .nav .back { color:var(--accent); font-size:.84rem; }
 
-        /* Main */
+        /* === Main Grid === */
         .main {
-            flex:1; display:flex; flex-direction:column;
-            max-width:520px; width:100%; margin:0 auto;
-            padding:16px 16px 0; overflow:hidden;
+            flex:1; display:grid;
+            grid-template-columns: 1fr 340px;
+            gap:12px; padding:16px; overflow:hidden;
+            max-width:1100px; width:100%; margin:0 auto;
         }
+        @media(max-width:800px){ .main{grid-template-columns:1fr; overflow-y:auto; max-width:520px;} }
 
         /* Card */
         .card {
@@ -61,16 +68,18 @@
             backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
             border: 1px solid rgba(255,255,255,.06);
             border-radius: var(--radius); padding: 20px;
-            flex-shrink: 0;
         }
         .card + .card { margin-top: 12px; }
+
+        /* === Left Column === */
+        .left-col { display:flex; flex-direction:column; gap:12px; overflow:hidden; }
 
         /* Password display */
         .pw-display {
             font-family: 'SF Mono','JetBrains Mono','Fira Code',monospace;
             font-size: 1.5rem; font-weight: 600; text-align: center;
             letter-spacing: .08em; word-break: break-all; line-height: 1.4;
-            user-select: all; cursor: text; padding: 14px 18px;
+            user-select: all; cursor: text; padding: 16px 20px;
             border-radius: var(--radius-sm);
             background: rgba(0,0,0,.3);
             border: 1px solid rgba(255,255,255,.04);
@@ -80,10 +89,8 @@
         }
         .pw-display.placeholder {
             font-family: -apple-system,'Inter',sans-serif;
-            font-size: .95rem; letter-spacing:0; color:var(--text3);
-            text-shadow: none;
+            font-size: .95rem; letter-spacing:0; color:var(--text3); text-shadow: none;
         }
-
         .pw-actions { display:flex; justify-content:center; gap:10px; margin-top:12px; }
         .btn {
             padding: 10px 24px; border-radius: 24px; border: none; cursor: pointer;
@@ -106,10 +113,7 @@
 
         /* Strength */
         .strength-row { display:flex; align-items:center; gap:12px; margin-top:12px; }
-        .strength-bar {
-            flex:1; height:6px; border-radius:6px;
-            background: rgba(255,255,255,.06); overflow:hidden;
-        }
+        .strength-bar { flex:1; height:6px; border-radius:6px; background: rgba(255,255,255,.06); overflow:hidden; }
         .strength-fill {
             height:100%; border-radius:6px;
             transition:width .5s ease, background .5s ease, box-shadow .5s ease;
@@ -118,80 +122,13 @@
         .strength-label { font-size:.8rem; font-weight:600; min-width:52px; text-align:right; }
         .strength-meta { font-size:.7rem; color:var(--text2); margin-top:4px; }
 
-        /* Settings */
-        .settings-card { overflow-y:auto; }
-        .section-title {
-            font-size: .68rem; font-weight: 700; color: var(--text2);
-            text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px;
-        }
-
-        /* Sliders */
-        .slider-row { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
-        .slider-val {
-            min-width: 42px; height: 32px; border-radius: 8px;
-            background: var(--surface2); display:flex; align-items:center; justify-content:center;
-            font-size:.9rem; font-weight:700; color:var(--cyan);
-            border:1px solid rgba(255,255,255,.06);
-        }
-        input[type=range] {
-            -webkit-appearance:none; flex:1; height:6px; border-radius:6px;
-            background: rgba(255,255,255,.08); outline:none;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance:none; width:22px; height:22px; border-radius:50%;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            cursor:pointer; box-shadow:0 0 12px rgba(99,102,241,.4);
-            border:2px solid rgba(255,255,255,.15);
-        }
-        .range-end { font-size:.72rem; color:var(--text3); min-width:24px; text-align:right; }
-
-        /* Segmented */
-        .seg { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; margin-bottom:12px; }
-        @media(max-width:460px){ .seg{grid-template-columns:1fr 1fr;} }
-        .seg-btn {
-            padding:10px 2px; border-radius:10px; font-size:.78rem; font-weight:500;
-            background:var(--surface2); color:var(--text2); border:1px solid transparent;
-            cursor:pointer; text-align:center; transition:all .2s;
-            -webkit-tap-highlight-color:transparent;
-        }
-        .seg-btn:hover { border-color:rgba(255,255,255,.1); }
-        .seg-btn.active {
-            background: linear-gradient(135deg, rgba(99,102,241,.25), rgba(139,92,246,.25));
-            color:#fff; border-color:rgba(99,102,241,.4);
-            box-shadow: 0 0 16px rgba(99,102,241,.15);
-        }
-        .seg-btn sub { font-size:.66rem; color:var(--text3); font-weight:400; display:block; margin-top:2px; }
-        .seg-btn.active sub { color:rgba(255,255,255,.5); }
-
-        /* Toggle */
-        .switch-row { display:flex; align-items:center; justify-content:space-between; padding:6px 0; }
-        .switch-row .sw-label { font-size:.84rem; font-weight:500; }
-        .toggle {
-            width:46px; height:26px; border-radius:26px;
-            background:rgba(255,255,255,.1);
-            cursor:pointer; position:relative; transition:background .25s; flex-shrink:0;
-            -webkit-tap-highlight-color:transparent;
-        }
-        .toggle::after {
-            content:''; position:absolute; width:22px; height:22px; border-radius:50%;
-            background:#fff; top:2px; left:2px;
-            box-shadow:0 1px 3px rgba(0,0,0,.3);
-            transition:transform .25s cubic-bezier(.25,.8,.25,1.2);
-        }
-        .toggle.on { background: var(--green); }
-        .toggle.on::after { transform:translateX(20px); }
-
-        /* Bottom area */
-        .bottom-area {
-            flex:1; overflow-y:auto; overflow-x:hidden;
-            padding:8px 0 16px; -webkit-overflow-scrolling:touch;
-        }
+        /* Batch & History area */
+        .result-area { flex:1; overflow-y:auto; overflow-x:hidden; }
 
         .batch-item {
             display:flex; align-items:center; gap:10px;
             padding:10px 14px; border-radius: var(--radius-sm);
-            background: var(--surface);
-            border:1px solid rgba(255,255,255,.04);
+            background: var(--surface); border:1px solid rgba(255,255,255,.04);
             margin-bottom:6px;
         }
         .batch-pw {
@@ -208,7 +145,6 @@
         .batch-copy.copied { background:var(--green); color:#fff; }
         .batch-copy.failed { background:var(--red); color:#fff; }
 
-        /* History */
         .history-item {
             display:flex; align-items:center; gap:10px;
             padding:7px 0; border-bottom:1px solid rgba(255,255,255,.04);
@@ -237,15 +173,73 @@
         }
         .clear-btn:hover { background:rgba(239,68,68,.1); }
 
-        /* Toast */
+        /* === Right Column === */
+        .right-col { display:flex; flex-direction:column; gap:12px; }
+
+        .section-title {
+            font-size: .68rem; font-weight: 700; color: var(--text2);
+            text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px;
+        }
+
+        .slider-row { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+        .slider-val {
+            min-width: 42px; height: 32px; border-radius: 8px;
+            background: var(--surface2); display:flex; align-items:center; justify-content:center;
+            font-size:.9rem; font-weight:700; color:var(--cyan);
+            border:1px solid rgba(255,255,255,.06);
+        }
+        input[type=range] {
+            -webkit-appearance:none; flex:1; height:6px; border-radius:6px;
+            background: rgba(255,255,255,.08); outline:none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance:none; width:22px; height:22px; border-radius:50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            cursor:pointer; box-shadow:0 0 12px rgba(99,102,241,.4);
+            border:2px solid rgba(255,255,255,.15);
+        }
+        .range-end { font-size:.72rem; color:var(--text3); min-width:24px; text-align:right; }
+
+        .seg { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+        .seg-btn {
+            padding:10px 2px; border-radius:10px; font-size:.78rem; font-weight:500;
+            background:var(--surface2); color:var(--text2); border:1px solid transparent;
+            cursor:pointer; text-align:center; transition:all .2s;
+            -webkit-tap-highlight-color:transparent;
+        }
+        .seg-btn:hover { border-color:rgba(255,255,255,.1); }
+        .seg-btn.active {
+            background: linear-gradient(135deg, rgba(99,102,241,.25), rgba(139,92,246,.25));
+            color:#fff; border-color:rgba(99,102,241,.4);
+            box-shadow: 0 0 16px rgba(99,102,241,.15);
+        }
+        .seg-btn sub { font-size:.66rem; color:var(--text3); font-weight:400; display:block; margin-top:2px; }
+        .seg-btn.active sub { color:rgba(255,255,255,.5); }
+
+        .switch-row { display:flex; align-items:center; justify-content:space-between; padding:6px 0; }
+        .switch-row .sw-label { font-size:.84rem; font-weight:500; }
+        .toggle {
+            width:46px; height:26px; border-radius:26px;
+            background:rgba(255,255,255,.1);
+            cursor:pointer; position:relative; transition:background .25s; flex-shrink:0;
+            -webkit-tap-highlight-color:transparent;
+        }
+        .toggle::after {
+            content:''; position:absolute; width:22px; height:22px; border-radius:50%;
+            background:#fff; top:2px; left:2px;
+            box-shadow:0 1px 3px rgba(0,0,0,.3);
+            transition:transform .25s cubic-bezier(.25,.8,.25,1.2);
+        }
+        .toggle.on { background: var(--green); }
+        .toggle.on::after { transform:translateX(20px); }
+
         .toast {
             position:fixed; top:24px; left:50%; transform:translateX(-50%); z-index:99999;
             background:rgba(20,20,30,.9); backdrop-filter:blur(20px);
             color:#fff; padding:10px 24px; border-radius:24px;
             font-size:.82rem; font-weight:500; display:none;
             border:1px solid rgba(255,255,255,.1);
-            box-shadow:0 8px 32px rgba(0,0,0,.4);
-            pointer-events:none;
+            box-shadow:0 8px 32px rgba(0,0,0,.4); pointer-events:none;
         }
     </style>
 </head>
@@ -258,64 +252,70 @@
 
 <div class="main">
 
-    <!-- Password + Strength -->
-    <div class="card">
-        <div class="pw-display placeholder" id="passwordText">配置选项后点击生成</div>
-        <div class="pw-actions">
-            <button class="btn btn-primary" onclick="generate()">生成密码</button>
-            <button class="btn btn-secondary" id="btnCopy" onclick="copyPassword()">复制密码</button>
-        </div>
-        <div class="strength-row">
-            <div class="strength-bar"><div class="strength-fill" id="strengthBar"></div></div>
-            <span class="strength-label" id="strengthText" style="color:var(--text3)">-</span>
-        </div>
-        <div class="strength-meta" id="strengthDetails"></div>
-    </div>
+    <!-- ====== 左栏: 密码 + 结果 ====== -->
+    <div class="left-col">
 
-    <!-- Settings -->
-    <div class="card settings-card">
-        <div class="section-title">密码长度</div>
-        <div class="slider-row">
-            <div class="slider-val" id="lengthValue">16</div>
-            <input type="range" id="lengthSlider" min="6" max="64" value="16" oninput="onLengthChange(this.value)">
-            <span class="range-end">64</span>
-        </div>
-
-        <div class="section-title">生成数量</div>
-        <div class="slider-row">
-            <div class="slider-val" id="countBadge">1</div>
-            <input type="range" id="countSlider" min="1" max="10" value="1" oninput="onCountChange(this.value)">
-            <span class="range-end">10</span>
-        </div>
-
-        <div class="switch-row">
-            <span class="sw-label">排除混淆字符 1lI0O</span>
-            <div class="toggle on" id="toggleExclude" onclick="toggleSwitch('exclude')"></div>
-        </div>
-        <div class="switch-row">
-            <span class="sw-label">不连续重复字符</span>
-            <div class="toggle" id="toggleUnique" onclick="toggleSwitch('unique')"></div>
-        </div>
-
-        <div class="section-title">字符类型</div>
-        <div class="seg">
-            <button class="seg-btn active" data-type="lower" onclick="toggleSeg(this)">a-z<sub>小写</sub></button>
-            <button class="seg-btn active" data-type="upper" onclick="toggleSeg(this)">A-Z<sub>大写</sub></button>
-            <button class="seg-btn active" data-type="number" onclick="toggleSeg(this)">0-9<sub>数字</sub></button>
-            <button class="seg-btn active" data-type="symbol" onclick="toggleSeg(this)">!@#<sub>符号</sub></button>
-        </div>
-    </div>
-
-    <!-- Results -->
-    <div class="bottom-area" id="bottomArea">
+        <!-- Password + Strength -->
         <div class="card">
-            <div style="display:flex; justify-content:flex-end">
+            <div class="pw-display placeholder" id="passwordText">配置右侧选项后点击生成</div>
+            <div class="pw-actions">
+                <button class="btn btn-secondary" id="btnCopy" onclick="copyPassword()">复制密码</button>
+            </div>
+            <div class="strength-row">
+                <div class="strength-bar"><div class="strength-fill" id="strengthBar"></div></div>
+                <span class="strength-label" id="strengthText" style="color:var(--text3)">-</span>
+            </div>
+            <div class="strength-meta" id="strengthDetails"></div>
+        </div>
+
+        <!-- Batch + History -->
+        <div class="card result-area">
+            <div style="display:flex; justify-content:flex-end; margin-bottom:4px">
                 <button class="clear-btn" onclick="clearHistory()">清除记录</button>
             </div>
             <div class="batch-list" id="batchList" style="display:none"></div>
             <div class="history-list" id="historyList">
-                <div class="empty">点击上方生成密码</div>
+                <div class="empty">点击右侧生成密码</div>
             </div>
+        </div>
+    </div>
+
+    <!-- ====== 右栏: 设置 ====== -->
+    <div class="right-col">
+
+        <div class="card">
+            <div class="section-title">密码长度</div>
+            <div class="slider-row">
+                <div class="slider-val" id="lengthValue">16</div>
+                <input type="range" id="lengthSlider" min="6" max="64" value="16" oninput="onLengthChange(this.value)">
+                <span class="range-end">64</span>
+            </div>
+
+            <div class="section-title">生成数量</div>
+            <div class="slider-row">
+                <div class="slider-val" id="countBadge">1</div>
+                <input type="range" id="countSlider" min="1" max="10" value="1" oninput="onCountChange(this.value)">
+                <span class="range-end">10</span>
+            </div>
+
+            <div class="switch-row">
+                <span class="sw-label">排除混淆字符 1lI0O</span>
+                <div class="toggle on" id="toggleExclude" onclick="toggleSwitch('exclude')"></div>
+            </div>
+            <div class="switch-row">
+                <span class="sw-label">不连续重复字符</span>
+                <div class="toggle" id="toggleUnique" onclick="toggleSwitch('unique')"></div>
+            </div>
+
+            <div class="section-title">字符类型</div>
+            <div class="seg">
+                <button class="seg-btn active" data-type="lower" onclick="toggleSeg(this)">a-z<sub>小写</sub></button>
+                <button class="seg-btn active" data-type="upper" onclick="toggleSeg(this)">A-Z<sub>大写</sub></button>
+                <button class="seg-btn active" data-type="number" onclick="toggleSeg(this)">0-9<sub>数字</sub></button>
+                <button class="seg-btn active" data-type="symbol" onclick="toggleSeg(this)">!@#<sub>符号</sub></button>
+            </div>
+
+            <button class="btn btn-primary" onclick="generate()" style="width:100%;margin-top:4px">生成密码</button>
         </div>
     </div>
 
