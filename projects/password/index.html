@@ -161,9 +161,12 @@
 
         /* 批量 */
         .batch-list { display: flex; flex-direction: column; gap: 6px; }
+        .batch-list { margin-bottom: 5px; }
+        .batch-list + .history-list { border-top: .5px solid var(--sep); padding-top: 5px; }
         .batch-item {
             display:flex; align-items:center; gap:10px;
             padding:8px 12px; border-radius:10px; background:rgba(0,0,0,.04);
+            margin-bottom: 5px;
         }
         .batch-pw {
             flex:1; font-family:'SF Mono','Menlo',monospace;
@@ -324,16 +327,12 @@
 <!-- ====== 底部滚动区 ====== -->
 <div class="bottom-area" id="bottomArea">
 
-    <!-- 批量结果 -->
-    <div class="card" id="batchCard" style="display:none">
-        <div class="batch-list" id="batchList"></div>
-    </div>
-
-    <!-- 历史 -->
+    <!-- 结果与历史 -->
     <div class="card">
         <div style="display:flex;justify-content:flex-end">
             <button class="clear-btn" onclick="clearHistory()">清除</button>
         </div>
+        <div class="batch-list" id="batchList" style="display:none"></div>
         <div class="history-list" id="historyList">
             <div class="empty">点击生成</div>
         </div>

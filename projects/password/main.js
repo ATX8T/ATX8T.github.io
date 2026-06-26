@@ -52,7 +52,7 @@ function gen() {
         if (!seen[pw]) { seen[pw] = true; out.push(pw); }
     }
     show(out[0], true);
-    if (out.length > 1) batch(out); else Q('batchCard').style.display = 'none';
+    if (out.length > 1) batch(out); else Q('batchList').style.display = 'none';
     upStr(out[0], p.length);
     add(out);
     setTimeout(function(){ Q('bottomArea').scrollTop = 0; }, 60);
@@ -78,8 +78,8 @@ function show(t, ok) {
     el.className = 'pw-display' + (ok ? '' : ' placeholder');
 }
 function batch(arr) {
-    var card = Q('batchCard'), list = Q('batchList');
-    card.style.display = ''; list.innerHTML = '';
+    var list = Q('batchList');
+    list.style.display = ''; list.innerHTML = '';
     arr.forEach(function(v) {
         var d = document.createElement('div'); d.className = 'batch-item';
         d.innerHTML = '<span class="batch-pw">'+esc(v)+'</span><button class="batch-copy" onclick="copyText(\''+esq(v)+'\',this)">复制</button>';
