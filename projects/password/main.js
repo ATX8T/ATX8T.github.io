@@ -55,7 +55,7 @@ function gen() {
     if (out.length > 1) batch(out); else Q('batchList').style.display = 'none';
     upStr(out[0], p.length);
     add(out);
-    setTimeout(function(){ Q('bottomArea').scrollTop = 0; }, 60);
+    setTimeout(function(){ var el=Q('batchList'); if(el)el.scrollIntoView({behavior:'smooth'}); }, 60);
 }
 
 function make(p) {
