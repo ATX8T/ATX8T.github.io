@@ -34,7 +34,7 @@
       "name": "SSH 密钥配置工具",
       "icon": "🔑",
       "desc": "一键生成 SSH 密钥对并配置服务器，支持多种算法和 Linux 发行版",
-      "path": "projects/OpenSSHorSSL/README.md",
+      "path": "https://github.com/ATX8T/ATX8T.github.io/tree/main/projects/OpenSSHorSSL",
       "tags": ["ssh", "安全", "运维"]
     }
   ]
