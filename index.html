@@ -46,16 +46,11 @@
         }
         .navbar-brand {
             font-weight: 800; font-size: 1.3rem; letter-spacing: -.02em;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text;
-            display: flex; align-items: center; gap: 8px;
+            display: flex; align-items: center; gap: 10px;
+            text-decoration: none; color: var(--text);
         }
-        .navbar-brand::before {
-            content: ''; display: inline-block;
-            width: 28px; height: 28px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            border-radius: 8px;
+        .navbar-brand img {
+            width: 30px; height: 30px; border-radius: 50%;
         }
         .nav-link-right { font-size: .85rem; color: var(--text-muted); text-decoration: none; transition: color .2s; }
         .nav-link-right:hover { color: var(--accent); }
@@ -233,7 +228,7 @@
 
 <nav class="navbar">
     <div class="container d-flex justify-content-between align-items-center py-2">
-        <a class="navbar-brand" href="/">ATX8T Lab</a>
+        <a class="navbar-brand" href="/"><img src="https://github.com/ATX8T.png" alt=""> ATX8T Lab</a>
         <a class="nav-link-right" href="https://github.com/ATX8T/ATX8T.github.io" target="_blank">GitHub →</a>
     </div>
 </nav>
