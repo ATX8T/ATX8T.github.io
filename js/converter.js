@@ -1,12 +1,13 @@
 /**
- * GitHub 图床 URL 转换器
- * 使用 URL API 解析，比正则更可靠，完美处理中文文件名
+ * GitHub 资源直链转换工具 (通用版)
  *
- * 转换规则:
- *   github.com/OWNER/REPO/blob/BRANCH/PATH
- *     → raw.githubusercontent.com/OWNER/REPO/BRANCH/PATH    (Raw)
- *     → cdn.jsdelivr.net/gh/OWNER/REPO@BRANCH/PATH            (jsDelivr)
- *     → cdn.staticaly.com/gh/OWNER/REPO/BRANCH/PATH           (Staticaly)
+ * 输入任意 GitHub 仓库的文件链接 → 输出可直接下载/嵌入网页的直链
+ *
+ * 支持的输入格式:
+ *   - https://github.com/{任意用户}/{任意仓库}/blob/{分支}/{路径}
+ *   - https://raw.githubusercontent.com/{任意用户}/{任意仓库}/{分支}/{路径}
+ *   - https://cdn.jsdelivr.net/gh/{任意用户}/{任意仓库}@{分支}/{路径}
+ *   - https://cdn.staticaly.com/gh/{任意用户}/{任意仓库}/{分支}/{路径}
  */
 
 // ==================== 解析 ====================
@@ -16,82 +17,81 @@ function parseGitHubUrl(str) {
     if (!str) return null;
 
     var u;
-    try { u = new URL(str); } catch(e) { return null; }
+    try { u = new URL(str); } catch (e) { return null; }
 
     var host = u.hostname.toLowerCase();
-    var pathname = u.pathname.replace(/\/$/, ''); // 去掉末尾 /
+    var pathname = u.pathname.replace(/\/$/, '');
     var parts = pathname.split('/').filter(Boolean);
 
-    // 模式1: github.com/owner/repo/blob/branch/...path
+    // github.com/owner/repo/blob/branch/...path
     if (host === 'github.com' && parts.length >= 4 && parts[2] === 'blob') {
         return {
             owner: parts[0],
             repo: parts[1],
             branch: parts[3],
             filepath: parts.slice(4).join('/'),
+            filename: parts[parts.length - 1]
         };
     }
 
-    // 模式2: raw.githubusercontent.com/owner/repo/branch/...path
+    // raw.githubusercontent.com/owner/repo/branch/...path
     if (host === 'raw.githubusercontent.com' && parts.length >= 3) {
         return {
             owner: parts[0],
             repo: parts[1],
             branch: parts[2],
             filepath: parts.slice(3).join('/'),
+            filename: parts[parts.length - 1]
         };
     }
 
-    // 模式3: cdn.jsdelivr.net/gh/owner/repo@branch/...path
+    // cdn.jsdelivr.net/gh/owner/repo@branch/...path
     if (host === 'cdn.jsdelivr.net' && parts.length >= 2 && parts[0] === 'gh') {
-        var repoAndBranch = parts[1].split('@');
-        if (repoAndBranch.length < 2) return null;
+        var rb = parts[1].split('@');
+        if (rb.length < 3) return null;
         return {
-            owner: repoAndBranch[0],
-            repo: repoAndBranch[1],
-            branch: repoAndBranch[2],
+            owner: rb[0],
+            repo: rb[1],
+            branch: rb[2],
             filepath: parts.slice(2).join('/'),
+            filename: parts[parts.length - 1]
         };
     }
 
-    // 模式4: cdn.staticaly.com/gh/owner/repo/branch/...path
+    // cdn.staticaly.com/gh/owner/repo/branch/...path
     if (host === 'cdn.staticaly.com' && parts.length >= 4 && parts[0] === 'gh') {
         return {
             owner: parts[1],
             repo: parts[2],
             branch: parts[3],
             filepath: parts.slice(4).join('/'),
+            filename: parts[parts.length - 1]
         };
     }
 
     return null;
 }
 
+// ==================== URL 构建 ====================
 
-// ==================== URL 生成 ====================
+function encodePath(filepath) {
+    return filepath.split('/').map(function (s) {
+        try { return encodeURIComponent(decodeURIComponent(s)); }
+        catch (e) { return encodeURIComponent(s); }
+    }).join('/');
+}
 
 function buildRawUrl(owner, repo, branch, filepath) {
-    // 分段编码路径（保留 / 分隔符）
-    var encoded = filepath.split('/').map(function(s) {
-        return encodeURIComponent(decodeURIComponent(s));
-    }).join('/');
-    return 'https://raw.githubusercontent.com/' + owner + '/' + repo + '/' + branch + '/' + encoded;
+    return 'https://raw.githubusercontent.com/' + owner + '/' + repo + '/' + branch + '/' + encodePath(filepath);
 }
 
 function buildJsdelivrUrl(owner, repo, branch, filepath) {
-    var encoded = filepath.split('/').map(function(s) {
-        return encodeURIComponent(decodeURIComponent(s));
-    }).join('/');
-    return 'https://cdn.jsdelivr.net/gh/' + owner + '/' + repo + '@' + branch + '/' + encoded;
+    return 'https://cdn.jsdelivr.net/gh/' + owner + '/' + repo + '@' + branch + '/' + encodePath(filepath);
 }
 
 function buildStaticalyUrl(owner, repo, branch, filepath) {
-    var encoded = filepath.split('/').map(function(s) {
-        return encodeURIComponent(decodeURIComponent(s));
-    }).join('/');
-    return 'https://cdn.staticaly.com/gh/' + owner + '/' + repo + '/' + branch + '/' + encoded;
+    return 'https://cdn.staticaly.com/gh/' + owner + '/' + repo + '/' + branch + '/' + encodePath(filepath);
 }
-
 
 // ==================== 主转换 ====================
 
@@ -99,16 +99,12 @@ function convertUrl() {
     var input = document.getElementById('inputUrl').value.trim();
     var resultArea = document.getElementById('resultArea');
 
-    if (!input) {
-        toast('请输入 GitHub 链接', 'error');
-        return;
-    }
+    if (!input) { toast('请输入 GitHub 文件链接', 'error'); return; }
 
     var parsed = parseGitHubUrl(input);
-
     if (!parsed) {
         resultArea.classList.add('d-none');
-        toast('无法识别此链接格式，请检查是否为 GitHub 文件链接', 'error');
+        toast('无法识别此链接格式', 'error');
         return;
     }
 
@@ -116,34 +112,90 @@ function convertUrl() {
     var cdnUrl = buildJsdelivrUrl(parsed.owner, parsed.repo, parsed.branch, parsed.filepath);
     var statUrl = buildStaticalyUrl(parsed.owner, parsed.repo, parsed.branch, parsed.filepath);
 
-    // 填充结果
+    // 结果区
     document.getElementById('rawText').textContent = rawUrl;
     document.getElementById('cdnText').textContent = cdnUrl;
     document.getElementById('statText').textContent = statUrl;
-
-    // 结果区可见
+    document.getElementById('repoInfo').textContent = parsed.owner + '/' + parsed.repo + ' @' + parsed.branch;
     resultArea.classList.remove('d-none');
 
-    // 预览图片
-    var img = document.getElementById('previewImg');
-    var placeholder = document.getElementById('previewPlaceholder');
-    var ext = parsed.filepath.split('.').pop().toLowerCase();
-    var imageExts = ['jpg','jpeg','png','gif','webp','svg','bmp','ico'];
+    // 下载/打开按钮
+    var btnDl = document.getElementById('btnDownload');
+    var btnOpen = document.getElementById('btnOpen');
+    btnDl.style.display = '';
+    btnDl.href = rawUrl;
+    btnDl.download = parsed.filename;
+    btnOpen.style.display = '';
+    btnOpen.href = rawUrl;
 
-    if (imageExts.indexOf(ext) >= 0) {
-        img.style.display = '';
-        placeholder.style.display = 'none';
-        img.src = rawUrl;
+    // 嵌入代码
+    var ext = parsed.filepath.split('.').pop().toLowerCase();
+    var embedArea = document.getElementById('embedArea');
+
+    document.getElementById('htmlImg').textContent =
+        '<img src="' + cdnUrl + '" alt="' + parsed.filename + '" />';
+    document.getElementById('mdImg').textContent =
+        '![' + parsed.filename + '](' + cdnUrl + ')';
+    document.getElementById('htmlLink').textContent =
+        '<a href="' + cdnUrl + '" download>' + parsed.filename + '</a>';
+
+    // 预览
+    resetPreview();
+
+    var IMG = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico'];
+    var VID = ['mp4', 'webm', 'mov'];
+
+    if (IMG.indexOf(ext) >= 0) {
+        embedArea.style.display = '';
+        showImgPreview(rawUrl);
+    } else if (VID.indexOf(ext) >= 0) {
+        embedArea.style.display = 'none';
+        showVideoPreview(rawUrl);
     } else {
-        img.style.display = 'none';
-        placeholder.style.display = '';
-        placeholder.textContent = '此文件不是图片，无法预览（可用下载链接直接访问）';
+        embedArea.style.display = 'none';
+        document.getElementById('previewMsg').textContent = ext.toUpperCase() + ' 文件 — 点击下方按钮下载';
     }
 
-    // 滚动到结果
     resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+// ==================== 预览 ====================
+
+function resetPreview() {
+    var img = document.getElementById('previewImg');
+    var vid = document.getElementById('previewVideo');
+    var msg = document.getElementById('previewMsg');
+    img.style.display = 'none';
+    img.removeAttribute('src');
+    vid.style.display = 'none';
+    vid.innerHTML = '';
+    msg.style.display = '';
+    msg.textContent = '正在加载...';
+}
+
+function showImgPreview(url) {
+    var img = document.getElementById('previewImg');
+    document.getElementById('previewMsg').style.display = 'none';
+    img.style.display = '';
+    img.src = url;
+}
+
+function showVideoPreview(url) {
+    var vid = document.getElementById('previewVideo');
+    document.getElementById('previewMsg').style.display = 'none';
+    vid.style.display = '';
+    vid.innerHTML = '<source src="' + url + '">';
+    vid.load();
+}
+
+function previewFail() {
+    var img = document.getElementById('previewImg');
+    var vid = document.getElementById('previewVideo');
+    img.style.display = 'none';
+    vid.style.display = 'none';
+    document.getElementById('previewMsg').style.display = '';
+    document.getElementById('previewMsg').textContent = '预览失败 — 请直接点击下方按钮下载';
+}
 
 // ==================== 手动拼接 ====================
 
@@ -153,32 +205,33 @@ function manualBuild() {
     var branch = document.getElementById('branch').value.trim();
     var filepath = document.getElementById('filepath').value.trim();
 
-    if (!owner || !repo || !branch || !filepath) {
-        toast('请填写所有字段', 'error');
-        return;
-    }
+    if (!owner || !repo || !branch || !filepath) { toast('请填写所有字段', 'error'); return; }
 
-    var rawUrl = buildRawUrl(owner, repo, branch, filepath);
-    var cdnUrl = buildJsdelivrUrl(owner, repo, branch, filepath);
-
-    document.getElementById('mRaw').textContent = rawUrl;
-    document.getElementById('mCdn').textContent = cdnUrl;
+    document.getElementById('mRaw').textContent = buildRawUrl(owner, repo, branch, filepath);
+    document.getElementById('mCdn').textContent = buildJsdelivrUrl(owner, repo, branch, filepath);
     document.getElementById('manualResult').classList.remove('d-none');
 }
-
 
 // ==================== 复制 ====================
 
 function doCopy(id) {
     var text = document.getElementById(id).textContent;
     if (!text) return;
-    navigator.clipboard.writeText(text).then(function() {
+    navigator.clipboard.writeText(text).then(function () {
         toast('已复制到剪贴板');
-    }).catch(function() {
-        prompt('手动复制:', text);
+    }).catch(function () {
+        prompt('手动复制 (Ctrl+C):', text);
     });
 }
 
+function copyCode(id) {
+    var text = document.getElementById(id).textContent;
+    navigator.clipboard.writeText(text).then(function () {
+        toast('代码已复制');
+    }).catch(function () {
+        prompt('手动复制 (Ctrl+C):', text);
+    });
+}
 
 // ==================== Toast ====================
 
@@ -189,32 +242,24 @@ function toast(msg, type) {
     span.style.background = (type === 'error') ? '#dc3545' : '#198754';
     bar.style.display = '';
     clearTimeout(bar._timer);
-    bar._timer = setTimeout(function() { bar.style.display = 'none'; }, 2000);
+    bar._timer = setTimeout(function () { bar.style.display = 'none'; }, 2000);
 }
-
 
 // ==================== 初始化 ====================
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     var input = document.getElementById('inputUrl');
-
-    // 回车转换
-    input.addEventListener('keydown', function(e) {
+    input.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') convertUrl();
     });
-
-    // 粘贴自动转换
-    input.addEventListener('paste', function() {
-        setTimeout(function() {
-            var val = input.value.trim();
-            if (val && parseGitHubUrl(val)) convertUrl();
+    input.addEventListener('paste', function () {
+        setTimeout(function () {
+            if (input.value.trim() && parseGitHubUrl(input.value)) convertUrl();
         }, 150);
     });
-
-    // 手动拼接回车
-    ['owner','repo','branch','filepath'].forEach(function(id) {
+    ['owner', 'repo', 'branch', 'filepath'].forEach(function (id) {
         var el = document.getElementById(id);
-        if (el) el.addEventListener('keydown', function(e) {
+        if (el) el.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') manualBuild();
         });
     });
