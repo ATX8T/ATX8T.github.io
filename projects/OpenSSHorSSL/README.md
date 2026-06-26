@@ -1,0 +1,164 @@
+## 1. 使用GitHub在线脚本实现远程登录 
+
+**⚠️ 重要安全警告：**
+
+1. **开启 Root 远程登录**存在极高风险，建议配合防火墙使用。
+2. **在服务端生成私钥**并下载（反向操作）不如“在本地生成公钥上传”安全，因为私钥曾存在于服务器上，且传输过程可能泄露。
+   ##### Windows 自带OpenSSH 功能
+4. 请确保脚本所在的 GitHub 仓库是**私有**的，或者脚本本身不包含敏感硬编码信息。
+5. 私钥复制后请删除服务器私钥
+6. 注意一定要用root权限执行脚本，不然怎么都连不上
+
+## 2. 组合在线GitHub脚本
+```
+直接在 GitHub 中打开 ssh_admin_toolkit.sh 获取 Raw 链接
+
+  开始组合：
+源地址: https://github.com/ATX8T/ATX8T.github.io/blob/main/projects/OpenSSHorSSL/ssh_admin_toolkit.sh
+直链地址: https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/projects/OpenSSHorSSL/ssh_admin_toolkit.sh
+```
+
+## 3. 实现远程登录
+- ⚠️ 需要注意服务器能不能连接到GitHub
+- ⚠️ 登录执行前检查当前登录的用户是否有root权限
+- ⚠️ 下载到本地使用 chmod +x 赋予权限
+
+
+
+## 4. 在线脚本使用方法相关的
+
+```
+在线脚本
+bash <(curl -s https://raw.githubusercontent.com/ATX8T/OpenSSHorSSL/main/ssh_admin_toolkit.sh)
+
+bash <(curl -s https://gitee.com/kaiyuankaifa/OpenSSHorSSL/raw/main/ssh_admin_toolkit.sh)
+
+生成的密钥 默认会删除旧密钥  如果要多个密钥可以连接在 authorized_keys 中追加之前的公钥即可
+
+如果下载要chmod +x赋予权限
+chmod +x ssh_admin_toolkit.sh
+
+启动交互式菜单（推荐）
+./ssh_admin_toolkit.sh
+
+```
+
+## 5. 先测试网络连通性（最基础）
+
+
+```
+# 测试能否 ping 通 raw.githubusercontent.com（仅验证连通性，ping 不通不代表无法访问）
+ping -c 3 raw.githubusercontent.com
+
+# 测试 443 端口是否可访问（HTTPS 必备）
+telnet raw.githubusercontent.com 443
+# 或用更通用的 nc 命令（无 telnet 时）
+nc -zv raw.githubusercontent.com 443
+```
+### 如果无法访问GitHub 可以使用gitee从GitHub同步过去再改一下地址
+
+
+
+- 生成后找到密钥文件或者在命令行复制到私钥内容
+-  id_rsa 在Windows创建没有后缀名  直接到C:\Users\用户名\.ssh 复制一份然后修改内容就可
+
+- 用 Windows 自带 SSH 连接服务器
+```
+ssh -i "C:\Users\你的Windows用户名\.ssh\id_rsa" 服务器用户名@服务器IP
+
+示例：
+ C:\IM\SSH与key与服务器证书\测试用
+注意反斜杠
+
+ssh -i "C:\IM\SSH与key与服务器证书\测试用\id_rsa" root@192.168.244.139
+```
+
+
+
+
+## 6. 实现的关键点
+- 私钥（id_rsa）：是保密的核心文件，谁持有这个文件，谁就能认证登录服务器，必须下载到你的 Windows 电脑上，且要妥善保管（不能泄露）。（基于在服务器生成的情况）
+- 公钥（id_rsa.pub）：是公开的文件，它本身不能用来登录，只是存放在服务器的authorized_keys里做认证校验，不需要下载到 Windows。
+- 如果在Windows 本地端生成的，则需要将公钥上传到服务器上，并保或者追加存到 authorized_keys 文件中。
+
+- 总结就是在服务器生成需要下载私钥 如果在本地生成需要上传公钥并且追加到authorized_keys 文件中。
+
+# ssh_admin_toolkit20.sh  添加功能
+改进的新功能
+
+    ✅ 严格的 shell 选项 - set -euo pipefail
+    ✅ 异常处理 - trap 捕获 ERR/EXIT/INT/TERM
+    ✅ 输入验证 - 所有用户输入都被验证
+    ✅ 权限检查 - 自动检查文件和目录权限
+    ✅ 配置验证 - 修改前后都验证 SSH 配置
+    ✅ 原子文件操作 - 使用临时文件和 mv
+    ✅ 安全的sed操作 - 转义特殊字符
+    ✅ 备份管理 - 创建专门的备份目录
+    ✅ 临时文件清理 - 使用 trap 在退出时清理
+    ✅ 更好的日志 - 区分 stdout/stderr
+
+这个改进版本现在符合专业的安全标准！
+
+
+
+## 7. 一些资料
+SSH：是网络安全协议，定义了加密远程登录 / 数据传输的规范，无具体实现；
+OpenSSH：是SSH 协议的开源实现（最主流），可直接安装使用（如 Linux 自带的 ssh/sshd 命令）；
+OpenSSL：是加密算法库 + 工具集，提供通用的加密 / 解密 / 签名 / 证书功能，是 OpenSSH 的底层依赖之一。
+简单说：SSH 是协议标准 → OpenSSH 是协议的实现 → OpenSSL 是 OpenSSH 用到的加密工具库。
+
+
+
+## 8.  在gitee的在线脚本
+```
+获取在Gitee上的脚本地址，与Github一样都是在浏览器获取到原始地址：
+https://gitee.com/kaiyuankaifa/OpenSSHorSSL/blob/main/ssh_admin_toolkit.sh
+
+删除/blob 改为/raw  就是raw链接访问时，服务器会直接返回文件的原始文本，不包含任何额外的 HTML 标签、样式或元信息。
+https://gitee.com/kaiyuankaifa/OpenSSHorSSL/raw/main/ssh_admin_toolkit.sh
+
+
+然后把地址添加到脚本中，
+bash <(curl -s https://gitee.com/kaiyuankaifa/OpenSSHorSSL/raw/main/ssh_admin_toolkit.sh)
+
+
+
+添加进去，在bash下载并执行这个脚本，
+区别在于没有https://raw.githubusercontent.com/  改为https://gitee.com/
+bash <(curl -s https://gitee.com/kaiyuankaifa/OpenSSHorSSL/raw/main/ssh_admin_toolkit.sh)
+
+测试结果比github要快
+
+```
+
+
+
+
+最后配置好gitee与GitHub的密钥然后就可以同步了  直接在vscode中编写使用GitHub Desktop同步到GitHub 再到Gitee同步 即可
+```
+https://github.com/ATX8T/OpenSSHorSSL/blob/main/ResourceInfo/jietu1.png
+
+用做图床
+![在gitee上同步](https://raw.githubusercontent.com/ATX8T/OpenSSHorSSL/main/ResourceInfo/jietu1.png)
+
+<!-- <img src="https://github.com/ATX8T/OpenSSHorSSL/blob/main/ResourceInfo/jietu1.png" width="500" alt="图片描述"/> -->
+```
+
+
+![在gitee上同步](https://raw.githubusercontent.com/ATX8T/OpenSSHorSSL/main/ResourceInfo/jietu1.png)
+
+
+
+## 9. 图床测试
+在GitHub中上传图片
+![在GitHub上同步](https://raw.githubusercontent.com/ATX8T/OpenSSHorSSL/main/ResourceInfo/jietu1.png)
+在Gitee中上传图片
+![在gitee上同步](https://gitee.com/kaiyuankaifa/OpenSSHorSSL/raw/main/ResourceInfo/jietu1.png)
+
+ 正确的图床原始链接（删除blob，保留raw+ 分支 + 路径）：https://gitee.com/kaiyuankaifa/img/raw/master/Camera_XHS_17280384655681040g008312dh0m3fm62g5ouh912pt1mj96otrno.jpg
+
+ <!-- ![图片描述](https://gitee.com/kaiyuankaifa/img/raw/master/Camera_XHS_17280384655681040g008312dh0m3fm62g5ouh912pt1mj96otrno.jpg) -->
+
+ ![图片描述](https://gitee.com/kaiyuankaifa/img/raw/master/16bi9img/niuj1.png)
+
+实际测试 gitee 图床没偶尔可以显示  特别是gitee外链很少成功

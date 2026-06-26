@@ -28,6 +28,14 @@
       "desc": "基于 Cloudflare Workers 的 GitHub 加速代理，快速访问 GitHub 资源",
       "path": "projects/githubproxy/public/",
       "tags": ["github", "代理", "加速"]
+    },
+    {
+      "id": "opensshorssl",
+      "name": "SSH 密钥配置工具",
+      "icon": "🔑",
+      "desc": "一键生成 SSH 密钥对并配置服务器，支持多种算法和 Linux 发行版",
+      "path": "https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/projects/OpenSSHorSSL/ssh_admin_toolkit.sh",
+      "tags": ["ssh", "安全", "运维"]
     }
   ]
 }
