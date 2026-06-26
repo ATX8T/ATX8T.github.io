@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>资源浏览器 - GitHub 图床</title>
+    <link rel="stylesheet" href="bootstra538dist/css/bootstrap.min.css?v=20260626">
+    <link rel="stylesheet" href="css/style.css?v=20260626">
+</head>
+<body class="bg-dark text-light">
+
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="resources.html">
+                📁 资源浏览器
+            </a>
+            <div class="navbar-nav flex-row gap-3">
+                <a class="nav-link text-secondary" href="index.html">🔗 链接转换</a>
+                <a class="nav-link text-info fw-bold" href="resources.html">📁 资源浏览</a>
+                <a class="nav-link text-secondary" href="https://github.com/ATX8T/ATX8T.github.io" target="_blank">🐙 GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 工具栏 -->
+    <div class="container mt-3 mb-3">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-light active" data-filter="all" onclick="setFilter('all', this)">全部</button>
+                <button class="btn btn-outline-info" data-filter="image" onclick="setFilter('image', this)">🖼️ 图片</button>
+                <button class="btn btn-outline-success" data-filter="video" onclick="setFilter('video', this)">🎬 视频</button>
+                <button class="btn btn-outline-warning" data-filter="archive" onclick="setFilter('archive', this)">📦 安装包</button>
+                <button class="btn btn-outline-danger" data-filter="git" onclick="setFilter('git', this)">📥 Git</button>
+                <button class="btn btn-outline-secondary" data-filter="other" onclick="setFilter('other', this)">📄 其他</button>
+            </div>
+            <span class="ms-auto">
+                <button class="btn btn-outline-light btn-sm" onclick="loadFiles()">🔄 刷新</button>
+                <span id="fileCount" class="badge bg-secondary ms-1">0</span>
+            </span>
+        </div>
+
+        <!-- 目录面包屑 -->
+        <div class="mt-2" id="breadcrumb"></div>
+    </div>
+
+    <div class="container">
+        <!-- 加载中 -->
+        <div id="loading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-secondary">正在从 jsDelivr 加载文件列表...</p>
+        </div>
+
+        <!-- 空状态 -->
+        <div id="emptyState" class="text-center py-5 d-none">
+            <div style="font-size:4rem;opacity:.3">📭</div>
+            <h5 class="text-secondary mt-2">此目录下没有匹配的文件</h5>
+        </div>
+
+        <!-- 文件表格 -->
+        <div class="table-responsive">
+            <table id="fileTable" class="table table-dark table-hover align-middle d-none">
+                <thead>
+                    <tr>
+                        <th style="width:40px">#</th>
+                        <th>文件名</th>
+                        <th style="width:120px">大小</th>
+                        <th style="width:100px">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="fileBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 预览弹窗 -->
+    <div class="modal fade" id="previewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border-secondary">
+                <div class="modal-header border-secondary">
+                    <h6 class="modal-title" id="previewTitle"></h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-0" id="previewBody"></div>
+                <div class="modal-footer border-secondary">
+                    <a id="previewDownload" class="btn btn-success btn-sm" download>下载</a>
+                    <button class="btn btn-outline-light btn-sm" onclick="copyUrl('previewRawUrl')">复制 Raw 链接</button>
+                    <input type="hidden" id="previewRawUrl">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="bootstra538dist/js/bootstrap.bundle.min.js?v=20260626"></script>
+    <script src="js/resources.js?v=20260626"></script>
+</body>
+</html>

@@ -1,42 +1,30 @@
 /**
  * GitHub 图床 - URL 转换工具
  *
- * 支持的转换：
+ * 支持:
  *   1. GitHub 页面 URL → Raw / jsDelivr / Staticaly
  *   2. Raw URL → jsDelivr / Staticaly
  *   3. 手动拼接
+ *   4. 中文文件名自动处理 (decodeURIComponent + 重新编码)
  */
 
 
 // ==================== URL 解析 ====================
 
-/**
- * 从各种 GitHub URL 中提取 owner, repo, branch, filepath
- *
- * 支持的输入格式:
- *   - https://github.com/ATX8T/ATX8T.github.io/blob/main/images/example.png
- *   - https://github.com/ATX8T/ATX8T.github.io/blob/main/images/example.png?raw=true
- *   - https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/images/example.png
- *   - https://cdn.jsdelivr.net/gh/ATX8T/ATX8T.github.io@main/images/example.png
- *   - ATX8T/ATX8T.github.io/blob/main/images/example.png
- */
 function parseGitHubUrl(url) {
     url = url.trim();
 
-    // 移除协议前缀便于解析
+    // 移除协议前缀
     const cleanUrl = url.replace(/^https?:\/\//, '');
 
     // 模式1: github.com/{owner}/{repo}/blob/{branch}/{path}
     const githubBlobMatch = cleanUrl.match(/^github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/);
     if (githubBlobMatch) {
-        let filepath = githubBlobMatch[4];
-        // 移除 ?raw=true 等查询参数
-        filepath = filepath.split('?')[0];
         return {
             owner: githubBlobMatch[1],
             repo: githubBlobMatch[2],
             branch: githubBlobMatch[3],
-            filepath: filepath,
+            filepath: decodePath(githubBlobMatch[4]),
         };
     }
 
@@ -47,7 +35,7 @@ function parseGitHubUrl(url) {
             owner: rawMatch[1],
             repo: rawMatch[2],
             branch: rawMatch[3],
-            filepath: rawMatch[4].split('?')[0],
+            filepath: decodePath(rawMatch[4]),
         };
     }
 
@@ -58,7 +46,7 @@ function parseGitHubUrl(url) {
             owner: jsdelivrMatch[1],
             repo: jsdelivrMatch[2],
             branch: jsdelivrMatch[3],
-            filepath: jsdelivrMatch[4].split('?')[0],
+            filepath: decodePath(jsdelivrMatch[4]),
         };
     }
 
@@ -69,7 +57,7 @@ function parseGitHubUrl(url) {
             owner: staticalyMatch[1],
             repo: staticalyMatch[2],
             branch: staticalyMatch[3],
-            filepath: staticalyMatch[4].split('?')[0],
+            filepath: decodePath(staticalyMatch[4]),
         };
     }
 
@@ -77,18 +65,46 @@ function parseGitHubUrl(url) {
 }
 
 
+/**
+ * 解码文件路径中的百分号编码字符（中文等）
+ * 输入: images/%E3%80%90...png?raw=true
+ * 输出: images/【哲风壁纸】壁纸-天空-度假胜地.png
+ */
+function decodePath(path) {
+    // 先去掉查询参数
+    path = path.split('?')[0];
+    // 分段解码
+    return path.split('/').map(seg => {
+        try { return decodeURIComponent(seg); }
+        catch (e) { return seg; }
+    }).join('/');
+}
+
+
 // ==================== URL 生成 ====================
 
+/**
+ * Raw URL: 使用 encodeURIComponent 确保中文正确编码
+ */
 function buildRawUrl(owner, repo, branch, filepath) {
-    return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${filepath}`;
+    const encodedPath = filepath.split('/').map(s => encodeURIComponent(s)).join('/');
+    return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${encodedPath}`;
 }
 
+/**
+ * jsDelivr CDN: 推荐用于国内访问
+ */
 function buildJsdelivrUrl(owner, repo, branch, filepath) {
-    return `https://cdn.jsdelivr.net/gh/${owner}/${repo}@${branch}/${filepath}`;
+    const encodedPath = filepath.split('/').map(s => encodeURIComponent(s)).join('/');
+    return `https://cdn.jsdelivr.net/gh/${owner}/${repo}@${branch}/${encodedPath}`;
 }
 
+/**
+ * Staticaly CDN
+ */
 function buildStaticalyUrl(owner, repo, branch, filepath) {
-    return `https://cdn.staticaly.com/gh/${owner}/${repo}/${branch}/${filepath}`;
+    const encodedPath = filepath.split('/').map(s => encodeURIComponent(s)).join('/');
+    return `https://cdn.staticaly.com/gh/${owner}/${repo}/${branch}/${encodedPath}`;
 }
 
 
@@ -99,7 +115,7 @@ function convertUrl() {
     const resultArea = document.getElementById('resultArea');
 
     if (!inputUrl) {
-        showError('请先输入 GitHub 图片链接');
+        showError('请先输入 GitHub 链接');
         return;
     }
 
@@ -107,13 +123,7 @@ function convertUrl() {
 
     if (!parsed) {
         resultArea.classList.add('d-none');
-        showError(
-            '无法识别此链接格式。\n\n' +
-            '支持的格式：\n' +
-            '  • https://github.com/{owner}/{repo}/blob/{branch}/{path}\n' +
-            '  • https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{path}\n' +
-            '  • https://cdn.jsdelivr.net/gh/{owner}/{repo}@{branch}/{path}'
-        );
+        showError('无法识别此链接格式。\n\n支持的格式：\n  https://github.com/{owner}/{repo}/blob/{branch}/{path}\n  https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{path}\n  https://cdn.jsdelivr.net/gh/{owner}/{repo}@{branch}/{path}');
         return;
     }
 
@@ -123,19 +133,23 @@ function convertUrl() {
     const jsdelivrUrl = buildJsdelivrUrl(owner, repo, branch, filepath);
     const staticalyUrl = buildStaticalyUrl(owner, repo, branch, filepath);
 
-    // 填充结果
     document.getElementById('rawUrl').value = rawUrl;
     document.getElementById('jsdelivrUrl').value = jsdelivrUrl;
     document.getElementById('staticalyUrl').value = staticalyUrl;
 
-    // 预览（使用 jsDelivr 作为预览源，国内更快）
+    // 预览 - 用 raw URL 作为最可靠的预览源
     const imgPreview = document.getElementById('imgPreview');
-    imgPreview.src = jsdelivrUrl;
+    imgPreview.src = rawUrl;
+    imgPreview.onerror = function () {
+        // raw 失败则尝试 jsdelivr
+        if (this.src === rawUrl) {
+            this.src = jsdelivrUrl;
+        } else {
+            this.parentElement.innerHTML = '<span class="text-danger small">图片加载失败</span>';
+        }
+    };
 
-    // 显示结果区
     resultArea.classList.remove('d-none');
-
-    // 滚动到结果
     resultArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
@@ -158,11 +172,11 @@ function manualBuild() {
     const staticalyUrl = buildStaticalyUrl(owner, repo, branch, filepath);
 
     document.getElementById('manualRaw').innerHTML =
-        `<span class="text-info">📦 Raw:</span> ${rawUrl}`;
+        '<span class="text-info">Raw:</span> ' + rawUrl;
     document.getElementById('manualJsdelivr').innerHTML =
-        `<span class="text-success">🚀 jsDelivr:</span> ${jsdelivrUrl}`;
+        '<span class="text-success">jsDelivr:</span> ' + jsdelivrUrl;
     document.getElementById('manualStaticaly').innerHTML =
-        `<span class="text-warning">🌐 Staticaly:</span> ${staticalyUrl}`;
+        '<span class="text-warning">Staticaly:</span> ' + staticalyUrl;
 
     document.getElementById('manualResult').classList.remove('d-none');
 }
@@ -176,20 +190,17 @@ function copyToClipboard(inputId, btn) {
     input.setSelectionRange(0, 99999);
 
     navigator.clipboard.writeText(input.value).then(() => {
-        // 按钮反馈
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '✅ 已复制';
+        const orig = btn.innerHTML;
+        btn.innerHTML = '已复制';
         btn.classList.add('btn-success');
-        btn.classList.remove('btn-outline-info', 'btn-outline-success', 'btn-outline-warning');
+        ['btn-outline-info', 'btn-outline-success', 'btn-outline-warning'].forEach(c => btn.classList.remove(c));
         setTimeout(() => {
-            btn.innerHTML = originalText;
+            btn.innerHTML = orig;
             btn.classList.remove('btn-success');
             if (inputId.includes('raw')) btn.classList.add('btn-outline-info');
             else if (inputId.includes('jsdelivr')) btn.classList.add('btn-outline-success');
             else btn.classList.add('btn-outline-warning');
         }, 1500);
-
-        showToast('✅ 已复制到剪贴板');
     }).catch(() => {
         showError('复制失败，请手动选择并复制');
     });
@@ -199,48 +210,30 @@ function copyToClipboard(inputId, btn) {
 // ==================== 工具函数 ====================
 
 function showError(msg) {
-    const toastEl = document.querySelector('#toast .toast');
-    toastEl.className = 'toast align-items-center text-bg-danger border-0';
-    toastEl.querySelector('.toast-body').textContent = msg;
-    toastEl.querySelector('.btn-close')?.classList.replace('btn-close-white', 'btn-close-white');
-    showToast();
-}
-
-function showToast(msg) {
-    const toastEl = document.querySelector('#toast .toast');
-    // 如果是成功消息
-    if (msg && msg.includes('✅')) {
-        toastEl.className = 'toast align-items-center text-bg-success border-0';
-        toastEl.querySelector('.toast-body').textContent = msg;
-    }
-    const toast = new bootstrap.Toast(toastEl, { delay: 2000 });
-    toast.show();
+    const el = document.querySelector('#toast .toast');
+    el.className = 'toast align-items-center text-bg-danger border-0';
+    el.querySelector('.toast-body').textContent = msg;
+    new bootstrap.Toast(el, { delay: 3000 }).show();
 }
 
 
 // ==================== 初始化 ====================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 回车键触发转换
-    document.getElementById('inputUrl').addEventListener('keydown', (e) => {
+    document.getElementById('inputUrl').addEventListener('keydown', e => {
         if (e.key === 'Enter') convertUrl();
     });
 
-    // 手动拼接的回车键
-    const manualInputs = ['owner', 'repo', 'branch', 'filepath'];
-    manualInputs.forEach(id => {
-        document.getElementById(id).addEventListener('keydown', (e) => {
+    ['owner', 'repo', 'branch', 'filepath'].forEach(id => {
+        document.getElementById(id).addEventListener('keydown', e => {
             if (e.key === 'Enter') manualBuild();
         });
     });
 
-    // 粘贴时自动触发转换（延迟一点等值填入）
     document.getElementById('inputUrl').addEventListener('paste', () => {
         setTimeout(() => {
             const val = document.getElementById('inputUrl').value.trim();
-            if (val && parseGitHubUrl(val)) {
-                convertUrl();
-            }
+            if (val && parseGitHubUrl(val)) convertUrl();
         }, 100);
     });
 });

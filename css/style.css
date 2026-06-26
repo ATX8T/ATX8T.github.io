@@ -91,3 +91,45 @@ a:hover {
 #manualRaw:hover, #manualJsdelivr:hover, #manualStaticaly:hover {
     background: rgba(0, 0, 0, 0.35);
 }
+
+/* ===== 资源浏览器 ===== */
+
+/* 文件表格行悬停 */
+#fileTable tbody tr {
+    cursor: default;
+    transition: background 0.15s;
+}
+#fileTable tbody tr:hover {
+    background: rgba(88, 166, 255, 0.06);
+}
+
+/* 文件名截断 */
+.file-name {
+    font-weight: 500;
+}
+
+/* 目录面包屑 */
+#breadcrumb .breadcrumb-item a {
+    text-decoration: none;
+}
+#breadcrumb .breadcrumb-item a:hover {
+    text-decoration: underline;
+}
+
+/* 类型过滤按钮激活态 */
+[data-filter].active {
+    background: rgba(88, 166, 255, 0.2) !important;
+    border-color: #58a6ff !important;
+}
+
+/* 预览弹窗 */
+#previewModal .modal-body {
+    background: #0d1117;
+    min-height: 100px;
+}
+
+/* 导航栏链接 */
+.nav-link.fw-bold {
+    border-bottom: 2px solid #58a6ff;
+    padding-bottom: 2px;
+}
