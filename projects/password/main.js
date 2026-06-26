@@ -34,6 +34,11 @@ function randomIdx(poolLen) {
 
 // ====== 生成 ======
 
+function scrollBottom() {
+    var b = el('bottomArea');
+    if (b) b.scrollTop = 0;
+}
+
 function generate() {
     var pool = buildPool();
     if (!pool) { setDisplay('请至少选一种类型', false); updateStrength('', 0); return; }
@@ -51,6 +56,7 @@ function generate() {
 
     updateStrength(pws[0], pool.length);
     addHistory(pws);
+    setTimeout(scrollBottom, 50);
 }
 
 function makeOne(pool) {
