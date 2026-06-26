@@ -1,0 +1,60 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # 允许手动触发
+  workflow_dispatch:
+
+# 设置 GITHUB_TOKEN 的权限，用于部署到 Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 只允许一个并发部署
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 注入 GitHub PAT 密钥
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          python3 -c "
+          import os
+          token = os.environ['GH_PAT']
+          with open('js/gallery.js', 'r', encoding='utf-8') as f:
+              content = f.read()
+          if '__GITHUB_TOKEN__' not in content:
+              raise ValueError('未找到占位符 __GITHUB_TOKEN__，请检查 js/gallery.js')
+          content = content.replace('__GITHUB_TOKEN__', token)
+          with open('js/gallery.js', 'w', encoding='utf-8') as f:
+              f.write(content)
+          print('✅ Token 注入成功')
+          "
+
+      - name: 设置 Pages
+        uses: actions/configure-pages@v4
+
+      - name: 上传构建产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+          # 排除不需要的文件
+          # .github/workflows 目录不会影响部署
+
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
