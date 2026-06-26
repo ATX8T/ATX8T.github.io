@@ -1,164 +1,113 @@
-## 1. 使用GitHub在线脚本实现远程登录 
+# SSH 密钥自动配置工具
 
-**⚠️ 重要安全警告：**
+一键在 Linux 服务器上生成 SSH 密钥对并完成安全配置。脚本自动检测发行版、安装 OpenSSH、生成密钥、配置 sshd_config。
 
-1. **开启 Root 远程登录**存在极高风险，建议配合防火墙使用。
-2. **在服务端生成私钥**并下载（反向操作）不如“在本地生成公钥上传”安全，因为私钥曾存在于服务器上，且传输过程可能泄露。
-   ##### Windows 自带OpenSSH 功能
-4. 请确保脚本所在的 GitHub 仓库是**私有**的，或者脚本本身不包含敏感硬编码信息。
-5. 私钥复制后请删除服务器私钥
-6. 注意一定要用root权限执行脚本，不然怎么都连不上
+## 支持的发行版
 
-## 2. 组合在线GitHub脚本
+| 发行版 | 包管理器 |
+|--------|----------|
+| Debian / Ubuntu | `apt` |
+| CentOS / RHEL | `yum` |
+| Alpine | `apk` |
+| Arch | `pacman` |
+
+## 支持的密钥算法
+
+| 算法 | 特性 |
+|------|------|
+| RSA 4096 | 经典算法，兼容性最佳 |
+| RSA 8192 | RSA 增强版，更高安全 |
+| Ed25519 | 现代椭圆曲线，快速安全 |
+
+## 一键执行
+
+```bash
+bash <(curl -s https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/projects/OpenSSHorSSL/ssh_admin_toolkit.sh)
 ```
-直接在 GitHub 中打开 ssh_admin_toolkit.sh 获取 Raw 链接
 
-  开始组合：
-源地址: https://github.com/ATX8T/ATX8T.github.io/blob/main/projects/OpenSSHorSSL/ssh_admin_toolkit.sh
-直链地址: https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/projects/OpenSSHorSSL/ssh_admin_toolkit.sh
-```
+### 国内加速 (Gitee)
 
-## 3. 实现远程登录
-- ⚠️ 需要注意服务器能不能连接到GitHub
-- ⚠️ 登录执行前检查当前登录的用户是否有root权限
-- ⚠️ 下载到本地使用 chmod +x 赋予权限
-
-
-
-## 4. 在线脚本使用方法相关的
-
-```
-在线脚本
-bash <(curl -s https://raw.githubusercontent.com/ATX8T/OpenSSHorSSL/main/ssh_admin_toolkit.sh)
-
+```bash
 bash <(curl -s https://gitee.com/kaiyuankaifa/OpenSSHorSSL/raw/main/ssh_admin_toolkit.sh)
+```
 
-生成的密钥 默认会删除旧密钥  如果要多个密钥可以连接在 authorized_keys 中追加之前的公钥即可
+### 下载到本地执行
 
-如果下载要chmod +x赋予权限
+```bash
+wget https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/projects/OpenSSHorSSL/ssh_admin_toolkit.sh
 chmod +x ssh_admin_toolkit.sh
-
-启动交互式菜单（推荐）
 ./ssh_admin_toolkit.sh
-
 ```
 
-## 5. 先测试网络连通性（最基础）
+## ⚠️ 重要安全警告
 
+1. **需要 root 权限执行** — 脚本需要修改 `/etc/ssh/sshd_config` 和 `/root/.ssh/`
+2. **开启 Root 远程登录有风险** — 建议配合防火墙（如 `ufw` / `firewalld`）限制来源 IP
+3. **在服务器生成私钥**不如「本地生成公钥上传」安全 — 私钥曾存在于服务器，传输过程可能泄露
+4. **执行后删除服务器私钥** — 复制到本地后立即删除服务器上的私钥文件
+5. **执行前确认服务器能连接 GitHub** — 脚本需要从 GitHub 下载
 
-```
-# 测试能否 ping 通 raw.githubusercontent.com（仅验证连通性，ping 不通不代表无法访问）
+### 网络连通性测试
+
+```bash
 ping -c 3 raw.githubusercontent.com
-
-# 测试 443 端口是否可访问（HTTPS 必备）
-telnet raw.githubusercontent.com 443
-# 或用更通用的 nc 命令（无 telnet 时）
 nc -zv raw.githubusercontent.com 443
 ```
-### 如果无法访问GitHub 可以使用gitee从GitHub同步过去再改一下地址
 
+## 执行流程
 
+1. 检测 Linux 发行版 → 自动安装 `openssh-client` / `openssh-server`
+2. 交互选择密钥算法（RSA 4096 / RSA 8192 / Ed25519）
+3. 生成密钥对 → 配置 `/etc/ssh/sshd_config`（备份在 `/etc/ssh/backup/`）
+4. 可选显示私钥内容，复制到本地即可 SSH 登录
 
-- 生成后找到密钥文件或者在命令行复制到私钥内容
--  id_rsa 在Windows创建没有后缀名  直接到C:\Users\用户名\.ssh 复制一份然后修改内容就可
-
-- 用 Windows 自带 SSH 连接服务器
-```
-ssh -i "C:\Users\你的Windows用户名\.ssh\id_rsa" 服务器用户名@服务器IP
-
-示例：
- C:\IM\SSH与key与服务器证书\测试用
-注意反斜杠
-
-ssh -i "C:\IM\SSH与key与服务器证书\测试用\id_rsa" root@192.168.244.139
-```
-
-
-
-
-## 6. 实现的关键点
-- 私钥（id_rsa）：是保密的核心文件，谁持有这个文件，谁就能认证登录服务器，必须下载到你的 Windows 电脑上，且要妥善保管（不能泄露）。（基于在服务器生成的情况）
-- 公钥（id_rsa.pub）：是公开的文件，它本身不能用来登录，只是存放在服务器的authorized_keys里做认证校验，不需要下载到 Windows。
-- 如果在Windows 本地端生成的，则需要将公钥上传到服务器上，并保或者追加存到 authorized_keys 文件中。
-
-- 总结就是在服务器生成需要下载私钥 如果在本地生成需要上传公钥并且追加到authorized_keys 文件中。
-
-# ssh_admin_toolkit20.sh  添加功能
-改进的新功能
-
-    ✅ 严格的 shell 选项 - set -euo pipefail
-    ✅ 异常处理 - trap 捕获 ERR/EXIT/INT/TERM
-    ✅ 输入验证 - 所有用户输入都被验证
-    ✅ 权限检查 - 自动检查文件和目录权限
-    ✅ 配置验证 - 修改前后都验证 SSH 配置
-    ✅ 原子文件操作 - 使用临时文件和 mv
-    ✅ 安全的sed操作 - 转义特殊字符
-    ✅ 备份管理 - 创建专门的备份目录
-    ✅ 临时文件清理 - 使用 trap 在退出时清理
-    ✅ 更好的日志 - 区分 stdout/stderr
-
-这个改进版本现在符合专业的安全标准！
-
-
-
-## 7. 一些资料
-SSH：是网络安全协议，定义了加密远程登录 / 数据传输的规范，无具体实现；
-OpenSSH：是SSH 协议的开源实现（最主流），可直接安装使用（如 Linux 自带的 ssh/sshd 命令）；
-OpenSSL：是加密算法库 + 工具集，提供通用的加密 / 解密 / 签名 / 证书功能，是 OpenSSH 的底层依赖之一。
-简单说：SSH 是协议标准 → OpenSSH 是协议的实现 → OpenSSL 是 OpenSSH 用到的加密工具库。
-
-
-
-## 8.  在gitee的在线脚本
-```
-获取在Gitee上的脚本地址，与Github一样都是在浏览器获取到原始地址：
-https://gitee.com/kaiyuankaifa/OpenSSHorSSL/blob/main/ssh_admin_toolkit.sh
-
-删除/blob 改为/raw  就是raw链接访问时，服务器会直接返回文件的原始文本，不包含任何额外的 HTML 标签、样式或元信息。
-https://gitee.com/kaiyuankaifa/OpenSSHorSSL/raw/main/ssh_admin_toolkit.sh
-
-
-然后把地址添加到脚本中，
-bash <(curl -s https://gitee.com/kaiyuankaifa/OpenSSHorSSL/raw/main/ssh_admin_toolkit.sh)
-
-
-
-添加进去，在bash下载并执行这个脚本，
-区别在于没有https://raw.githubusercontent.com/  改为https://gitee.com/
-bash <(curl -s https://gitee.com/kaiyuankaifa/OpenSSHorSSL/raw/main/ssh_admin_toolkit.sh)
-
-测试结果比github要快
+## 自动配置项
 
 ```
-
-
-
-
-最后配置好gitee与GitHub的密钥然后就可以同步了  直接在vscode中编写使用GitHub Desktop同步到GitHub 再到Gitee同步 即可
-```
-https://github.com/ATX8T/OpenSSHorSSL/blob/main/ResourceInfo/jietu1.png
-
-用做图床
-![在gitee上同步](https://raw.githubusercontent.com/ATX8T/OpenSSHorSSL/main/ResourceInfo/jietu1.png)
-
-<!-- <img src="https://github.com/ATX8T/OpenSSHorSSL/blob/main/ResourceInfo/jietu1.png" width="500" alt="图片描述"/> -->
+PubkeyAuthentication yes
+PasswordAuthentication no
+PermitRootLogin yes
+AuthorizedKeysFile .ssh/authorized_keys
+X11Forwarding no
+IgnoreRhosts yes
 ```
 
+## 密钥文件说明
 
-![在gitee上同步](https://raw.githubusercontent.com/ATX8T/OpenSSHorSSL/main/ResourceInfo/jietu1.png)
+| 文件 | 作用 | 处理方式 |
+|------|------|----------|
+| `id_rsa` | 私钥（保密核心） | 复制到本地 Windows，妥善保管 |
+| `id_rsa.pub` | 公钥（公开） | 存在服务器 `authorized_keys` 中，无需下载 |
 
+在 Windows 上用私钥连接服务器：
 
+```bash
+ssh -i "C:\Users\你的用户名\.ssh\id_rsa" root@服务器IP
+```
 
-## 9. 图床测试
-在GitHub中上传图片
-![在GitHub上同步](https://raw.githubusercontent.com/ATX8T/OpenSSHorSSL/main/ResourceInfo/jietu1.png)
-在Gitee中上传图片
-![在gitee上同步](https://gitee.com/kaiyuankaifa/OpenSSHorSSL/raw/main/ResourceInfo/jietu1.png)
+## v3.0 安全特性
 
- 正确的图床原始链接（删除blob，保留raw+ 分支 + 路径）：https://gitee.com/kaiyuankaifa/img/raw/master/Camera_XHS_17280384655681040g008312dh0m3fm62g5ouh912pt1mj96otrno.jpg
+| 特性 | 说明 |
+|------|------|
+| `set -euo pipefail` | 严格 Shell 选项 |
+| `trap` 异常捕获 | ERR / EXIT / INT / TERM |
+| 输入验证 | 所有用户输入正则校验 |
+| 权限检查 | 自动检查文件/目录权限 |
+| 配置验证 | 修改前后验证 SSH 配置 |
+| 原子操作 | 临时文件 + `mv` |
+| 备份管理 | `/etc/ssh/backup/` 目录 |
+| 临时文件清理 | trap 退出时自动清理 |
 
- <!-- ![图片描述](https://gitee.com/kaiyuankaifa/img/raw/master/Camera_XHS_17280384655681040g008312dh0m3fm62g5ouh912pt1mj96otrno.jpg) -->
+## 相关概念
 
- ![图片描述](https://gitee.com/kaiyuankaifa/img/raw/master/16bi9img/niuj1.png)
+- **SSH**：网络安全协议，定义加密远程登录规范
+- **OpenSSH**：SSH 协议的开源实现（Linux 自带 ssh/sshd）
+- **OpenSSL**：加密算法库 + 工具集，是 OpenSSH 的底层依赖
 
-实际测试 gitee 图床没偶尔可以显示  特别是gitee外链很少成功
+## 链接
+
+| 地址 | 说明 |
+|------|------|
+| `ssh_admin_toolkit.sh` | 主脚本 (v3.0) |
+
+> **总结**：服务器生成需下载私钥；本地生成需上传公钥到 `authorized_keys`。
