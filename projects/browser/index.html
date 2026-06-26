@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <title>资源浏览器 · ATX8T Lab</title>
+    <link rel="stylesheet" href="../../assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="/">ATX8T Lab</a>
+        <a class="nav-link small" href="/">← 首页</a>
+    </div>
+</nav>
+
+<div class="container py-4">
+    <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+        <div class="btn-group btn-group-sm flex-wrap" id="filterBar">
+            <button class="btn btn-outline-primary active" data-filter="all">全部</button>
+            <button class="btn btn-outline-primary" data-filter="image">🖼️ 图片</button>
+            <button class="btn btn-outline-primary" data-filter="video">🎬 视频</button>
+            <button class="btn btn-outline-primary" data-filter="archive">📦 APK/安装包</button>
+            <button class="btn btn-outline-primary" data-filter="doc">📄 文档</button>
+            <button class="btn btn-outline-primary" data-filter="other">📁 其他</button>
+        </div>
+        <span class="ms-auto text-muted small">共 <strong id="fileCount">0</strong> 个文件</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="loadFiles()">🔄 刷新</button>
+    </div>
+
+    <div id="breadcrumb" class="mb-3"></div>
+    <div id="loadingBox" class="text-center py-5"><div class="spinner-border text-primary mb-2"></div><p class="text-muted">加载中...</p></div>
+    <div id="emptyBox" class="text-center py-5 d-none"><p class="text-muted">没有匹配的文件</p></div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table id="fileTable" class="table table-hover d-none m-0">
+                <thead><tr><th style="width:36px">#</th><th>文件名</th><th style="width:90px">大小</th><th style="width:150px">操作</th></tr></thead>
+                <tbody id="fileBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border:1px solid var(--border); border-radius:8px;">
+            <div class="modal-header" style="border-bottom:1px solid var(--border);"><h6 class="modal-title" id="previewTitle"></h6><button class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body text-center p-0" id="previewBody" style="min-height:100px;background:#f8f9fa;"></div>
+            <div class="modal-footer" style="border-top:1px solid var(--border);">
+                <button class="btn btn-sm btn-outline-secondary" onclick="copyRaw()">📋 复制 Raw</button>
+                <a id="previewDl" class="btn btn-sm btn-success" download>⬇️ 下载</a>
+                <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-bar" id="toastBar"><span></span></div>
+<input type="hidden" id="currentRaw" value="">
+
+<script src="../../assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

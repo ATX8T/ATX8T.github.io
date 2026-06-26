@@ -1,0 +1,25 @@
+{
+  "site": {
+    "title": "ATX8T Lab",
+    "desc": "开源工具集 · GitHub 资源管理",
+    "footer": "Powered by GitHub Pages"
+  },
+  "projects": [
+    {
+      "id": "converter",
+      "name": "GitHub 直链转换",
+      "icon": "🔗",
+      "desc": "将 GitHub 文件链接转为可直接下载或嵌入网页的直链地址，支持 Raw / jsDelivr / Staticaly",
+      "path": "projects/converter/",
+      "tags": ["github", "图床", "url"]
+    },
+    {
+      "id": "browser",
+      "name": "资源浏览器",
+      "icon": "📁",
+      "desc": "浏览 GitHub 仓库中的文件列表，支持图片/视频预览与下载",
+      "path": "projects/browser/",
+      "tags": ["github", "文件", "浏览"]
+    }
+  ]
+}
