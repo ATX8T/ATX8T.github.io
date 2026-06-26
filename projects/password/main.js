@@ -112,7 +112,7 @@ function renderH() {
 }
 
 // ====== 交互 ======
-function onLengthChange(v) { state.length = +v; Q('lengthValue').textContent = v; gen(); }
+function onLengthChange(v) { state.length = +v; Q('lengthValue').textContent = v; }
 function toggleSeg(btn) {
     var t = btn.dataset.type; state[t] = !state[t]; btn.classList.toggle('active', state[t]);
     if (!state.lower && !state.upper && !state.number && !state.symbol) { state.lower = true; Q('[data-type=lower]').classList.add('active'); }

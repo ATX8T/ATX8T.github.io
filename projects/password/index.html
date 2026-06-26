@@ -218,9 +218,8 @@
 
     <!-- 密码显示 -->
     <div class="card">
-        <div class="pw-display placeholder" id="passwordText">生成密码</div>
+        <div class="pw-display placeholder" id="passwordText">配置下方选项后点击生成</div>
         <div class="pw-actions">
-            <button class="gen-btn" onclick="generate()">🔄 生成密码</button>
             <button class="pw-btn" id="btnCopy" onclick="copyPassword()">📋</button>
         </div>
         <div class="strength-inline">
@@ -232,10 +231,27 @@
 
     <!-- 设置 -->
     <div class="card">
-        <div class="section-title">长度</div>
+        <div class="section-title">密码长度</div>
         <div class="len-row">
             <div class="len-val" id="lengthValue">16</div>
             <input type="range" id="lengthSlider" min="6" max="64" value="16" oninput="onLengthChange(this.value)">
+            <span style="font-size:.72rem;color:var(--text-3);min-width:22px;text-align:right">64</span>
+        </div>
+
+        <div class="section-title">生成数量</div>
+        <div class="count-row">
+            <div class="count-badge" id="countBadge">1</div>
+            <input type="range" id="countSlider" min="1" max="10" value="1" oninput="onCountChange(this.value)" style="flex:1">
+            <span style="font-size:.72rem;color:var(--text-3);min-width:22px;text-align:right">10</span>
+        </div>
+
+        <div class="switch-row">
+            <span class="sw-label">排除混淆字符 1lI0O</span>
+            <div class="toggle on" id="toggleExclude" onclick="toggleSwitch('exclude')"></div>
+        </div>
+        <div class="switch-row">
+            <span class="sw-label">不连续重复字符</span>
+            <div class="toggle" id="toggleUnique" onclick="toggleSwitch('unique')"></div>
         </div>
 
         <div class="section-title">字符类型</div>
@@ -246,21 +262,7 @@
             <button class="seg-btn active" data-type="symbol" onclick="toggleSeg(this)">!@#<sub>符号</sub></button>
         </div>
 
-        <div class="switch-row">
-            <span class="sw-label">排除混淆字符 1lI0O</span>
-            <div class="toggle on" id="toggleExclude" onclick="toggleSwitch('exclude')"></div>
-        </div>
-        <div class="switch-row">
-            <span class="sw-label">不连续重复</span>
-            <div class="toggle" id="toggleUnique" onclick="toggleSwitch('unique')"></div>
-        </div>
-
-        <div class="section-title">数量</div>
-        <div class="count-row">
-            <div class="count-badge" id="countBadge">1</div>
-            <input type="range" id="countSlider" min="1" max="10" value="1" oninput="onCountChange(this.value)" style="flex:1">
-            <span style="font-size:.7rem;color:var(--text-3);min-width:20px;text-align:right">10</span>
-        </div>
+        <button class="gen-btn" onclick="generate()" style="width:100%;margin-top:8px">生成密码</button>
     </div>
 </div>
 
