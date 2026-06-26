@@ -105,6 +105,11 @@ function upStr(pw, sz) {
 }
 
 // ====== 历史 ======
+function clearHistory() {
+    pwList = [];
+    renderH();
+    toast('已清除');
+}
 function fmtTime() {
     var d = new Date();
     var h = d.getHours(), m = d.getMinutes(), s = d.getSeconds();
@@ -145,6 +150,7 @@ function copyPassword() { copyText(Q('passwordText').textContent, Q('btnCopy'));
 // 暴露全局
 window.generate = gen;
 window.copyPassword = copyPassword;
+window.clearHistory = clearHistory;
 window.onLengthChange = onLengthChange;
 window.onCountChange = onCountChange;
 window.toggleSeg = toggleSeg;

@@ -80,6 +80,14 @@
             -webkit-tap-highlight-color: transparent;
         }
         .gen-btn:active { transform: scale(.95); opacity: .85; }
+        .clear-btn {
+            font-size: .76rem; font-weight: 500; color: var(--red);
+            background: none; border: none; cursor: pointer;
+            padding: 2px 8px; border-radius: 6px;
+            transition: all .15s; -webkit-tap-highlight-color: transparent;
+        }
+        .clear-btn:hover { background: rgba(255,59,48,.1); }
+        .clear-btn:active { transform: scale(.94); }
 
         /* 强度 */
         .strength-inline { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
@@ -321,7 +329,10 @@
 
     <!-- 历史 -->
     <div class="card">
-        <div class="section-title">最近</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+            <span class="section-title" style="margin:0">最近</span>
+            <button class="clear-btn" onclick="clearHistory()">清除</button>
+        </div>
         <div class="history-list" id="historyList">
             <div class="empty">点击 🔄 生成</div>
         </div>
