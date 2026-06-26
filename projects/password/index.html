@@ -24,12 +24,13 @@
         /* ====== 导航 ====== */
         .nav {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 6px 16px; flex-shrink: 0;
+            padding: 6px 0; flex-shrink: 0;
             background: rgba(242,242,247,.78);
             backdrop-filter: saturate(180%) blur(20px);
             -webkit-backdrop-filter: saturate(180%) blur(20px);
             border-bottom: .5px solid var(--sep);
         }
+        .nav-inner { width: 86%; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
         .nav a { text-decoration: none; font-size: .85rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 7px; }
         .nav img { width: 22px; height: 22px; border-radius: 50%; }
         .nav .back { color: var(--accent); font-weight: 500; }
@@ -37,8 +38,8 @@
         /* ====== 上部固定区 ====== */
         .top-area {
             flex-shrink: 0;
-            max-width: 560px; width: 100%; margin: 0 auto;
-            padding: 10px 16px 0;
+            width: 86%; margin: 0 auto;
+            padding: 10px 0 0;
         }
 
         .card {
@@ -150,8 +151,8 @@
         /* ====== 底部滚动区 ====== */
         .bottom-area {
             flex: 1; overflow-y: auto; overflow-x: hidden;
-            max-width: 560px; width: 100%; margin: 0 auto;
-            padding: 8px 16px 16px;
+            width: 86%; margin: 0 auto;
+            padding: 8px 0 16px;
             -webkit-overflow-scrolling: touch;
         }
         .bottom-area .card + .card { margin-top: 8px; }
@@ -209,8 +210,10 @@
 <body>
 
 <nav class="nav">
-    <a href="/"><img src="https://github.com/ATX8T.png" alt=""> ATX8T</a>
-    <a class="back" href="/">← 首页</a>
+    <div class="nav-inner">
+        <a href="/"><img src="https://github.com/ATX8T.png" alt=""> ATX8T</a>
+        <a class="back" href="/">← 首页</a>
+    </div>
 </nav>
 
 <!-- ====== 上部固定区 ====== -->
