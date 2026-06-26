@@ -5,117 +5,386 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache">
     <title>密码生成器 · ATX8T Lab</title>
-    <link rel="stylesheet" href="../../assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --bg: #f2f2f7;
+            --card: rgba(255,255,255,.72);
+            --card-solid: #fff;
+            --text: #1d1d1f;
+            --text-2: #6e6e73;
+            --text-3: #aeaeb2;
+            --sep: rgba(60,60,67,.08);
+            --accent: #007aff;
+            --red: #ff3b30;
+            --orange: #ff9500;
+            --yellow: #ffcc00;
+            --green: #34c759;
+            --fill: rgba(120,120,128,.12);
+            --fill-2: rgba(120,120,128,.08);
+            --radius: 18px;
+            --radius-sm: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            letter-spacing: -.01em;
+        }
+
+        /* ====== 导航 ====== */
+        .navbar {
+            background: rgba(242,242,247,.78);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: .5px solid var(--sep);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-inner {
+            max-width: 720px; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 20px;
+        }
+        .nav-logo {
+            font-size: 1.15rem; font-weight: 700; color: var(--text);
+            text-decoration: none; letter-spacing: -.02em;
+        }
+        .nav-back {
+            font-size: .92rem; color: var(--accent); text-decoration: none; font-weight: 500;
+        }
+
+        /* ====== 主容器 ====== */
+        .main {
+            max-width: 720px; margin: 0 auto; padding: 28px 20px 60px;
+            display: flex; flex-direction: column; gap: 20px;
+        }
+
+        /* ====== 密码显示卡片 ====== */
+        .display-card {
+            background: var(--card);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border: .5px solid var(--sep);
+            border-radius: var(--radius);
+            padding: 28px 24px 24px;
+            text-align: center;
+        }
+        .password-text {
+            font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+            font-size: 1.7rem; font-weight: 600; letter-spacing: .06em;
+            word-break: break-all; line-height: 1.35;
+            min-height: 1.35em;
+            user-select: all; cursor: text;
+            color: var(--text);
+        }
+        .password-text.placeholder { color: var(--text-3); font-size: 1.2rem; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; letter-spacing: 0; }
+
+        .display-actions {
+            display: flex; justify-content: center; gap: 12px; margin-top: 20px;
+        }
+        .action-btn {
+            width: 44px; height: 44px; border-radius: 50%;
+            border: none; cursor: pointer; font-size: 1.1rem;
+            background: var(--fill-2); color: var(--text);
+            display: flex; align-items: center; justify-content: center;
+            transition: all .18s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .action-btn:active { transform: scale(.92); background: var(--fill); }
+
+        /* ====== 强度指示 ====== */
+        .strength-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 0 4px;
+        }
+        .strength-bar-bg {
+            flex: 1; height: 5px; border-radius: 5px;
+            background: var(--fill-2); overflow: hidden;
+        }
+        .strength-bar-fill {
+            height: 100%; border-radius: 5px;
+            transition: width .45s cubic-bezier(.25,.1,.25,1), background .45s cubic-bezier(.25,.1,.25,1);
+            width: 0%;
+        }
+        .strength-label {
+            font-size: .82rem; font-weight: 600; min-width: 44px; text-align: right;
+        }
+        .strength-info {
+            font-size: .76rem; color: var(--text-2); padding-top: 6px;
+            display: flex; gap: 16px; flex-wrap: wrap;
+        }
+
+        /* ====== 设置卡片 ====== */
+        .settings-card {
+            background: var(--card);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border: .5px solid var(--sep);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .setting-group { padding: 18px 20px; }
+        .setting-group + .setting-group { border-top: .5px solid var(--sep); }
+
+        .setting-label {
+            font-size: .76rem; font-weight: 600; color: var(--text-2);
+            text-transform: uppercase; letter-spacing: .05em; margin-bottom: 12px;
+        }
+
+        /* 长度滑块 */
+        .length-display-row { display: flex; align-items: center; gap: 12px; }
+        .length-badge {
+            width: 52px; height: 36px; border-radius: 8px;
+            background: var(--fill-2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums;
+            flex-shrink: 0;
+        }
+        input[type=range] {
+            -webkit-appearance: none; appearance: none;
+            flex: 1; height: 6px; border-radius: 6px;
+            background: var(--fill); outline: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 26px; height: 26px;
+            border-radius: 50%; background: #fff;
+            border: .5px solid rgba(0,0,0,.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,.12), 0 0 0 1px rgba(0,0,0,.04);
+            cursor: pointer; transition: transform .15s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.12); }
+
+        /* 分段选择器 (iOS风格) */
+        .segmented {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+        }
+        @media (min-width: 480px) { .segmented { grid-template-columns: 1fr 1fr 1fr 1fr; } }
+
+        .seg-btn {
+            display: flex; align-items: center; justify-content: center; gap: 4px;
+            padding: 10px 6px; border-radius: 10px;
+            font-size: .82rem; font-weight: 500;
+            background: var(--fill-2); color: var(--text-2);
+            border: none; cursor: pointer; user-select: none;
+            transition: all .18s ease;
+            -webkit-tap-highlight-color: transparent;
+            white-space: nowrap;
+        }
+        .seg-btn sub { font-size: .7rem; color: var(--text-3); font-weight: 400; }
+        .seg-btn.active { background: var(--accent); color: #fff; }
+        .seg-btn.active sub { color: rgba(255,255,255,.7); }
+
+        /* 开关 (iOS风格) */
+        .switch-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 6px 0;
+        }
+        .switch-row .info { flex: 1; }
+        .switch-row .title { font-size: .92rem; font-weight: 500; }
+        .switch-row .desc { font-size: .76rem; color: var(--text-2); margin-top: 1px; }
+
+        .toggle {
+            width: 48px; height: 28px; border-radius: 28px;
+            background: var(--fill); cursor: pointer; position: relative;
+            transition: background .28s ease; flex-shrink: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .toggle::after {
+            content: ''; position: absolute;
+            width: 24px; height: 24px; border-radius: 50%;
+            background: #fff; top: 2px; left: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 0 0 .5px rgba(0,0,0,.04);
+            transition: transform .28s cubic-bezier(.25,.8,.25,1.2);
+        }
+        .toggle.on { background: var(--green); }
+        .toggle.on::after { transform: translateX(20px); }
+
+        /* 步进器 */
+        .stepper {
+            display: flex; align-items: center; gap: 16px;
+        }
+        .stepper-btn {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--fill-2); border: none; cursor: pointer;
+            font-size: 1rem; color: var(--accent); font-weight: 600;
+            display: flex; align-items: center; justify-content: center;
+            transition: all .15s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .stepper-btn:active { background: var(--fill); transform: scale(.9); }
+        .stepper-val { font-size: 1rem; font-weight: 600; font-variant-numeric: tabular-nums; min-width: 24px; text-align: center; }
+
+        /* ====== 批量结果 ====== */
+        .batch-list { display: flex; flex-direction: column; gap: 8px; }
+        .batch-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 16px; border-radius: var(--radius-sm);
+            background: rgba(120,120,128,.06);
+        }
+        .batch-pw {
+            flex: 1; font-family: 'SF Mono', 'Menlo', monospace;
+            font-size: .88rem; font-weight: 500; word-break: break-all;
+            letter-spacing: .04em;
+        }
+        .batch-copy {
+            font-size: .78rem; padding: 6px 14px; border-radius: 20px;
+            border: none; cursor: pointer; font-weight: 500;
+            background: var(--fill-2); color: var(--accent);
+            transition: all .15s ease;
+        }
+        .batch-copy:active { background: var(--fill); transform: scale(.94); }
+
+        /* ====== 历史卡片 ====== */
+        .history-card {
+            background: var(--card);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border: .5px solid var(--sep);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .history-card .setting-label { padding: 16px 20px 8px; }
+        .history-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 20px;
+            border-top: .5px solid var(--sep);
+            gap: 12px;
+        }
+        .history-item .h-pw {
+            font-family: 'SF Mono', 'Menlo', monospace;
+            font-size: .82rem; font-weight: 500; word-break: break-all; flex: 1;
+            letter-spacing: .03em;
+        }
+        .history-item .h-copy {
+            font-size: .78rem; padding: 5px 12px; border-radius: 20px;
+            border: none; cursor: pointer; font-weight: 500;
+            background: var(--fill-2); color: var(--accent);
+            transition: all .15s ease; flex-shrink: 0;
+        }
+        .history-item .h-copy:active { background: var(--fill); }
+        .history-empty {
+            padding: 36px 20px; text-align: center;
+            color: var(--text-3); font-size: .88rem;
+        }
+
+        /* ====== Toast ====== */
+        .toast {
+            position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 9999;
+            background: rgba(30,30,32,.92); backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #fff; padding: 10px 22px; border-radius: 24px;
+            font-size: .85rem; font-weight: 500; display: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,.18);
+        }
+
+        @media (max-width: 400px) {
+            .password-text { font-size: 1.35rem; }
+            .setting-group { padding: 14px 16px; }
+        }
+    </style>
 </head>
 <body>
 
-<nav class="navbar"><div class="container"><a class="navbar-brand" href="/">ATX8T Lab</a><a class="nav-link-back" href="/">← 首页</a></div></nav>
+<nav class="navbar">
+    <div class="nav-inner">
+        <a class="nav-logo" href="/">ATX8T Lab</a>
+        <a class="nav-back" href="/">← 首页</a>
+    </div>
+</nav>
 
-<div class="container py-4">
+<div class="main">
 
-    <!-- ====== 主面板 ====== -->
-    <div class="main-panel">
-        <!-- 显示区 -->
-        <div class="password-display">
-            <div class="display-box" id="passwordDisplay">
-                <span class="password-text" id="passwordText">点击生成</span>
-                <div class="display-actions">
-                    <button class="btn btn-sm btn-icon" title="刷新" onclick="generate()">🔄</button>
-                    <button class="btn btn-sm btn-icon" title="复制" onclick="copyPassword()">📋</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 强度指示 -->
-        <div class="strength-section">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-                <span class="strength-label">密码强度</span>
-                <span class="strength-text" id="strengthText">-</span>
-            </div>
-            <div class="strength-bar-bg">
-                <div class="strength-bar-fill" id="strengthBar"></div>
-            </div>
-            <div class="strength-details" id="strengthDetails"></div>
-        </div>
-
-        <!-- ====== 选项区 ====== -->
-        <div class="options-section">
-
-            <!-- 长度 -->
-            <div class="option-row">
-                <div class="option-label">
-                    <span>密码长度</span>
-                    <span class="option-value" id="lengthValue">16</span>
-                </div>
-                <input type="range" class="range-slider" id="lengthSlider" min="6" max="64" value="16" oninput="onLengthChange(this.value)">
-                <div class="range-labels">
-                    <span>6</span><span>20</span><span>36</span><span>50</span><span>64</span>
-                </div>
-            </div>
-
-            <!-- 字符类型 -->
-            <div class="option-row">
-                <div class="option-label">字符类型</div>
-                <div class="toggle-grid">
-                    <label class="toggle-item active" id="toggleLower" onclick="toggleOption('lower')">
-                        <span class="toggle-checksign">✓</span> 小写字母 <small>a-z</small>
-                    </label>
-                    <label class="toggle-item active" id="toggleUpper" onclick="toggleOption('upper')">
-                        <span class="toggle-checksign">✓</span> 大写字母 <small>A-Z</small>
-                    </label>
-                    <label class="toggle-item active" id="toggleNumber" onclick="toggleOption('number')">
-                        <span class="toggle-checksign">✓</span> 数字 <small>0-9</small>
-                    </label>
-                    <label class="toggle-item active" id="toggleSymbol" onclick="toggleOption('symbol')">
-                        <span class="toggle-checksign">✓</span> 符号 <small>!@#$...</small>
-                    </label>
-                </div>
-            </div>
-
-            <!-- 高级选项 -->
-            <div class="option-row">
-                <div class="option-label">高级设置</div>
-                <label class="check-item" id="checkExclude" onclick="toggleCheck('exclude')">
-                    <span class="check-box" id="checkExcludeBox">✓</span>
-                    排除易混淆字符 (1, l, I, 0, O)
-                </label>
-                <label class="check-item" id="checkUnique" onclick="toggleCheck('unique')">
-                    <span class="check-box" id="checkUniqueBox"></span>
-                    不包含连续重复字符
-                </label>
-            </div>
-
-            <!-- 批量生成数量 -->
-            <div class="option-row">
-                <div class="option-label">
-                    <span>生成数量</span>
-                    <span class="option-value" id="countValue">1</span>
-                </div>
-                <input type="range" class="range-slider" id="countSlider" min="1" max="10" value="1" oninput="document.getElementById('countValue').textContent=this.value">
-            </div>
-        </div>
-
-        <!-- 批量结果 -->
-        <div class="batch-result" id="batchResult" style="display:none">
-            <div class="section-header-small">📋 生成结果</div>
-            <div id="batchList"></div>
+    <!-- ====== 密码显示 ====== -->
+    <div class="display-card">
+        <div class="password-text placeholder" id="passwordText">点击生成</div>
+        <div class="display-actions">
+            <button class="action-btn" onclick="generate()" title="重新生成">🔄</button>
+            <button class="action-btn" onclick="copyPassword()" title="复制">📋</button>
         </div>
     </div>
 
-    <!-- ====== 历史记录 ====== -->
-    <div class="card history-card">
-        <div class="card-header">🕐 最近生成</div>
-        <div class="card-body p-0">
-            <div class="history-list" id="historyList">
-                <div class="history-empty">点击「刷新」生成第一条密码</div>
+    <!-- ====== 强度 ====== -->
+    <div class="strength-row">
+        <div class="strength-bar-bg"><div class="strength-bar-fill" id="strengthBar"></div></div>
+        <span class="strength-label" id="strengthText" style="color:var(--text-3)">-</span>
+    </div>
+    <div class="strength-info" id="strengthDetails"></div>
+
+    <!-- ====== 设置 ====== -->
+    <div class="settings-card">
+
+        <!-- 长度 -->
+        <div class="setting-group">
+            <div class="setting-label">长度</div>
+            <div class="length-display-row">
+                <div class="length-badge" id="lengthValue">16</div>
+                <input type="range" id="lengthSlider" min="6" max="64" value="16" oninput="onLengthChange(this.value)">
+                <span style="font-size:.76rem;color:var(--text-3);min-width:28px;text-align:right">64</span>
             </div>
         </div>
+
+        <!-- 字符类型 -->
+        <div class="setting-group">
+            <div class="setting-label">字符类型</div>
+            <div class="segmented" id="typeSegments">
+                <button class="seg-btn active" data-type="lower" onclick="toggleSeg(this)">a-z<sub>小写</sub></button>
+                <button class="seg-btn active" data-type="upper" onclick="toggleSeg(this)">A-Z<sub>大写</sub></button>
+                <button class="seg-btn active" data-type="number" onclick="toggleSeg(this)">0-9<sub>数字</sub></button>
+                <button class="seg-btn active" data-type="symbol" onclick="toggleSeg(this)">!@#<sub>符号</sub></button>
+            </div>
+        </div>
+
+        <!-- 高级 -->
+        <div class="setting-group">
+            <div class="setting-label">高级</div>
+            <div class="switch-row">
+                <div class="info">
+                    <div class="title">排除易混淆字符</div>
+                    <div class="desc">去掉 1, l, I, 0, O, o</div>
+                </div>
+                <div class="toggle on" id="toggleExclude" onclick="toggleSwitch('exclude')"></div>
+            </div>
+            <div class="switch-row" style="margin-top:2px">
+                <div class="info">
+                    <div class="title">不连续重复</div>
+                    <div class="desc">相邻字符不会相同</div>
+                </div>
+                <div class="toggle" id="toggleUnique" onclick="toggleSwitch('unique')"></div>
+            </div>
+        </div>
+
+        <!-- 数量 -->
+        <div class="setting-group">
+            <div class="setting-label">生成数量</div>
+            <div class="stepper">
+                <button class="stepper-btn" onclick="changeCount(-1)">−</button>
+                <span class="stepper-val" id="stepperVal">1</span>
+                <button class="stepper-btn" onclick="changeCount(1)">+</button>
+                <span style="font-size:.8rem;color:var(--text-2);margin-left:8px">个密码</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== 批量 ====== -->
+    <div id="batchArea" style="display:none">
+        <div class="batch-list" id="batchList"></div>
+    </div>
+
+    <!-- ====== 历史 ====== -->
+    <div class="history-card">
+        <div class="setting-label">最近生成</div>
+        <div id="historyList"><div class="history-empty">点击 🔄 生成第一条密码</div></div>
     </div>
 
 </div>
 
-<div class="toast-bar" id="toastBar"><span></span></div>
+<div class="toast" id="toastBar"><span></span></div>
 
 <script src="main.js"></script>
 </body>
