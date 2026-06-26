@@ -105,17 +105,29 @@ function upStr(pw, sz) {
 }
 
 // ====== 历史 ======
+function fmtTime() {
+    var d = new Date();
+    var h = d.getHours(), m = d.getMinutes(), s = d.getSeconds();
+    return (h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+}
+
 function add(arr) {
-    arr.forEach(function(v) { if (pwList.indexOf(v) < 0) { pwList.unshift(v); while(pwList.length > MAX) pwList.pop(); } });
+    var now = fmtTime();
+    arr.forEach(function(v) {
+        if (!pwList.some(function(x){return x.pw === v;})) {
+            pwList.unshift({pw:v, time:now});
+            while(pwList.length > MAX) pwList.pop();
+        }
+    });
     renderH();
 }
 function renderH() {
     var c = Q('historyList');
-    if (!pwList.length) { c.innerHTML = '<div class="empty">点击 🔄 生成</div>'; return; }
+    if (!pwList.length) { c.innerHTML = '<div class="empty">点击生成</div>'; return; }
     c.innerHTML = '';
-    pwList.forEach(function(v) {
+    pwList.forEach(function(x) {
         var d = document.createElement('div'); d.className = 'history-item';
-        d.innerHTML = '<span class="h-pw">'+v+'</span><button class="h-copy" onclick="copyText(\''+esq(v)+'\',this)">复制</button>';
+        d.innerHTML = '<span class="h-pw">'+x.pw+'</span><span class="h-time">'+x.time+'</span><button class="h-copy" onclick="copyText(\''+esq(x.pw)+'\',this)">复制</button>';
         c.appendChild(d);
     });
 }
