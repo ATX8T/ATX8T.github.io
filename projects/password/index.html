@@ -31,9 +31,9 @@
             border-bottom: .5px solid var(--sep);
         }
         .nav-inner { width: 86%; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .nav a { text-decoration: none; font-size: .85rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 7px; }
-        .nav img { width: 22px; height: 22px; border-radius: 50%; }
-        .nav .back { color: var(--accent); font-weight: 500; }
+        .nav a { text-decoration: none; font-size: .92rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 7px; }
+        .nav img { width: 24px; height: 24px; border-radius: 50%; }
+        .nav .back { color: var(--accent); font-weight: 500; font-size: .88rem; }
 
         /* ====== 上部固定区 ====== */
         .top-area {
@@ -55,12 +55,12 @@
         .pw-display {
             text-align: center;
             font-family: 'SF Mono','Menlo','Consolas',monospace;
-            font-size: 1.6rem; font-weight: 600; letter-spacing: .06em;
+            font-size: 1.8rem; font-weight: 600; letter-spacing: .06em;
             word-break: break-all; line-height: 1.35;
             user-select: all; cursor: text; min-height: 1.35em;
             padding: 4px 0;
         }
-        .pw-display.placeholder { font-family: -apple-system,'SF Pro Text',sans-serif; font-size: 1rem; letter-spacing: 0; color: var(--text-3); }
+        .pw-display.placeholder { font-family: -apple-system,'SF Pro Text',sans-serif; font-size: 1.05rem; letter-spacing: 0; color: var(--text-3); }
         .pw-actions { display: flex; justify-content: center; gap: 12px; margin-top: 10px; }
         .pw-btn {
             width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
@@ -73,8 +73,8 @@
         .pw-btn.copied { background: var(--green); color: #fff; transform: scale(1.08); }
         .pw-btn.failed { background: var(--red); color: #fff; }
         .gen-btn {
-            padding: 10px 28px; border-radius: 24px; border: none; cursor: pointer;
-            font-size: .92rem; font-weight: 600; background: var(--accent); color: #fff;
+            padding: 11px 28px; border-radius: 24px; border: none; cursor: pointer;
+            font-size: .95rem; font-weight: 600; background: var(--accent); color: #fff;
             transition: all .2s cubic-bezier(.25,.8,.25,1.2);
             -webkit-tap-highlight-color: transparent;
         }
@@ -84,19 +84,19 @@
         .strength-inline { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
         .strength-bar { flex:1; height:5px; border-radius:5px; background: var(--fill-2); overflow: hidden; }
         .strength-fill { height:100%; border-radius:5px; transition: width .4s, background .4s; }
-        .strength-word { font-size:.78rem; font-weight:600; min-width:48px; text-align:right; }
-        .strength-meta { font-size:.68rem; color:var(--text-2); margin-top:3px; }
+        .strength-word { font-size:.82rem; font-weight:600; min-width:48px; text-align:right; }
+        .strength-meta { font-size:.74rem; color:var(--text-2); margin-top:3px; }
 
         /* 设置 */
         .section-title {
-            font-size: .68rem; font-weight: 600; color: var(--text-2);
-            text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px;
+            font-size: .74rem; font-weight: 600; color: var(--text-2);
+            text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px;
         }
         .len-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
         .len-val {
             min-width:38px; height:30px; border-radius:8px; background: var(--fill-2);
             display:flex; align-items:center; justify-content:center;
-            font-size:.9rem; font-weight:700; flex-shrink:0;
+            font-size:.95rem; font-weight:700; flex-shrink:0;
         }
         input[type=range] {
             -webkit-appearance:none; flex:1; height:6px; border-radius:6px;
@@ -107,21 +107,22 @@
             background:#fff; border:.5px solid rgba(0,0,0,.08);
             box-shadow:0 2px 8px rgba(0,0,0,.1); cursor:pointer;
         }
+        .range-end { font-size:.76rem; color:var(--text-3); min-width:24px; text-align:right; }
 
         .seg { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; margin-bottom:10px; }
         @media(max-width:480px){ .seg{grid-template-columns:1fr 1fr;} }
         .seg-btn {
-            padding:9px 4px; border-radius:10px; font-size:.78rem; font-weight:500;
+            padding:10px 4px; border-radius:10px; font-size:.82rem; font-weight:500;
             background:var(--fill-2); color:var(--text-2); border:none;
             cursor:pointer; text-align:center; transition:all .15s;
             -webkit-tap-highlight-color:transparent; line-height:1.2;
         }
         .seg-btn.active { background:var(--accent); color:#fff; }
-        .seg-btn sub { font-size:.65rem; color:var(--text-3); font-weight:400; display:block; }
+        .seg-btn sub { font-size:.7rem; color:var(--text-3); font-weight:400; display:block; }
         .seg-btn.active sub { color:rgba(255,255,255,.65); }
 
         .switch-row { display:flex; align-items:center; justify-content:space-between; padding:5px 0; }
-        .switch-row .sw-label { font-size:.8rem; font-weight:500; }
+        .switch-row .sw-label { font-size:.88rem; font-weight:500; }
         .toggle {
             width:44px; height:26px; border-radius:26px; background:var(--fill);
             cursor:pointer; position:relative; transition:background .25s; flex-shrink:0;
@@ -137,7 +138,7 @@
         .toggle.on::after { transform:translateX(18px); }
 
         .count-row { display:flex; align-items:center; gap:10px; }
-        .count-badge { min-width:38px; height:30px; border-radius:8px; background:var(--fill-2); display:flex; align-items:center; justify-content:center; font-size:.9rem; font-weight:700; }
+        .count-badge { min-width:38px; height:30px; border-radius:8px; background:var(--fill-2); display:flex; align-items:center; justify-content:center; font-size:.95rem; font-weight:700; }
 
         /* ====== 底部滚动区 ====== */
         .bottom-area {
@@ -156,10 +157,10 @@
         }
         .batch-pw {
             flex:1; font-family:'SF Mono','Menlo',monospace;
-            font-size:.78rem; font-weight:500; word-break:break-all; letter-spacing:.03em;
+            font-size:.82rem; font-weight:500; word-break:break-all; letter-spacing:.03em;
         }
         .batch-copy {
-            font-size:.7rem; padding:5px 12px; border-radius:14px;
+            font-size:.76rem; padding:5px 12px; border-radius:14px;
             border:none; cursor:pointer; font-weight:500;
             background:rgba(0,122,255,.12); color:var(--accent);
             transition:all .2s cubic-bezier(.25,.8,.25,1.2); flex-shrink:0;
@@ -174,22 +175,22 @@
         }
         .history-item:last-child { border-bottom:none; }
         .h-pw {
-            font-family:'SF Mono','Menlo',monospace; font-size:.74rem;
+            font-family:'SF Mono','Menlo',monospace; font-size:.8rem;
             font-weight:500; flex:1; word-break:break-all; letter-spacing:.02em;
         }
         .h-time {
-            font-size:.68rem; color:var(--text-3); font-variant-numeric:tabular-nums;
-            flex-shrink:0; min-width:50px; text-align:right;
+            font-size:.74rem; color:var(--text-3); font-variant-numeric:tabular-nums;
+            flex-shrink:0; min-width:52px; text-align:right;
         }
         .h-copy {
-            font-size:.68rem; padding:4px 10px; border-radius:12px;
+            font-size:.74rem; padding:4px 10px; border-radius:12px;
             border:none; cursor:pointer; font-weight:500;
             background:rgba(0,122,255,.12); color:var(--accent);
             transition:all .2s cubic-bezier(.25,.8,.25,1.2); flex-shrink:0;
         }
         .h-copy.copied { background:var(--green); color:#fff; }
         .h-copy.failed { background:var(--red); color:#fff; }
-        .empty { padding:10px 0; text-align:center; color:var(--text-3); font-size:.78rem; }
+        .empty { padding:10px 0; text-align:center; color:var(--text-3); font-size:.8rem; }
 
         /* 批量 */
         .batch-list { display: flex; flex-direction: column; gap: 5px; }
@@ -240,7 +241,7 @@
             position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999;
             background:rgba(0,0,0,.82); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
             color:#fff; padding:10px 24px; border-radius:22px;
-            font-size:.82rem; font-weight:500; display:none;
+            font-size:.88rem; font-weight:500; display:none;
             box-shadow:0 8px 32px rgba(0,0,0,.25);
             pointer-events:none;
         }
@@ -277,14 +278,14 @@
         <div class="len-row">
             <div class="len-val" id="lengthValue">16</div>
             <input type="range" id="lengthSlider" min="6" max="64" value="16" oninput="onLengthChange(this.value)">
-            <span style="font-size:.72rem;color:var(--text-3);min-width:22px;text-align:right">64</span>
+            <span class="range-end">64</span>
         </div>
 
         <div class="section-title">生成数量</div>
         <div class="count-row">
             <div class="count-badge" id="countBadge">1</div>
             <input type="range" id="countSlider" min="1" max="10" value="1" oninput="onCountChange(this.value)" style="flex:1">
-            <span style="font-size:.72rem;color:var(--text-3);min-width:22px;text-align:right">10</span>
+            <span class="range-end">10</span>
         </div>
 
         <div class="switch-row">
