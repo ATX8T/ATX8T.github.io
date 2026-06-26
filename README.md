@@ -1,4 +1,4 @@
-# ATX8T Lab
+# ATX8T
 
 开源工具集 · 基于 GitHub Pages 的项目聚合站点。
 
@@ -75,7 +75,7 @@ git add . && git commit -m "新增项目: your-project" && git push
 ```jsonc
 {
   "site": {                     // 站点全局信息
-    "title": "ATX8T Lab",       // 网站标题
+    "title": "ATX8T",       // 网站标题
     "desc": "开源工具集",        // 首页描述
     "footer": "Powered by ..."  // 页脚文字
   },
