@@ -12,16 +12,9 @@
 |------|------|
 | 🔐 随机密码生成器 | [查看文档](Password/README.md) |
 | 🌐 子网划分工具 | [查看文档](SubnetDivision/README.md) |
-| ☁️ R2图床管理 | [查看文档](Cloudflare/README.md) |
 | 🎬 视频播放器 | [查看文档](Resource/mp4/README.md) |
 | 📦 文件下载服务 | [查看文档](Resource/apk/README.md) |
-| 📖 Hexo博客 | [查看文档](Hexo/README.md) |
 | 在GitHub上的图床 | [演示](Resource/README.md) |
----
-
-## 🔗 另一个账户的hexo
-
-[Cloudflare加速GitHub Pages](<CloudflareAcceleration/Cloudflare加速GitHub Pages.md>)
 
 
 ---
@@ -43,12 +36,10 @@ ATX8T.github.io/
 ├── index.html              # 网站主页
 ├── Password/               # 密码生成器项目
 ├── SubnetDivision/         # 子网划分工具项目
-├── Cloudflare/             # Cloudflare相关工具项目
 ├── Resource/               # 公共资源
 │   ├── js/                 # 公共JS组件
 │   ├── mp4/                # 视频播放项目
 │   └── apk/                # 下载服务项目
-├── Hexo/                   # Hexo博客项目
 ├── bootstrap537/           # Bootstrap框架
 └── README.md               # 本文件
 ```

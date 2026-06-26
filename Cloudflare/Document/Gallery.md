@@ -1,1 +1,0 @@
-1. GalleryConnection.txt 一定要在本地ctrl+s保存后再推送否则会导致推送空文件，或者没有变化的文件，导致在Gallery.html中反复找错误。
