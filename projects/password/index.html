@@ -71,6 +71,13 @@
         .pw-btn:active { transform: scale(.88); background: var(--fill); }
         .pw-btn.copied { background: var(--green); color: #fff; transform: scale(1.05); }
         .pw-btn.failed { background: var(--red); color: #fff; }
+        .gen-btn {
+            padding: 8px 20px; border-radius: 22px; border: none; cursor: pointer;
+            font-size: .88rem; font-weight: 600; background: var(--accent); color: #fff;
+            transition: all .2s cubic-bezier(.25,.8,.25,1.2);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .gen-btn:active { transform: scale(.95); opacity: .85; }
 
         /* 强度 */
         .strength-inline { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
@@ -137,6 +144,8 @@
         }
         .step-btn:active { background:var(--fill); transform:scale(.88); }
         .step-val { font-size:.9rem; font-weight:600; min-width:18px; text-align:center; }
+        .count-row { display:flex; align-items:center; gap:10px; }
+        .count-badge { min-width:32px; height:26px; border-radius:7px; background:var(--fill-2); display:flex; align-items:center; justify-content:center; font-size:.85rem; font-weight:700; }
 
         /* ====== 底部滚动区 ====== */
         .bottom-area {
@@ -211,7 +220,7 @@
     <div class="card">
         <div class="pw-display placeholder" id="passwordText">生成密码</div>
         <div class="pw-actions">
-            <button class="pw-btn" onclick="generate()">🔄</button>
+            <button class="gen-btn" onclick="generate()">🔄 生成密码</button>
             <button class="pw-btn" id="btnCopy" onclick="copyPassword()">📋</button>
         </div>
         <div class="strength-inline">
@@ -246,13 +255,11 @@
             <div class="toggle" id="toggleUnique" onclick="toggleSwitch('unique')"></div>
         </div>
 
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px">
-            <span class="section-title" style="margin:0">数量</span>
-            <div class="stepper">
-                <button class="step-btn" onclick="changeCount(-1)">−</button>
-                <span class="step-val" id="stepperVal">1</span>
-                <button class="step-btn" onclick="changeCount(1)">+</button>
-            </div>
+        <div class="section-title">数量</div>
+        <div class="count-row">
+            <div class="count-badge" id="countBadge">1</div>
+            <input type="range" id="countSlider" min="1" max="10" value="1" oninput="onCountChange(this.value)" style="flex:1">
+            <span style="font-size:.7rem;color:var(--text-3);min-width:20px;text-align:right">10</span>
         </div>
     </div>
 </div>

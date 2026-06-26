@@ -116,19 +116,18 @@ function onLengthChange(v) { state.length = +v; Q('lengthValue').textContent = v
 function toggleSeg(btn) {
     var t = btn.dataset.type; state[t] = !state[t]; btn.classList.toggle('active', state[t]);
     if (!state.lower && !state.upper && !state.number && !state.symbol) { state.lower = true; Q('[data-type=lower]').classList.add('active'); }
-    gen();
 }
-function toggleSwitch(t) { state[t] = !state[t]; Q('toggle'+t[0].toUpperCase()+t.slice(1)).classList.toggle('on', state[t]); gen(); }
-function changeCount(d) { state.count = Math.max(1, Math.min(10, state.count + d)); Q('stepperVal').textContent = state.count; gen(); }
+function toggleSwitch(t) { state[t] = !state[t]; Q('toggle'+t[0].toUpperCase()+t.slice(1)).classList.toggle('on', state[t]); }
+function onCountChange(v) { state.count = +v; Q('countBadge').textContent = v; }
 function copyPassword() { copyText(Q('passwordText').textContent, Q('btnCopy')); }
 
 // 暴露全局
 window.generate = gen;
 window.copyPassword = copyPassword;
 window.onLengthChange = onLengthChange;
+window.onCountChange = onCountChange;
 window.toggleSeg = toggleSeg;
 window.toggleSwitch = toggleSwitch;
-window.changeCount = changeCount;
 window.copyText = function(t, btn) {
     navigator.clipboard.writeText(t).then(function() {
         if (btn) { btn.classList.add('copied'); setTimeout(function(){btn.classList.remove('copied')},1200); }
