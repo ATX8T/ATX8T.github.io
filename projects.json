@@ -26,7 +26,7 @@
       "name": "GitHub 加速代理",
       "icon": "🚀",
       "desc": "基于 Cloudflare Workers 的 GitHub 加速代理，快速访问 GitHub 资源",
-      "path": "projects/githubproxy/public/",
+      "path": "https://proxyclass.dpdns.org/",
       "tags": ["github", "代理", "加速"]
     },
     {
