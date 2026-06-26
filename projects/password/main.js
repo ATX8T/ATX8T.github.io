@@ -47,7 +47,7 @@ function generate() {
 
     setDisplay(pws[0], true);
     if (pws.length > 1) renderBatch(pws);
-    else { var ba = document.getElementById('batchArea'); if (ba) ba.style.display = 'none'; }
+    else { var bc = document.getElementById('batchCard'); if (bc) bc.style.display = 'none'; }
 
     updateStrength(pws[0], pool.length);
     addHistory(pws);
@@ -75,7 +75,7 @@ function setDisplay(t, gen) {
 }
 
 function renderBatch(pws) {
-    var area = document.getElementById('batchArea'), list = document.getElementById('batchList');
+    var area = document.getElementById('batchCard'), list = document.getElementById('batchList');
     area.style.display = ''; list.innerHTML = '';
     pws.forEach(function(p) {
         var d = document.createElement('div'); d.className = 'batch-item';
