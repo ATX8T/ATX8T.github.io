@@ -13,14 +13,16 @@
 │   │   ├── index.html
 │   │   ├── style.css
 │   │   └── main.js
-│   └── browser/            # 资源浏览器
-│       ├── index.html
-│       ├── style.css
-│       └── main.js
 ├── assets/                 # 共享资源
 │   └── bootstrap/
 │       ├── css/bootstrap.min.css
 │       └── js/bootstrap.bundle.min.js
+├── Resource/               # 资源存储 (按类型分类)
+│   ├── images/             # 图片 (png/jpg/gif/webp)
+│   ├── videos/             # 视频 (mp4/webm/mov)
+│   ├── installer/          # 安装包 (exe/apk/msi/dmg)
+│   ├── git/                # Git 相关 (bundle/pack)
+│   └── other/              # 其他文件
 └── README.md               # 本文件
 ```
 
