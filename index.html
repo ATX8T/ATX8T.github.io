@@ -68,6 +68,35 @@
         }
         .nav-link-right { font-size: .85rem; color: var(--text-muted); text-decoration: none; transition: color .2s; }
         .nav-link-right:hover { color: var(--accent); }
+        .nav-right { display: flex; align-items: center; gap: 14px; }
+        .settings-btn {
+            width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border);
+            background: var(--card-bg); cursor: pointer; font-size: .9rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all .2s; -webkit-tap-highlight-color: transparent;
+        }
+        .settings-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .settings-panel {
+            position: fixed; top: 56px; right: 16px; z-index: 200;
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 18px 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,.12);
+            min-width: 260px; display: none;
+        }
+        .settings-panel.show { display: block; }
+        .settings-panel .set-title { font-size: .78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 14px; }
+        .settings-panel .set-row { margin-bottom: 14px; }
+        .settings-panel .set-row:last-child { margin-bottom: 0; }
+        .settings-panel .set-label { font-size: .8rem; font-weight: 500; margin-bottom: 4px; display: flex; justify-content: space-between; }
+        .settings-panel .set-val { font-size: .8rem; color: var(--accent); font-weight: 600; }
+        .settings-panel input[type=range] {
+            -webkit-appearance: none; width: 100%; height: 5px; border-radius: 5px;
+            background: var(--fill); outline: none;
+        }
+        .settings-panel input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+            background: var(--accent); cursor: pointer;
+        }
 
         /* === Hero === */
         .hero {
@@ -243,7 +272,10 @@
 <nav class="navbar">
     <div class="container d-flex justify-content-between align-items-center py-2">
         <a class="navbar-brand" href="/"><img src="https://github.com/ATX8T.png" alt=""> ATX8T</a>
-        <a class="nav-link-right" href="https://github.com/ATX8T/ATX8T.github.io" target="_blank">GitHub →</a>
+        <div class="nav-right">
+            <button class="settings-btn" onclick="toggleSettings()" title="页面设置">⚙️</button>
+            <a class="nav-link-right" href="https://github.com/ATX8T/ATX8T.github.io" target="_blank">GitHub →</a>
+        </div>
     </div>
 </nav>
 
@@ -287,6 +319,23 @@
             <a href="README.md">📖 开发规范</a>
         </div>
         <div class="copyright" id="footerText"></div>
+    </div>
+</div>
+
+<!-- 页面设置面板 -->
+<div class="settings-panel" id="settingsPanel">
+    <div class="set-title">⚙️ 页面设置</div>
+    <div class="set-row">
+        <div class="set-label"><span>背景透明度</span><span class="set-val" id="opacityVal">55%</span></div>
+        <input type="range" min="10" max="95" value="55" oninput="updateOpacity(this.value)">
+    </div>
+    <div class="set-row">
+        <div class="set-label"><span>背景模糊度</span><span class="set-val" id="blurVal">2px</span></div>
+        <input type="range" min="0" max="10" value="2" oninput="updateBlur(this.value)">
+    </div>
+    <div class="set-row">
+        <div class="set-label"><span>卡顿字体</span><span class="set-val" id="cardFontVal">默认</span></div>
+        <input type="range" min="12" max="18" value="14" oninput="updateCardFont(this.value)" style="display:none">
     </div>
 </div>
 
@@ -345,6 +394,50 @@ fetch('projects.json?t=' + Date.now())
             '<div class="project-card" style="text-align:center;padding:40px"><div style="font-size:2rem;margin-bottom:8px">⚠️</div><div class="name">加载失败</div><div class="desc">请检查 projects.json 是否存在</div></div>';
         var sk = document.getElementById('skeletonGrid');
         if (sk) sk.remove();
+    });
+
+    // ====== 页面设置面板 ======
+    var overlay = document.querySelector('body::before'); // can't select pseudo, use style
+    function setOverlay(opacity, blur) {
+        var style = document.getElementById('overlayStyle');
+        if (!style) {
+            style = document.createElement('style');
+            style.id = 'overlayStyle';
+            document.head.appendChild(style);
+        }
+        style.textContent = 'body::before { background: rgba(245,246,250,' + (opacity/100) + ')!important; backdrop-filter: blur(' + blur + 'px)!important; -webkit-backdrop-filter: blur(' + blur + 'px)!important; }';
+    }
+
+    // 读取保存的设置
+    var savedOpacity = localStorage.getItem('bgOpacity') || 55;
+    var savedBlur = localStorage.getItem('bgBlur') || 2;
+    setOverlay(savedOpacity, savedBlur);
+    document.getElementById('opacityVal').textContent = Math.round(savedOpacity) + '%';
+    document.getElementById('blurVal').textContent = savedBlur + 'px';
+
+    window.toggleSettings = function() {
+        document.getElementById('settingsPanel').classList.toggle('show');
+    };
+    window.updateOpacity = function(v) {
+        document.getElementById('opacityVal').textContent = v + '%';
+        localStorage.setItem('bgOpacity', v);
+        var blur = localStorage.getItem('bgBlur') || 2;
+        setOverlay(v, blur);
+    };
+    window.updateBlur = function(v) {
+        document.getElementById('blurVal').textContent = v + 'px';
+        localStorage.setItem('bgBlur', v);
+        var opacity = localStorage.getItem('bgOpacity') || 55;
+        setOverlay(opacity, v);
+    };
+
+    // 点击其他地方关闭面板
+    document.addEventListener('click', function(e) {
+        var panel = document.getElementById('settingsPanel');
+        var btn = document.querySelector('.settings-btn');
+        if (panel && btn && !panel.contains(e.target) && !btn.contains(e.target)) {
+            panel.classList.remove('show');
+        }
     });
 </script>
 
