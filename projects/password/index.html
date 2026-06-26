@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <title>密码生成器 · ATX8T Lab</title>
+    <link rel="stylesheet" href="../../assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar"><div class="container"><a class="navbar-brand" href="/">ATX8T Lab</a><a class="nav-link-back" href="/">← 首页</a></div></nav>
+
+<div class="container py-4">
+
+    <!-- ====== 主面板 ====== -->
+    <div class="main-panel">
+        <!-- 显示区 -->
+        <div class="password-display">
+            <div class="display-box" id="passwordDisplay">
+                <span class="password-text" id="passwordText">点击生成</span>
+                <div class="display-actions">
+                    <button class="btn btn-sm btn-icon" title="刷新" onclick="generate()">🔄</button>
+                    <button class="btn btn-sm btn-icon" title="复制" onclick="copyPassword()">📋</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 强度指示 -->
+        <div class="strength-section">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <span class="strength-label">密码强度</span>
+                <span class="strength-text" id="strengthText">-</span>
+            </div>
+            <div class="strength-bar-bg">
+                <div class="strength-bar-fill" id="strengthBar"></div>
+            </div>
+            <div class="strength-details" id="strengthDetails"></div>
+        </div>
+
+        <!-- ====== 选项区 ====== -->
+        <div class="options-section">
+
+            <!-- 长度 -->
+            <div class="option-row">
+                <div class="option-label">
+                    <span>密码长度</span>
+                    <span class="option-value" id="lengthValue">16</span>
+                </div>
+                <input type="range" class="range-slider" id="lengthSlider" min="6" max="64" value="16" oninput="onLengthChange(this.value)">
+                <div class="range-labels">
+                    <span>6</span><span>20</span><span>36</span><span>50</span><span>64</span>
+                </div>
+            </div>
+
+            <!-- 字符类型 -->
+            <div class="option-row">
+                <div class="option-label">字符类型</div>
+                <div class="toggle-grid">
+                    <label class="toggle-item active" id="toggleLower" onclick="toggleOption('lower')">
+                        <span class="toggle-checksign">✓</span> 小写字母 <small>a-z</small>
+                    </label>
+                    <label class="toggle-item active" id="toggleUpper" onclick="toggleOption('upper')">
+                        <span class="toggle-checksign">✓</span> 大写字母 <small>A-Z</small>
+                    </label>
+                    <label class="toggle-item active" id="toggleNumber" onclick="toggleOption('number')">
+                        <span class="toggle-checksign">✓</span> 数字 <small>0-9</small>
+                    </label>
+                    <label class="toggle-item active" id="toggleSymbol" onclick="toggleOption('symbol')">
+                        <span class="toggle-checksign">✓</span> 符号 <small>!@#$...</small>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 高级选项 -->
+            <div class="option-row">
+                <div class="option-label">高级设置</div>
+                <label class="check-item" id="checkExclude" onclick="toggleCheck('exclude')">
+                    <span class="check-box" id="checkExcludeBox">✓</span>
+                    排除易混淆字符 (1, l, I, 0, O)
+                </label>
+                <label class="check-item" id="checkUnique" onclick="toggleCheck('unique')">
+                    <span class="check-box" id="checkUniqueBox"></span>
+                    不包含连续重复字符
+                </label>
+            </div>
+
+            <!-- 批量生成数量 -->
+            <div class="option-row">
+                <div class="option-label">
+                    <span>生成数量</span>
+                    <span class="option-value" id="countValue">1</span>
+                </div>
+                <input type="range" class="range-slider" id="countSlider" min="1" max="10" value="1" oninput="document.getElementById('countValue').textContent=this.value">
+            </div>
+        </div>
+
+        <!-- 批量结果 -->
+        <div class="batch-result" id="batchResult" style="display:none">
+            <div class="section-header-small">📋 生成结果</div>
+            <div id="batchList"></div>
+        </div>
+    </div>
+
+    <!-- ====== 历史记录 ====== -->
+    <div class="card history-card">
+        <div class="card-header">🕐 最近生成</div>
+        <div class="card-body p-0">
+            <div class="history-list" id="historyList">
+                <div class="history-empty">点击「刷新」生成第一条密码</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="toast-bar" id="toastBar"><span></span></div>
+
+<script src="main.js"></script>
+</body>
+</html>

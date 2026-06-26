@@ -20,6 +20,14 @@
       "desc": "浏览 GitHub 仓库中的文件列表，支持图片/视频预览与下载",
       "path": "projects/browser/",
       "tags": ["github", "文件", "浏览"]
+    },
+    {
+      "id": "password",
+      "name": "密码生成器",
+      "icon": "🔐",
+      "desc": "随机生成高强度密码，支持自定义长度、字符类型、排除混淆字符",
+      "path": "projects/password/",
+      "tags": ["安全", "密码", "随机"]
     }
   ]
 }
