@@ -2,11 +2,23 @@
 
 一键在 Linux 服务器上生成 SSH 密钥对并完成安全配置。
 
-## 一键执行
+## 📥 下载
+
+| 方式 | 链接 | 说明 |
+|------|------|------|
+| 🌐 **浏览器直接下载** | [ssh_admin_toolkit.sh](https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/projects/OpenSSHorSSL/ssh_admin_toolkit.sh) | 右键「另存为」保存到本地 |
+| 💻 **命令行执行** | `bash <(curl -s https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/projects/OpenSSHorSSL/ssh_admin_toolkit.sh)` | 在 Linux 服务器终端粘贴执行 |
+| 📋 **命令行下载** | `wget https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/projects/OpenSSHorSSL/ssh_admin_toolkit.sh` | 下载到服务器后 `chmod +x` 执行 |
+
+> 💡 **浏览器下载**：Windows 用户点击上方链接即可下载 `.sh` 文件，然后通过 SFTP 上传到服务器。
+
+## 🚀 命令行一键执行
 
 ```bash
 bash <(curl -s https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/projects/OpenSSHorSSL/ssh_admin_toolkit.sh)
 ```
+
+### 国内加速
 
 ### 📖 在线脚本链接组合方法
 
@@ -71,14 +83,6 @@ Gitee:   /blob → /raw
 
 ```bash
 bash <(curl -s https://gitee.com/kaiyuankaifa/OpenSSHorSSL/raw/main/ssh_admin_toolkit.sh)
-```
-
-### 下载执行
-
-```bash
-wget https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/projects/OpenSSHorSSL/ssh_admin_toolkit.sh
-chmod +x ssh_admin_toolkit.sh
-./ssh_admin_toolkit.sh
 ```
 
 ## 功能
