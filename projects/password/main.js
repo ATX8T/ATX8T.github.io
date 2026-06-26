@@ -33,8 +33,17 @@ function rndIdx(n) {
 
 // ====== 生成 ======
 function gen() {
+    // 每次都从 DOM 读取当前值，确保同步
+    state.length = +Q('lengthSlider').value;
+    state.count = +Q('countSlider').value;
+    Q('lengthValue').textContent = state.length;
+    Q('countBadge').textContent = state.count;
+
     var p = pool();
     if (!p) { show('请至少选一种类型', false); upStr('', 0); return; }
+    // 安全兜底：确保长度至少为滑块最小值
+    if (state.length < 6) state.length = 16;
+    if (state.count < 1 || state.count > 10) state.count = 1;
 
     var seen = {}, out = [], tries = 0, maxTry = state.count * 50;
     while (out.length < state.count && tries < maxTry) {
