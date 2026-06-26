@@ -5,180 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache">
     <link rel="icon" type="image/png" sizes="64x64" href="https://github.com/ATX8T.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="https://github.com/ATX8T.png">
-    <title>SSH 密钥配置 · ATX8T</title>
+    <title>SSH 配置工具 · ATX8T</title>
     <style>
-        :root {
-            --bg: #f1f5f9; --card: #fff; --text: #0f172a; --text2: #64748b;
-            --text3: #94a3b8; --border: #e2e8f0; --accent: #2563eb;
-            --green: #16a34a; --red: #dc2626; --radius: 12px;
-        }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            background: var(--bg); color: var(--text);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            min-height: 100vh; -webkit-font-smoothing: antialiased;
-        }
-        .nav {
-            background: var(--card); border-bottom: 1px solid var(--border);
-            padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between;
-        }
-        .nav a { text-decoration:none; font-size:.88rem; font-weight:600; color:var(--text); display:flex; align-items:center; gap:10px; }
-        .nav img { width:32px; height:32px; border-radius:50%; }
-        .nav .back { color:var(--accent); font-size:.84rem; }
-
-        .main { max-width:800px; margin:0 auto; padding:32px 20px 60px; }
-
-        .card {
-            background: var(--card); border:1px solid var(--border);
-            border-radius: var(--radius); padding:24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,.04); margin-bottom: 20px;
-        }
-        .card h2 { font-size:1.25rem; font-weight:700; margin-bottom:12px; }
-        .card p { font-size:.9rem; color:var(--text2); line-height:1.6; margin-bottom:8px; }
-
-        .code-block {
-            background: #0f172a; color: #e2e8f0; font-family: 'JetBrains Mono','SF Mono',monospace;
-            font-size: .85rem; padding: 16px 20px; border-radius: 10px; overflow-x: auto;
-            white-space: pre-wrap; word-break: break-all; position: relative;
-            margin: 12px 0; user-select: all; cursor: text;
-        }
-        .code-block .copy-btn {
-            position: absolute; top: 10px; right: 12px; padding: 4px 12px;
-            border-radius: 6px; border:1px solid rgba(255,255,255,.2); cursor: pointer;
-            font-size: .72rem; background: rgba(255,255,255,.08); color: #94a3b8;
-            transition: all .15s;
-        }
-        .code-block .copy-btn:hover { background: rgba(255,255,255,.15); color:#fff; }
-        .code-block .copy-btn.copied { background:var(--green); color:#fff; border-color:var(--green); }
-
-        .badge { display:inline-block; padding:4px 10px; border-radius:6px; font-size:.74rem; font-weight:600; margin-right:6px; }
-        .badge-green { background:#dcfce7; color:#166534; }
-        .badge-blue { background:#dbeafe; color:#1e40af; }
-        .badge-amber { background:#fef3c7; color:#92400e; }
-
-        .algo-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:10px; margin:10px 0; }
-        .algo-item {
-            padding:12px 14px; border-radius:8px; border:1px solid var(--border);
-            background:#f8fafc;
-        }
-        .algo-item .name { font-weight:700; font-size:.85rem; }
-        .algo-item .desc { font-size:.76rem; color:var(--text2); margin-top:2px; }
-
-        .step { display:flex; gap:12px; margin-bottom:16px; }
-        .step-num {
-            width:28px; height:28px; border-radius:50%; background:var(--accent);
-            color:#fff; display:flex; align-items:center; justify-content:center;
-            font-size:.78rem; font-weight:700; flex-shrink:0; margin-top:2px;
-        }
-        .step-body { font-size:.88rem; line-height:1.55; }
-        .step-body code { background:#f1f5f9; padding:2px 6px; border-radius:4px; font-size:.82rem; }
-
-        .toast {
-            position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:9999;
-            background:#0f172a; color:#fff; padding:10px 24px; border-radius:8px;
-            font-size:.82rem; display:none; box-shadow:0 4px 20px rgba(0,0,0,.2);
-        }
+        :root { --bg:#f8fafc; --text:#1e293b; --text2:#64748b; --border:#e2e8f0; --accent:#2563eb; --radius:10px; }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+        .nav{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between}
+        .nav a{text-decoration:none;font-size:.88rem;font-weight:600;color:var(--text);display:flex;align-items:center;gap:10px}
+        .nav img{width:32px;height:32px;border-radius:50%}.nav .back{color:var(--accent)}
+        .main{max-width:860px;margin:0 auto;padding:24px 20px 60px}
+        .content{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:28px 32px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+        .content h1{font-size:1.5rem;margin:0 0 8px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+        .content h2{font-size:1.15rem;margin:28px 0 10px}
+        .content h3{font-size:1rem;margin:20px 0 8px}
+        .content p{font-size:.9rem;line-height:1.7;color:var(--text2);margin-bottom:10px}
+        .content code{background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:.84em;font-family:'JetBrains Mono',monospace}
+        .content pre{background:#0f172a;color:#e2e8f0;padding:16px 20px;border-radius:8px;overflow-x:auto;font-size:.82rem;line-height:1.6;margin:12px 0;font-family:'JetBrains Mono',monospace;white-space:pre-wrap}
+        .content pre code{background:none;padding:0;font-size:inherit;color:inherit}
+        .content ul,.content ol{padding-left:24px;margin-bottom:10px}
+        .content li{font-size:.9rem;line-height:1.7;color:var(--text2);margin-bottom:4px}
+        .content table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.86rem}
+        .content th,.content td{padding:8px 12px;border:1px solid var(--border);text-align:left}
+        .content th{background:#f8fafc;font-weight:600}
+        .content td{color:var(--text2)}
+        .content a{color:var(--accent);text-decoration:underline}
+        .content hr{border:none;border-top:1px solid var(--border);margin:24px 0}
+        .content strong{color:var(--text)}
+        .content blockquote{border-left:3px solid var(--accent);padding:8px 16px;margin:12px 0;background:#f8fafc;border-radius:0 8px 8px 0}
+        .content img{max-width:100%;border-radius:8px;margin:8px 0}
+        .loading{text-align:center;padding:60px 0;color:var(--text2)}
     </style>
 </head>
 <body>
 
 <nav class="nav">
-    <a href="/"><img src="https://github.com/ATX8T.png" alt=""> ATX8T</a>
+    <a href="/"><img src="https://github.com/ATX8T.png" alt=""> ATX8T · SSH 配置</a>
     <a class="back" href="/">← 首页</a>
 </nav>
 
 <div class="main">
-
-    <div class="card">
-        <h2>🔑 SSH 密钥自动配置工具</h2>
-        <p>一键在 Linux 服务器上生成 SSH 密钥对并完成安全配置。支持 Debian/Ubuntu、CentOS/RHEL、Alpine、Arch 等主流发行版。</p>
-        <div style="margin-top:8px">
-            <span class="badge badge-green">v3.0</span>
-            <span class="badge badge-blue">Apache 2.0</span>
-            <span class="badge badge-amber">需 root 权限</span>
-        </div>
+    <div class="content" id="content">
+        <div class="loading">加载中...</div>
     </div>
-
-    <div class="card">
-        <h2>🚀 一键执行</h2>
-        <p>在服务器上运行以下命令（需要 root 权限）：</p>
-        <div class="code-block" id="cmdBlock">
-curl -sSL https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/projects/OpenSSHorSSL/ssh_admin_toolkit.sh | bash<span class="copy-btn" onclick="copyCmd()">复制</span></div>
-        <p style="font-size:.8rem;color:var(--text2)">⚠️ 脚本会自动检测发行版、安装 OpenSSH、生成密钥、配置 sshd_config</p>
-    </div>
-
-    <div class="card">
-        <h2>🔐 支持的密钥算法</h2>
-        <div class="algo-grid">
-            <div class="algo-item">
-                <div class="name">RSA 4096</div>
-                <div class="desc">经典算法，兼容性最佳</div>
-            </div>
-            <div class="algo-item">
-                <div class="name">RSA 8192</div>
-                <div class="desc">RSA 增强版，更高安全性</div>
-            </div>
-            <div class="algo-item">
-                <div class="name">Ed25519</div>
-                <div class="desc">现代椭圆曲线，快速安全</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card">
-        <h2>📋 执行流程</h2>
-        <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-body">检测 Linux 发行版 → 自动安装 <code>openssh-client</code> / <code>openssh-server</code></div>
-        </div>
-        <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-body">交互选择密钥算法 (RSA 4096 / RSA 8192 / Ed25519)</div>
-        </div>
-        <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-body">生成密钥对 → 配置 <code>/etc/ssh/sshd_config</code></div>
-        </div>
-        <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-body">可选显示私钥内容，复制到本地即可 SSH 登录</div>
-        </div>
-    </div>
-
-    <div class="card">
-        <h2>⚙️ 自动配置项</h2>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.8;color:var(--text2)">
-            PubkeyAuthentication yes<br>
-            PasswordAuthentication no<br>
-            PermitRootLogin yes<br>
-            AuthorizedKeysFile .ssh/authorized_keys<br>
-            X11Forwarding no<br>
-            IgnoreRhosts yes
-        </div>
-    </div>
-
 </div>
 
-<div class="toast" id="toastBar"><span></span></div>
-
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
-function copyCmd() {
-    var t = 'curl -sSL https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/projects/OpenSSHorSSL/ssh_admin_toolkit.sh | bash';
-    navigator.clipboard.writeText(t).then(function(){
-        var b = document.querySelector('#cmdBlock .copy-btn');
-        b.textContent = '已复制';
-        b.classList.add('copied');
-        setTimeout(function(){ b.textContent = '复制'; b.classList.remove('copied'); }, 1500);
-        toast('已复制');
-    }).catch(function(){ prompt('手动复制:', t); });
-}
-function toast(m) {
-    var b = document.getElementById('toastBar');
-    b.querySelector('span').textContent = m; b.style.display = '';
-    setTimeout(function(){ b.style.display = 'none'; }, 1600);
-}
+fetch('README.md?t='+Date.now())
+    .then(function(r){return r.text()})
+    .then(function(md){
+        document.getElementById('content').innerHTML = marked.parse(md);
+    })
+    .catch(function(){
+        document.getElementById('content').innerHTML = '<p style="color:#dc2626">加载 README.md 失败</p>';
+    });
 </script>
-
 </body>
 </html>
