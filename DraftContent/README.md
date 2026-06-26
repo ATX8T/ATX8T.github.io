@@ -1,2 +1,0 @@
-IntroductionInfo：用来测试各种草稿的临时的
-# 这是一个草稿目录
