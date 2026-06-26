@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub 加速 · proxyclass.dpdns.org</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+  .container { max-width: 920px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 32px; }
+  h1 {
+    font-size: 28px;
+    margin: 0 0 8px;
+    background: linear-gradient(90deg, #38bdf8, #818cf8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle { color: #94a3b8; font-size: 14px; }
+  .card {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(8px);
+  }
+  label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 8px; }
+  .input-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  input[type="text"] {
+    flex: 1;
+    min-width: 260px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: #e2e8f0;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+  }
+  input[type="text"]:focus { outline: none; border-color: #38bdf8; }
+  button {
+    background: linear-gradient(90deg, #0ea5e9, #6366f1);
+    color: white;
+    border: 0;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: opacity .2s;
+  }
+  button:hover { opacity: .9; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .result {
+    margin-top: 16px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+    font-size: 13px;
+    word-break: break-all;
+    color: #7dd3fc;
+    display: none;
+  }
+  .result.show { display: block; }
+  .result .copy {
+    float: right;
+    background: #1e293b;
+    color: #94a3b8;
+    border: 1px solid #334155;
+    padding: 4px 10px;
+    font-size: 12px;
+    border-radius: 6px;
+  }
+  .result .copy:hover { color: #e2e8f0; }
+  h2 { font-size: 16px; margin: 0 0 12px; color: #cbd5e1; }
+  h2 .badge {
+    font-size: 11px;
+    background: #0ea5e9;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+    font-weight: normal;
+  }
+  pre {
+    background: #0f172a;
+    padding: 14px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #a5b4fc;
+    border: 1px solid #1e293b;
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .tab {
+    padding: 8px 14px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid #334155;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #94a3b8;
+  }
+  .tab.active { background: #0ea5e9; color: white; border-color: #0ea5e9; }
+  .examples { display: grid; gap: 8px; }
+  .ex-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+  }
+  .ex-item .label { color: #64748b; flex-shrink: 0; }
+  .ex-item .url { color: #7dd3fc; word-break: break-all; flex: 1; }
+  .footer {
+    text-align: center;
+    margin-top: 24px;
+    color: #64748b;
+    font-size: 12px;
+  }
+  .footer .ts { color: #94a3b8; }
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #10b981;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all .25s;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  /* Windows 命令块 */
+  .cmd-block {
+    margin-bottom: 14px;
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .cmd-block .cmd-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 14px;
+    background: rgba(15, 23, 42, 0.8);
+    border-bottom: 1px solid #1e293b;
+  }
+  .cmd-block .cmd-title {
+    font-size: 12px;
+    color: #94a3b8;
+    font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+  }
+  .cmd-block .cmd-title .tag {
+    background: #1e293b;
+    color: #38bdf8;
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin-right: 6px;
+    font-size: 11px;
+  }
+  .cmd-block .cmd-copy {
+    background: transparent;
+    border: 1px solid #334155;
+    color: #94a3b8;
+    padding: 3px 10px;
+    font-size: 11px;
+    border-radius: 4px;
+  }
+  .cmd-block .cmd-copy:hover { color: #e2e8f0; border-color: #38bdf8; }
+  .cmd-block pre { border: 0; border-radius: 0; margin: 0; }
+  .tip-box {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: rgba(234, 88, 12, 0.1);
+    border: 1px solid rgba(234, 88, 12, 0.3);
+    border-radius: 8px;
+    font-size: 12.5px;
+    color: #fdba74;
+    line-height: 1.6;
+  }
+  .tip-box strong { color: #fb923c; }
+  .tip-box code {
+    background: #0f172a;
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: #fbbf24;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>GitHub 加速代理</h1>
+    <div class="subtitle">proxyclass.dpdns.org · Cloudflare Workers Edge</div>
+  </header>
+
+  <!-- 输入区 -->
+  <div class="card">
+    <label>粘贴 GitHub 链接（仓库 / Release / Raw / clone URL 均可），自动生成 Windows 加速命令</label>
+    <div class="input-row">
+      <input id="input" type="text" placeholder="https://github.com/user/repo 或 user/repo 或 .../archive/...zip" autofocus>
+      <button id="gen">生成加速命令</button>
+    </div>
+    <div class="result" id="result">
+      <button class="copy" id="copy">复制URL</button>
+      <span id="out"></span>
+    </div>
+  </div>
+
+  <!-- 自动生成的 Windows 命令区 -->
+  <div class="card" id="win-card" style="display:none">
+    <h2>Windows 使用命令 <span class="badge">自动生成</span></h2>
+    <div id="win-cmds"></div>
+  </div>
+
+  <!-- 通用命令参考 -->
+  <div class="card">
+    <h2>通用命令参考</h2>
+    <div class="tabs">
+      <div class="tab active" data-mode="clone">git clone</div>
+      <div class="tab" data-mode="zip">ZIP 下载</div>
+      <div class="tab" data-mode="raw">raw 文件</div>
+      <div class="tab" data-mode="release">Release 下载</div>
+      <div class="tab" data-mode="hosts">IPv6 修复</div>
+    </div>
+    <pre id="code"></pre>
+  </div>
+
+  <!-- 示例 -->
+  <div class="card">
+    <h2>示例（真实仓库 ATX8T/OpenSSHorSSL）</h2>
+    <div class="examples">
+      <div class="ex-item">
+        <span class="label">clone</span>
+        <span class="url">git clone https://proxyclass.dpdns.org/https://github.com/ATX8T/OpenSSHorSSL.git</span>
+      </div>
+      <div class="ex-item">
+        <span class="label">zip</span>
+        <span class="url">https://proxyclass.dpdns.org/https://github.com/ATX8T/OpenSSHorSSL/archive/refs/heads/main.zip</span>
+      </div>
+      <div class="ex-item">
+        <span class="label">raw</span>
+        <span class="url">https://proxyclass.dpdns.org/https://raw.githubusercontent.com/ATX8T/OpenSSHorSSL/main/README.md</span>
+      </div>
+      <div class="ex-item">
+        <span class="label">简写</span>
+        <span class="url">https://proxyclass.dpdns.org/gh/ATX8T/OpenSSHorSSL</span>
+      </div>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="quick" data-url="https://github.com/ATX8T/OpenSSHorSSL/archive/refs/heads/main.zip" style="font-size:13px;padding:8px 14px">填入 ZIP 测试链接</button>
+      <button class="quick" data-url="https://github.com/ATX8T/OpenSSHorSSL.git" style="font-size:13px;padding:8px 14px">填入 clone 测试链接</button>
+      <button class="quick" data-url="https://github.com/ATX8T/OpenSSHorSSL" style="font-size:13px;padding:8px 14px">填入仓库链接</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    Powered by Cloudflare Workers · 部署时间 <span class="ts" id="ts">--</span>
+  </div>
+</div>
+<div class="toast" id="toast">已复制到剪贴板</div>
+
+<script>
+  const ORIGIN = location.origin;
+  const input = document.getElementById('input');
+  const out = document.getElementById('out');
+  const result = document.getElementById('result');
+  const copyBtn = document.getElementById('copy');
+  const toast = document.getElementById('toast');
+  const winCard = document.getElementById('win-card');
+  const winCmds = document.getElementById('win-cmds');
+
+  // 部署时间戳（坑 #7：显示真实部署时间，便于用户确认 CDN 是否已刷新）
+  const DEPLOY_TS = '2026-06-26 18:53';
+  document.getElementById('ts').textContent = DEPLOY_TS + ' UTC';
+
+  function normalize(url) {
+    if (!url) return '';
+    url = url.trim();
+    if (!/^https?:\/\//.test(url) && /^[\w.-]+\/[\w.-]+/.test(url)) {
+      url = 'https://github.com/' + url;
+    }
+    return url;
+  }
+
+  function build(url) {
+    url = normalize(url);
+    if (!url) return '';
+    return ORIGIN + '/' + url;
+  }
+
+  // 识别 GitHub 链接类型
+  function detectType(rawUrl) {
+    const u = normalize(rawUrl);
+    if (!u) return 'unknown';
+    if (u.endsWith('.git')) return 'clone';
+    if (/\/archive\//.test(u) || /\.zip$/.test(u) || /\.tar\.gz$/.test(u)) return 'zip';
+    if (/raw\.githubusercontent\.com/.test(u)) return 'raw';
+    if (/\/releases\/download\//.test(u)) return 'release';
+    // 纯仓库地址（无 .git）
+    if (/github\.com\/[^/]+\/[^/]+\/?$/.test(u)) return 'repo';
+    return 'page';
+  }
+
+  // 从 URL 提取 user/repo
+  function extractRepo(rawUrl) {
+    const u = normalize(rawUrl);
+    const m = u.match(/github\.com\/([^/]+\/[^/]+?)(?:\.git|\/|$)/);
+    return m ? m[1] : 'user/repo';
+  }
+
+  // 生成 Windows 命令列表
+  function genWindowsCmds(rawUrl) {
+    const type = detectType(rawUrl);
+    const accel = build(rawUrl);
+    const repo = extractRepo(rawUrl);
+    const cmds = [];
+
+    if (type === 'clone' || type === 'repo') {
+      // git clone 命令
+      cmds.push({
+        tag: 'Git Bash / CMD / PowerShell',
+        title: 'git clone 加速',
+        code:
+          '# 完整克隆\ngit clone ' + accel + '\n\n' +
+          '# 浅克隆（只取最新提交，更快）\ngit clone --depth 1 ' + accel + '\n\n' +
+          '# 拉取子模块加速\ngit clone --recurse-submodules ' + accel
+      });
+      // 已有仓库改 origin
+      cmds.push({
+        tag: 'Git Bash / CMD / PowerShell',
+        title: '已有仓库改用加速地址',
+        code:
+          'cd ' + (repo.split('/')[1] || 'your-repo') + '\n' +
+          'git remote set-url origin ' + accel + '\n\n' +
+          '# 验证\n' +
+          'git remote -v'
+      });
+    }
+
+    if (type === 'zip' || type === 'page' || type === 'repo') {
+      const zipUrl = type === 'zip'
+        ? accel
+        : ORIGIN + '/https://github.com/' + repo + '/archive/refs/heads/main.zip';
+      cmds.push({
+        tag: 'PowerShell',
+        title: 'ZIP 下载（PowerShell）',
+        code:
+          '# PowerShell 下载仓库 ZIP\n' +
+          'Invoke-WebRequest -Uri "' + zipUrl + '" -OutFile "' + (repo.split('/')[1] || 'repo') + '.zip"\n\n' +
+          '# 解压\n' +
+          'Expand-Archive -Path "' + (repo.split('/')[1] || 'repo') + '.zip" -DestinationPath "."'
+      });
+      cmds.push({
+        tag: 'CMD',
+        title: 'ZIP 下载（CMD curl）',
+        code:
+          ':: CMD 下载仓库 ZIP\ncurl -L -o ' + (repo.split('/')[1] || 'repo') + '.zip "' + zipUrl + '"'
+      });
+    }
+
+    if (type === 'release') {
+      const fname = rawUrl.split('/').pop() || 'download.zip';
+      cmds.push({
+        tag: 'PowerShell',
+        title: 'Release 下载（PowerShell）',
+        code:
+          'Invoke-WebRequest -Uri "' + accel + '" -OutFile "' + fname + '"'
+      });
+      cmds.push({
+        tag: 'CMD',
+        title: 'Release 下载（CMD curl）',
+        code:
+          'curl -L -o ' + fname + ' "' + accel + '"'
+      });
+    }
+
+    if (type === 'raw') {
+      const fname = rawUrl.split('/').pop() || 'file.txt';
+      cmds.push({
+        tag: 'PowerShell',
+        title: 'Raw 文件下载（PowerShell）',
+        code:
+          'Invoke-WebRequest -Uri "' + accel + '" -OutFile "' + fname + '"'
+      });
+      cmds.push({
+        tag: 'CMD',
+        title: 'Raw 文件下载（CMD curl）',
+        code:
+          'curl -L -o ' + fname + ' "' + accel + '"'
+      });
+    }
+
+    // 通用：浏览器直接打开加速链接
+    cmds.push({
+      tag: '浏览器',
+      title: '浏览器直接访问',
+      code: accel
+    });
+
+    return cmds;
+  }
+
+  // 渲染 Windows 命令块
+  function renderWinCmds(cmds) {
+    winCmds.innerHTML = '';
+    cmds.forEach((c, i) => {
+      const block = document.createElement('div');
+      block.className = 'cmd-block';
+      block.innerHTML =
+        '<div class="cmd-head">' +
+          '<span class="cmd-title"><span class="tag">' + c.tag + '</span>' + c.title + '</span>' +
+          '<button class="cmd-copy" data-idx="' + i + '">复制</button>' +
+        '</div>' +
+        '<pre>' + escapeHtml(c.code) + '</pre>';
+      winCmds.appendChild(block);
+    });
+    // 绑定复制按钮
+    winCmds.querySelectorAll('.cmd-copy').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx);
+        copyToClipboard(cmds[idx].code);
+      });
+    });
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  async function copyToClipboard(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1500);
+    } catch {}
+  }
+
+  // 生成按钮
+  document.getElementById('gen').addEventListener('click', () => {
+    const v = input.value.trim();
+    if (!v) {
+      result.classList.remove('show');
+      winCard.style.display = 'none';
+      return;
+    }
+    const accel = build(v);
+    out.textContent = accel;
+    result.classList.add('show');
+    // 生成 Windows 命令
+    const cmds = genWindowsCmds(v);
+    renderWinCmds(cmds);
+    winCard.style.display = 'block';
+    winCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('gen').click();
+  });
+
+  copyBtn.addEventListener('click', () => copyToClipboard(out.textContent));
+
+  // 快捷按钮
+  document.querySelectorAll('.quick').forEach(btn => {
+    btn.addEventListener('click', () => {
+      input.value = btn.dataset.url;
+      document.getElementById('gen').click();
+    });
+  });
+
+  // 通用命令参考 tab
+  const examples = {
+    clone:
+      '# ===== git clone 加速 =====\n\n' +
+      '# 1. 完整克隆\n' +
+      'git clone https://proxyclass.dpdns.org/https://github.com/ATX8T/OpenSSHorSSL.git\n\n' +
+      '# 2. 浅克隆（推荐，只取最新提交，下载量小）\n' +
+      'git clone --depth 1 https://proxyclass.dpdns.org/https://github.com/ATX8T/OpenSSHorSSL.git\n\n' +
+      '# 3. 已有仓库改用加速地址\n' +
+      'git remote set-url origin https://proxyclass.dpdns.org/https://github.com/ATX8T/OpenSSHorSSL.git\n\n' +
+      '# 4. 拉取最新更新\n' +
+      'git pull',
+    zip:
+      '# ===== 仓库 ZIP 下载 =====\n\n' +
+      '# PowerShell 下载并解压\n' +
+      '$url = "https://proxyclass.dpdns.org/https://github.com/ATX8T/OpenSSHorSSL/archive/refs/heads/main.zip"\n' +
+      'Invoke-WebRequest -Uri $url -OutFile "OpenSSHorSSL.zip"\n' +
+      'Expand-Archive -Path "OpenSSHorSSL.zip" -DestinationPath "."\n\n' +
+      '# CMD (curl) 下载\n' +
+      'curl -L -o OpenSSHorSSL.zip "https://proxyclass.dpdns.org/https://github.com/ATX8T/OpenSSHorSSL/archive/refs/heads/main.zip"\n\n' +
+      '# 浏览器直接下载\n' +
+      'https://proxyclass.dpdns.org/https://github.com/ATX8T/OpenSSHorSSL/archive/refs/heads/main.zip',
+    raw:
+      '# ===== Raw 文件直链加速 =====\n\n' +
+      '# 完整 URL\n' +
+      'https://proxyclass.dpdns.org/https://raw.githubusercontent.com/ATX8T/OpenSSHorSSL/main/README.md\n\n' +
+      '# 简写形式\n' +
+      'https://proxyclass.dpdns.org/raw/ATX8T/OpenSSHorSSL/main/README.md\n\n' +
+      '# PowerShell 下载\n' +
+      'Invoke-WebRequest -Uri "https://proxyclass.dpdns.org/raw/ATX8T/OpenSSHorSSL/main/README.md" -OutFile "README.md"',
+    release:
+      '# ===== Release 资源下载 =====\n\n' +
+      '# 加速链接（自动跟随 302 到 objects.githubusercontent.com）\n' +
+      'https://proxyclass.dpdns.org/https://github.com/<user>/<repo>/releases/download/<tag>/<file>\n\n' +
+      '# PowerShell 下载\n' +
+      'Invoke-WebRequest -Uri "https://proxyclass.dpdns.org/https://github.com/<user>/<repo>/releases/download/<tag>/<file>" -OutFile "file.zip"\n\n' +
+      '# CMD (curl) 下载\n' +
+      'curl -L -o file.zip "https://proxyclass.dpdns.org/https://github.com/<user>/<repo>/releases/download/<tag>/<file>"',
+    hosts:
+      '# ===== IPv6 连接失败修复 =====\n#\n' +
+      '# 现象：git clone 提示 "Couldn\'t connect to server after 184ms"\n' +
+      '# 原因：Cloudflare custom_domain 自动创建 AAAA 100:: (IPv6 黑洞)\n' +
+      '#       git 优先走 IPv6 导致瞬间失败\n#\n' +
+      '# 解决：用管理员身份编辑 hosts 文件\n' +
+      '#   路径: C:\\Windows\\System32\\drivers\\etc\\hosts\n#\n' +
+      '# 添加以下内容（任选一个 Cloudflare Anycast IPv4）：\n\n' +
+      '104.21.28.86  proxyclass.dpdns.org\n' +
+      '# 或\n' +
+      '172.67.170.111 proxyclass.dpdns.org\n\n' +
+      '# 保存后重新执行 git clone 即可\n' +
+      '# 验证: ping proxyclass.dpdns.org 应返回上述 IPv4 地址'
+  };
+
+  const codeEl = document.getElementById('code');
+  function setMode(m) {
+    codeEl.textContent = examples[m] || '';
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.mode === m));
+  }
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => setMode(t.dataset.mode));
+  });
+  setMode('clone');
+</script>
+</body>
+</html>

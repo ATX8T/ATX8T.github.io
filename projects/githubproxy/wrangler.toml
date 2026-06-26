@@ -1,0 +1,20 @@
+name = "github-proxy"
+main = "src/worker.js"
+compatibility_date = "2024-09-23"
+# 填入你的 Cloudflare Account ID（dash.cloudflare.com 右侧栏可见）
+account_id = "YOUR_ACCOUNT_ID"
+
+# 自定义域名绑定（坑 #1：workers.dev 不可达，必须用自有域名）
+# Cloudflare 会自动管理 DNS 记录
+routes = [
+  { pattern = "proxyclass.dpdns.org", custom_domain = true }
+]
+
+# 静态资源（首页 HTML）— 避免 Worker 内联 HTML（坑 #4）
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+# 部署观测
+[observability]
+enabled = true

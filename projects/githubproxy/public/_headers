@@ -1,0 +1,12 @@
+# 防止浏览器顽固缓存 HTML（坑 #11）
+/*.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# 静态资源允许长缓存
+/*.js
+  Cache-Control: public, max-age=86400
+/*.css
+  Cache-Control: public, max-age=86400

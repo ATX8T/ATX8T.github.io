@@ -20,6 +20,14 @@
       "desc": "随机生成高强度密码，支持自定义长度、字符类型、排除混淆字符",
       "path": "projects/password/",
       "tags": ["安全", "密码", "随机"]
+    },
+    {
+      "id": "githubproxy",
+      "name": "GitHub 加速代理",
+      "icon": "🚀",
+      "desc": "基于 Cloudflare Workers 的 GitHub 加速代理，快速访问 GitHub 资源",
+      "path": "projects/githubproxy/public/",
+      "tags": ["github", "代理", "加速"]
     }
   ]
 }

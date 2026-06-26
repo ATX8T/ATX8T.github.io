@@ -1,0 +1,14 @@
+{
+  "name": "github-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GitHub 加速代理 — 基于 Cloudflare Workers，部署于 proxyclass.dpdns.org",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^3.78.0"
+  }
+}
