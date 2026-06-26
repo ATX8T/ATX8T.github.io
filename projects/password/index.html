@@ -272,7 +272,7 @@
     <div class="card">
         <div class="pw-display placeholder" id="passwordText">配置下方选项后点击生成</div>
         <div class="pw-actions">
-            <button class="pw-btn" id="btnCopy" onclick="copyPassword()">📋</button>
+            <button class="gen-btn" id="btnCopy" onclick="copyPassword()" style="background:var(--fill-2);color:var(--text)">复制密码</button>
         </div>
         <div class="strength-inline">
             <div class="strength-bar"><div class="strength-fill" id="strengthBar"></div></div>
@@ -323,18 +323,16 @@
 
     <!-- 批量结果 -->
     <div class="card" id="batchCard" style="display:none">
-        <div class="section-title">生成结果</div>
         <div class="batch-list" id="batchList"></div>
     </div>
 
     <!-- 历史 -->
     <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-            <span class="section-title" style="margin:0">最近</span>
+        <div style="display:flex;justify-content:flex-end">
             <button class="clear-btn" onclick="clearHistory()">清除</button>
         </div>
         <div class="history-list" id="historyList">
-            <div class="empty">点击 🔄 生成</div>
+            <div class="empty">点击生成</div>
         </div>
     </div>
 
