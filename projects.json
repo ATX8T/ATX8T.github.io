@@ -1,8 +1,8 @@
 {
   "site": {
     "title": "ATX8T Lab",
-    "desc": "开源工具集 · GitHub 资源管理",
-    "footer": "Powered by GitHub Pages"
+    "desc": "GitHub 资源一站管理 — 链接转换、资源浏览、图床加速，全部在浏览器端完成",
+    "footer": "Powered by GitHub Pages · 纯前端 · 无需登录"
   },
   "projects": [
     {
