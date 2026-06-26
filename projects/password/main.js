@@ -79,7 +79,7 @@ function renderBatch(pws) {
     area.style.display = ''; list.innerHTML = '';
     pws.forEach(function(p) {
         var d = document.createElement('div'); d.className = 'batch-item';
-        d.innerHTML = '<span class="batch-pw">'+p+'</span><button class="batch-copy" onclick="copyText(\''+esq(p)+'\')">复制</button>';
+        d.innerHTML = '<span class="batch-pw">'+p+'</span><button class="batch-copy" onclick="copyText(\''+esq(p)+'\',this)">复制</button>';
         list.appendChild(d);
     });
 }
@@ -127,7 +127,7 @@ function renderHistory() {
     c.innerHTML = '';
     history.forEach(function(p) {
         var d = document.createElement('div'); d.className = 'history-item';
-        d.innerHTML = '<span class="h-pw">'+p+'</span><button class="h-copy" onclick="copyText(\''+esq(p)+'\')">复制</button>';
+        d.innerHTML = '<span class="h-pw">'+p+'</span><button class="h-copy" onclick="copyText(\''+esq(p)+'\',this)">复制</button>';
         c.appendChild(d);
     });
 }
@@ -162,10 +162,16 @@ function changeCount(d) {
     generate();
 }
 
-function copyPassword() { copyText(el('passwordText').textContent); }
+function copyPassword() { copyText(el('passwordText').textContent, el('btnCopy')); }
 
-function copyText(t) {
-    navigator.clipboard.writeText(t).then(function(){toast('已复制')}).catch(function(){prompt('',t)});
+function copyText(t, btn) {
+    navigator.clipboard.writeText(t).then(function() {
+        if (btn) { btn.classList.add('copied'); setTimeout(function(){btn.classList.remove('copied')},1200); }
+        toast('已复制');
+    }).catch(function() {
+        if (btn) { btn.classList.add('failed'); setTimeout(function(){btn.classList.remove('failed')},1200); }
+        toast('复制失败');
+    });
 }
 
 function toast(m) {

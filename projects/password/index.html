@@ -74,9 +74,11 @@
             width: 36px; height: 36px; border-radius: 50%; border: none;
             cursor: pointer; font-size: 1rem; background: var(--fill-2); color: var(--text);
             display: flex; align-items: center; justify-content: center;
-            transition: all .15s; -webkit-tap-highlight-color: transparent;
+            transition: all .2s cubic-bezier(.25,.8,.25,1.2); -webkit-tap-highlight-color: transparent;
         }
-        .pw-btn:active { transform: scale(.9); background: var(--fill); }
+        .pw-btn:active { transform: scale(.88); background: var(--fill); }
+        .pw-btn.copied { background: var(--green); color: #fff; transform: scale(1.05); }
+        .pw-btn.failed { background: var(--red); color: #fff; }
 
         /* 强度 (内嵌) */
         .strength-inline {
@@ -179,9 +181,11 @@
             font-size: .7rem; padding: 4px 10px; border-radius: 14px;
             border: none; cursor: pointer; font-weight: 500;
             background: rgba(0,122,255,.12); color: var(--accent);
-            transition: all .12s; flex-shrink: 0;
+            transition: all .2s cubic-bezier(.25,.8,.25,1.2); flex-shrink: 0;
         }
         .batch-copy:active { background: rgba(0,122,255,.22); transform: scale(.93); }
+        .batch-copy.copied { background: var(--green); color: #fff; }
+        .batch-copy.failed { background: var(--red); color: #fff; }
 
         /* 历史 (紧凑) */
         .history-list { overflow-y: auto; }
@@ -198,9 +202,11 @@
             font-size: .68rem; padding: 3px 10px; border-radius: 12px;
             border: none; cursor: pointer; font-weight: 500;
             background: rgba(0,122,255,.12); color: var(--accent);
-            transition: all .12s; flex-shrink: 0;
+            transition: all .2s cubic-bezier(.25,.8,.25,1.2); flex-shrink: 0;
         }
         .h-copy:active { background: rgba(0,122,255,.22); }
+        .h-copy.copied { background: var(--green); color: #fff; }
+        .h-copy.failed { background: var(--red); color: #fff; }
         .empty { padding: 12px 0; text-align: center; color: var(--text-3); font-size: .78rem; }
 
         /* Toast */
@@ -237,7 +243,7 @@
             <div class="pw-display placeholder" id="passwordText">生成密码</div>
             <div class="pw-actions">
                 <button class="pw-btn" onclick="generate()">🔄</button>
-                <button class="pw-btn" onclick="copyPassword()">📋</button>
+                <button class="pw-btn" id="btnCopy" onclick="copyPassword()">📋</button>
             </div>
             <div class="strength-inline">
                 <div class="strength-bar"><div class="strength-fill" id="strengthBar"></div></div>
