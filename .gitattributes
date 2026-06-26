@@ -1,0 +1,2 @@
+# Shell 脚本必须用 LF 换行符（Linux 无法执行 CRLF 脚本）
+*.sh text eol=lf
