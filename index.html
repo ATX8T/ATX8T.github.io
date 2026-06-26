@@ -3,197 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>GitHub 图床 - 图片链接转换工具</title>
-    <link rel="stylesheet" href="bootstra538dist/css/bootstrap.min.css?v=20260626">
-    <link rel="stylesheet" href="css/style.css?v=20260626">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <title>GitHub 图床 · 链接转换</title>
+    <link rel="stylesheet" href="bootstra538dist/css/bootstrap.min.css">
+    <style>
+        :root {
+            --bg: #f8f9fa;
+            --card-bg: #fff;
+            --text: #212529;
+            --text-muted: #6c757d;
+            --border: #dee2e6;
+            --accent: #0d6efd;
+            --accent-hover: #0b5ed7;
+            --success: #198754;
+            --info: #0dcaf0;
+            --warning: #ffc107;
+            --radius: 8px;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+        .navbar {
+            background: var(--card-bg) !important;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,.08);
+        }
+        .navbar-brand { font-weight: 700; color: var(--accent) !important; }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: 0 1px 4px rgba(0,0,0,.06);
+        }
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+        }
+        .form-control, .form-control:focus {
+            background: var(--card-bg);
+            color: var(--text);
+            border-color: var(--border);
+            box-shadow: none;
+        }
+        .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(13,110,253,.15); }
+        .btn-primary { background: var(--accent); border-color: var(--accent); }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-outline-primary { color: var(--accent); border-color: var(--accent); }
+        .btn-outline-primary:hover { background: var(--accent); color: #fff; }
+
+        #inputUrl {
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: .88rem;
+        }
+        .result-box {
+            background: #f1f3f5;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: .82rem;
+            word-break: break-all;
+            position: relative;
+        }
+        .result-box .badge {
+            font-size: .7rem;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        .result-box .copy-btn {
+            position: absolute;
+            right: 12px;
+            top: 10px;
+        }
+        .tag-raw { background: #cfe2ff; color: #084298; }
+        .tag-cdn { background: #d1e7dd; color: #0a3622; }
+        .tag-alt { background: #fff3cd; color: #664d03; }
+
+        .preview-container {
+            background: #e9ecef;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .preview-container img {
+            max-width: 100%;
+            max-height: 320px;
+            object-fit: contain;
+        }
+
+        .step-num {
+            display: inline-flex;
+            width: 22px; height: 22px;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            font-size: .75rem;
+            font-weight: 700;
+            margin-right: 6px;
+        }
+        .usage-step { font-size: .85rem; margin-bottom: 6px; }
+
+        .table { --bs-table-bg: transparent; }
+        .table td, .table th {
+            border-color: var(--border);
+            vertical-align: middle;
+        }
+        .file-link { font-size: .82rem; font-family: 'SF Mono', 'Consolas', monospace; word-break: break-all; }
+
+        .nav-pills .nav-link.active { background: var(--accent); }
+        .nav-pills .nav-link { color: var(--text); }
+
+        @media (max-width: 768px) {
+            .result-box .copy-btn { position: static; margin-top: 4px; }
+        }
+    </style>
 </head>
-<body class="bg-dark text-light">
+<body>
 
-    <!-- 导航栏 -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">
-                🔗 链接转换
-            </a>
-            <div class="navbar-nav flex-row gap-3">
-                <a class="nav-link text-info fw-bold" href="index.html">🔗 链接转换</a>
-                <a class="nav-link text-secondary" href="resources.html">📁 资源浏览</a>
-                <a class="nav-link text-secondary" href="https://github.com/ATX8T/ATX8T.github.io" target="_blank">🐙 GitHub</a>
-            </div>
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="index.html">🔗 GitHub 图床转换</a>
+        <div class="navbar-nav flex-row gap-2">
+            <a class="nav-link active fw-semibold" href="index.html">链接转换</a>
+            <a class="nav-link" href="resources.html">资源浏览</a>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <div class="container py-4">
+<div class="container py-4">
 
-        <!-- ====== 方式一：粘贴 GitHub 链接自动转换 ====== -->
-        <div class="card bg-secondary text-light border-secondary mb-4">
-            <div class="card-header border-secondary">
-                <h5 class="mb-0">📋 方式一：粘贴 GitHub 链接自动转换</h5>
-                <small class="text-secondary">支持 github.com/blob 页面链接或 raw.githubusercontent.com 链接</small>
+    <!-- ====== 输入区 ====== -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">📋 粘贴 GitHub 链接，自动转换</h5>
+            <div class="input-group input-group-lg">
+                <input type="text" id="inputUrl" class="form-control"
+                       placeholder="https://github.com/ATX8T/ATX8T.github.io/blob/main/images/xxx.png"
+                       autocomplete="off">
+                <button class="btn btn-primary px-4 fw-semibold" onclick="convertUrl()">⚡ 转换</button>
             </div>
-            <div class="card-body">
-                <!-- 输入区 -->
-                <div class="mb-3">
-                    <label class="form-label fw-bold">🔗 输入 GitHub 图片链接</label>
-                    <div class="input-group">
-                        <input type="text" id="inputUrl" class="form-control bg-dark text-light border-secondary"
-                               placeholder="https://github.com/ATX8T/ATX8T.github.io/blob/main/images/example.png"
-                               autocomplete="off">
-                        <button class="btn btn-primary" onclick="convertUrl()">
-                            ⚡ 转换
-                        </button>
-                    </div>
-                    <div class="form-text text-secondary mt-1">
-                        也支持粘贴 raw 链接或仓库路径（会自动识别）
-                    </div>
-                </div>
-
-                <!-- 转换结果 -->
-                <div id="resultArea" class="d-none">
-                    <hr class="border-secondary">
-                    <h6 class="fw-bold mb-3">✅ 转换结果</h6>
-
-                    <!-- Raw 链接 -->
-                    <div class="mb-2">
-                        <label class="form-label small text-info mb-1">📦 GitHub Raw（原始文件直链）</label>
-                        <div class="input-group input-group-sm">
-                            <input type="text" id="rawUrl" class="form-control bg-dark text-light border-secondary font-monospace small" readonly>
-                            <button class="btn btn-outline-info" onclick="copyToClipboard('rawUrl', this)">
-                                📋 复制
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- jsDelivr 链接 -->
-                    <div class="mb-2">
-                        <label class="form-label small text-success mb-1">🚀 jsDelivr CDN（全球加速·推荐）</label>
-                        <div class="input-group input-group-sm">
-                            <input type="text" id="jsdelivrUrl" class="form-control bg-dark text-light border-secondary font-monospace small" readonly>
-                            <button class="btn btn-outline-success" onclick="copyToClipboard('jsdelivrUrl', this)">
-                                📋 复制
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Staticaly 链接 -->
-                    <div class="mb-2">
-                        <label class="form-label small text-warning mb-1">🌐 Staticaly CDN</label>
-                        <div class="input-group input-group-sm">
-                            <input type="text" id="staticalyUrl" class="form-control bg-dark text-light border-secondary font-monospace small" readonly>
-                            <button class="btn btn-outline-warning" onclick="copyToClipboard('staticalyUrl', this)">
-                                📋 复制
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 图片预览 -->
-                    <div class="mt-3">
-                        <label class="form-label small text-secondary">👁️ 预览</label>
-                        <div class="text-center p-3 bg-dark rounded border border-secondary">
-                            <img id="imgPreview" src="" alt="预览" class="img-fluid rounded" style="max-height: 300px;"
-                                 onerror="this.parentElement.innerHTML='<span class=\'text-danger small\'>⚠️ 图片加载失败，请检查链接</span>'">
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="form-text mt-1">支持 github.com/blob、raw.githubusercontent.com、jsdelivr 等格式 · 粘贴后自动识别</div>
         </div>
+    </div>
 
-        <!-- ====== 方式二：手动拼接 ====== -->
-        <div class="card bg-secondary text-light border-secondary mb-4">
-            <div class="card-header border-secondary">
-                <h5 class="mb-0">🔧 方式二：手动拼接链接</h5>
-                <small class="text-secondary">按仓库信息手动生成图床地址</small>
-            </div>
+    <!-- ====== 结果区 ====== -->
+    <div id="resultArea" class="d-none">
+        <div class="card mb-4">
+            <div class="card-header">✅ 转换结果</div>
             <div class="card-body">
-                <div class="row g-2 mb-3">
-                    <div class="col-md-3">
-                        <label class="form-label small">仓库所有者</label>
-                        <input type="text" id="owner" class="form-control form-control-sm bg-dark text-light border-secondary"
-                               value="ATX8T" placeholder="username">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label small">仓库名</label>
-                        <input type="text" id="repo" class="form-control form-control-sm bg-dark text-light border-secondary"
-                               value="ATX8T.github.io" placeholder="repo">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label small">分支</label>
-                        <input type="text" id="branch" class="form-control form-control-sm bg-dark text-light border-secondary"
-                               value="main" placeholder="main">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small">文件路径（含文件名）</label>
-                        <input type="text" id="filepath" class="form-control form-control-sm bg-dark text-light border-secondary"
-                               placeholder="images/example.png">
-                    </div>
+                <!-- Raw -->
+                <div class="result-box" id="rawBox">
+                    <span class="badge tag-raw">Raw</span><span id="rawText" class="file-link"></span>
+                    <span class="copy-btn btn btn-sm btn-outline-secondary" onclick="doCopy('rawText')">📋 复制</span>
                 </div>
-                <button class="btn btn-outline-light btn-sm" onclick="manualBuild()">
-                    🔗 生成链接
-                </button>
-                <div id="manualResult" class="mt-3 d-none">
-                    <hr class="border-secondary">
-                    <div id="manualRaw" class="small text-info mb-1"></div>
-                    <div id="manualJsdelivr" class="small text-success mb-1"></div>
-                    <div id="manualStaticaly" class="small text-warning mb-1"></div>
+                <!-- jsDelivr -->
+                <div class="result-box" id="cdnBox">
+                    <span class="badge tag-cdn">jsDelivr</span><span id="cdnText" class="file-link"></span>
+                    <span class="copy-btn btn btn-sm btn-outline-secondary" onclick="doCopy('cdnText')">📋 复制</span>
                 </div>
-            </div>
-        </div>
+                <!-- Staticaly -->
+                <div class="result-box">
+                    <span class="badge tag-alt">Staticaly</span><span id="statText" class="file-link"></span>
+                    <span class="copy-btn btn btn-sm btn-outline-secondary" onclick="doCopy('statText')">📋 复制</span>
+                </div>
 
-        <!-- ====== 使用说明 ====== -->
-        <div class="card bg-secondary text-light border-secondary">
-            <div class="card-header border-secondary">
-                <h5 class="mb-0">📖 使用说明</h5>
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <h6 class="text-info">📦 GitHub Raw 直链</h6>
-                        <p class="small text-secondary mb-1">
-                            格式: <code class="text-info">https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{path}</code>
-                        </p>
-                        <p class="small text-secondary">
-                            ✅ 优点: GitHub 官方，无需第三方<br>
-                            ⚠️ 缺点: 国内访问可能较慢
-                        </p>
-                    </div>
-                    <div class="col-md-6">
-                        <h6 class="text-success">🚀 jsDelivr CDN（推荐）</h6>
-                        <p class="small text-secondary mb-1">
-                            格式: <code class="text-success">https://cdn.jsdelivr.net/gh/{owner}/{repo}@{branch}/{path}</code>
-                        </p>
-                        <p class="small text-secondary">
-                            ✅ 优点: 全球 CDN 加速，国内访问快，免费<br>
-                            ⚠️ 缺点: 有缓存，更新非即时
-                        </p>
-                    </div>
-                    <div class="col-12">
-                        <h6 class="text-secondary">📌 图床使用流程</h6>
-                        <ol class="small text-secondary mb-0">
-                            <li>打开 <a href="https://github.com/ATX8T/ATX8T.github.io" class="text-info" target="_blank">GitHub 仓库</a> → <code>images</code> 文件夹</li>
-                            <li>点击 <strong>Add file</strong> → <strong>Upload files</strong> 上传图片</li>
-                            <li>上传后在图片页面复制浏览器地址栏的 URL</li>
-                            <li>粘贴到上方输入框 → 自动转换为可外链的图床地址</li>
-                        </ol>
+                <!-- 预览 -->
+                <div class="mt-3">
+                    <div class="form-label small text-muted">👁️ 图片预览</div>
+                    <div class="preview-container p-2" id="previewContainer">
+                        <span class="text-muted small" id="previewPlaceholder">转换后自动预览</span>
+                        <img id="previewImg" style="display:none" alt="预览"
+                             onerror="this.style.display='none';document.getElementById('previewPlaceholder').textContent='图片加载失败，请直接复制链接使用'">
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Toast 提示 -->
-    <div id="toast" class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">
-        <div class="toast align-items-center text-bg-success border-0" role="alert">
-            <div class="d-flex">
-                <div class="toast-body">✅ 已复制到剪贴板</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    <!-- ====== 方式二：手动拼接 ====== -->
+    <div class="card mb-4">
+        <div class="card-header">🔧 手动拼接链接</div>
+        <div class="card-body">
+            <div class="row g-2">
+                <div class="col-6 col-md-2">
+                    <label class="form-label small">仓库所有者</label>
+                    <input id="owner" class="form-control form-control-sm" value="ATX8T">
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label small">仓库名</label>
+                    <input id="repo" class="form-control form-control-sm" value="ATX8T.github.io">
+                </div>
+                <div class="col-4 col-md-1">
+                    <label class="form-label small">分支</label>
+                    <input id="branch" class="form-control form-control-sm" value="main">
+                </div>
+                <div class="col-8 col-md-5">
+                    <label class="form-label small">文件路径</label>
+                    <input id="filepath" class="form-control form-control-sm" placeholder="images/example.png">
+                </div>
+                <div class="col-4 col-md-2 d-flex align-items-end">
+                    <button class="btn btn-outline-primary btn-sm w-100" onclick="manualBuild()">生成链接</button>
+                </div>
+            </div>
+            <div id="manualResult" class="mt-3 d-none">
+                <div class="result-box small"><span class="badge tag-raw">Raw</span><span id="mRaw"></span></div>
+                <div class="result-box small"><span class="badge tag-cdn">jsDelivr</span><span id="mCdn"></span></div>
             </div>
         </div>
     </div>
 
-    <script src="bootstra538dist/js/bootstrap.bundle.min.js?v=20260626"></script>
-    <script src="js/converter.js?v=20260626"></script>
+    <!-- ====== 使用说明 ====== -->
+    <div class="card">
+        <div class="card-header">📖 怎么用</div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="usage-step"><span class="step-num">1</span> 打开仓库 → images 文件夹</div>
+                    <div class="usage-step"><span class="step-num">2</span> Upload files 上传图片</div>
+                    <div class="usage-step"><span class="step-num">3</span> 复制浏览器地址栏的链接</div>
+                    <div class="usage-step"><span class="step-num">4</span> 粘贴到上方 → 获取图床地址</div>
+                </div>
+                <div class="col-md-8">
+                    <table class="table table-sm small m-0">
+                        <tr><td style="width:100px"><span class="badge tag-raw">Raw</span></td><td class="file-link">https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{path}</td></tr>
+                        <tr><td><span class="badge tag-cdn">jsDelivr</span></td><td class="file-link">https://cdn.jsdelivr.net/gh/{owner}/{repo}@{branch}/{path}</td></tr>
+                        <tr><td><span class="badge tag-alt">Staticaly</span></td><td class="file-link">https://cdn.staticaly.com/gh/{owner}/{repo}/{branch}/{path}</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toastBar" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;display:none">
+    <span style="background:#333;color:#fff;padding:8px 20px;border-radius:20px;font-size:.85rem"></span>
+</div>
+
+<script src="bootstra538dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/converter.js?v=2"></script>
 </body>
 </html>

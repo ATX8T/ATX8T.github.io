@@ -1,89 +1,76 @@
 /**
  * GitHub 资源浏览器
- *
- * 使用 jsDelivr Data API (无需 Token) 列出仓库文件
- * API: https://data.jsdelivr.com/v1/package/gh/{owner}/{repo}
+ * 使用 jsDelivr Data API 获取文件列表 (无需 Token)
  */
 
-const OWNER = 'ATX8T';
-const REPO = 'ATX8T.github.io';
-const BRANCH = 'main';
+var OWNER = 'ATX8T';
+var REPO = 'ATX8T.github.io';
+var BRANCH = 'main';
+var API = 'https://data.jsdelivr.com/v1/package/gh/' + OWNER + '/' + REPO;
 
-// 文件类型分类
-const FILE_TYPES = {
-    image:   { exts: ['png','jpg','jpeg','gif','webp','svg','bmp','ico'], icon: '🖼️', color: 'info' },
-    video:   { exts: ['mp4','webm','mov','avi','mkv','flv','wmv'],     icon: '🎬', color: 'success' },
-    archive: { exts: ['exe','msi','apk','dmg','deb','rpm','zip','rar','7z','tar','gz'], icon: '📦', color: 'warning' },
-    git:     { exts: ['git','bundle','pack'],                           icon: '📥', color: 'danger' },
-    doc:     { exts: ['pdf','doc','docx','ppt','pptx','xls','xlsx','txt','md','csv','json','xml','html','css','js'], icon: '📄', color: 'secondary' },
+var allFiles = [];
+var currentFilter = 'all';
+var currentDir = '';
+
+var FILTERS = {
+    image:   ['png','jpg','jpeg','gif','webp','svg','bmp','ico'],
+    video:   ['mp4','webm','mov','avi','mkv'],
+    archive: ['exe','msi','apk','dmg','deb','rpm','zip','rar','7z','tar','gz'],
+    doc:     ['pdf','doc','docx','ppt','pptx','xls','xlsx','txt','md','csv','json','xml','html','css','js','py','java','c','cpp'],
 };
 
-let allFiles = [];
-let currentFilter = 'all';
-let currentDir = '';
-
-// jsDelivr API 地址
-const API_URL = `https://data.jsdelivr.com/v1/package/gh/${OWNER}/${REPO}`;
-
-
-// ==================== 文件加载 ====================
-
-async function loadFiles() {
-    const loading = document.getElementById('loading');
-    const fileTable = document.getElementById('fileTable');
-    const emptyState = document.getElementById('emptyState');
-
-    loading.classList.remove('d-none');
-    fileTable.classList.add('d-none');
-    emptyState.classList.add('d-none');
-
-    try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('API 请求失败: ' + response.status);
-        const data = await response.json();
-
-        // jsDelivr 返回的 files 数组，每项: { name, hash, time, size, type }
-        allFiles = (data.files || [])
-            .filter(f => f.type === 'file')
-            .map(f => ({
-                name: f.name.split('/').pop(),         // 文件名
-                path: f.name,                           // 完整路径 (以 / 开头)
-                size: f.size || 0,
-                time: f.time,
-            }))
-            .sort((a, b) => a.path.localeCompare(b.path));
-
-        // 更新总数
-        document.getElementById('fileCount').textContent = allFiles.length;
-
-        // 构建目录列表
-        const dirs = new Set();
-        allFiles.forEach(f => {
-            const parts = f.path.split('/');
-            parts.pop(); // 去掉文件名
-            for (let i = 0; i < parts.length; i++) {
-                dirs.add(parts.slice(0, i + 1).join('/'));
-            }
-        });
-
-        loading.classList.add('d-none');
-        applyFilter();
-
-    } catch (error) {
-        loading.classList.add('d-none');
-        emptyState.classList.remove('d-none');
-        emptyState.innerHTML = `
-            <div style="font-size:3rem;opacity:.3">❌</div>
-            <h5 class="text-danger">加载失败</h5>
-            <p class="text-secondary">${error.message}</p>
-            <button class="btn btn-outline-light btn-sm" onclick="loadFiles()">重试</button>
-        `;
-        console.error('加载文件失败:', error);
+function getFileType(filename) {
+    var ext = filename.split('.').pop().toLowerCase();
+    for (var t in FILTERS) {
+        if (FILTERS[t].indexOf(ext) >= 0) return t;
     }
+    return 'other';
+}
+
+function getIcon(filename) {
+    var icons = { image:'🖼️', video:'🎬', archive:'📦', doc:'📄', other:'📁' };
+    return icons[getFileType(filename)] || '📁';
 }
 
 
-// ==================== 目录导航 ====================
+// ==================== 加载 ====================
+
+function loadFiles() {
+    var loading = document.getElementById('loadingBox');
+    var table = document.getElementById('fileTable');
+    var empty = document.getElementById('emptyBox');
+
+    loading.classList.remove('d-none');
+    table.classList.add('d-none');
+    empty.classList.add('d-none');
+
+    fetch(API).then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+    }).then(function(data) {
+        allFiles = (data.files || []).filter(function(f) { return f.type === 'file'; })
+            .map(function(f) {
+                var p = f.name; // 以 / 开头
+                return {
+                    name: p.split('/').pop(),
+                    path: p,
+                    size: f.size || 0,
+                };
+            })
+            .sort(function(a, b) { return a.path.localeCompare(b.path); });
+
+        document.getElementById('fileCount').textContent = allFiles.length;
+        loading.classList.add('d-none');
+        applyFilter();
+    }).catch(function(err) {
+        loading.classList.add('d-none');
+        empty.classList.remove('d-none');
+        empty.innerHTML = '<p class="text-danger">加载失败: ' + err.message + '</p><button class="btn btn-sm btn-outline-primary" onclick="loadFiles()">重试</button>';
+    });
+}
+
+
+// ==================== 导航 ====================
 
 function navigateTo(dir) {
     currentDir = dir;
@@ -92,36 +79,44 @@ function navigateTo(dir) {
 }
 
 function renderBreadcrumb() {
-    const bc = document.getElementById('breadcrumb');
-    const parts = currentDir.split('/').filter(Boolean);
-
-    let html = '<nav><ol class="breadcrumb small mb-0">';
-    html += `<li class="breadcrumb-item"><a href="#" class="text-info" onclick="navigateTo(\'\')">📁 根目录</a></li>`;
-    for (let i = 0; i < parts.length; i++) {
-        const subPath = parts.slice(0, i + 1).join('/');
-        const isLast = i === parts.length - 1;
-        if (isLast) {
-            html += `<li class="breadcrumb-item active text-light">${parts[i]}</li>`;
-        } else {
-            html += `<li class="breadcrumb-item"><a href="#" class="text-info" onclick="navigateTo(\'${subPath}\')">${parts[i]}</a></li>`;
-        }
+    var bc = document.getElementById('breadcrumb');
+    var parts = currentDir.split('/').filter(Boolean);
+    var html = '<nav><ol class="breadcrumb small">';
+    html += '<li class="breadcrumb-item"><a href="#" onclick="navigateTo(\'\')">📁 根目录</a></li>';
+    for (var i = 0; i < parts.length; i++) {
+        var sp = parts.slice(0, i+1).join('/');
+        html += '<li class="breadcrumb-item' + (i===parts.length-1?' active':'') + '">';
+        if (i < parts.length-1) html += '<a href="#" onclick="navigateTo(\'' + sp + '\')">' + parts[i] + '</a>';
+        else html += parts[i];
+        html += '</li>';
     }
     html += '</ol></nav>';
 
     // 子目录快捷入口
-    if (currentDir || !currentDir) {
-        const subDirs = getSubDirs(currentDir);
-        if (subDirs.length > 0) {
-            html += '<div class="mt-1 d-flex flex-wrap gap-1">';
-            subDirs.forEach(d => {
-                const name = d.split('/').pop();
-                html += `<a href="#" class="badge bg-secondary text-decoration-none" onclick="navigateTo(\'${d}\')">📁 ${name}</a>`;
-            });
-            html += '</div>';
-        }
+    var subDirs = getSubDirs(currentDir);
+    if (subDirs.length) {
+        html += '<div class="d-flex flex-wrap gap-1">';
+        subDirs.forEach(function(d) {
+            html += '<a href="#" class="badge bg-light text-dark text-decoration-none border" onclick="navigateTo(\'' + d + '\')">📁 ' + d.split('/').pop() + '</a>';
+        });
+        html += '</div>';
     }
-
     bc.innerHTML = html;
+}
+
+function getSubDirs(parentPath) {
+    var dirs = {};
+    var prefix = parentPath ? '/' + parentPath + '/' : '/';
+    allFiles.forEach(function(f) {
+        if (f.path.indexOf(prefix) !== 0) return;
+        var rel = f.path.substring(prefix.length);
+        var idx = rel.indexOf('/');
+        if (idx > 0) {
+            var d = (parentPath ? parentPath + '/' : '') + rel.substring(0, idx);
+            dirs[d] = true;
+        }
+    });
+    return Object.keys(dirs).sort();
 }
 
 
@@ -129,112 +124,62 @@ function renderBreadcrumb() {
 
 function setFilter(filter, btn) {
     currentFilter = filter;
-    document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('[data-filter]').forEach(function(b) { b.classList.remove('active'); });
     if (btn) btn.classList.add('active');
     applyFilter();
 }
 
 function applyFilter() {
-    let files = allFiles;
-
-    // 按目录过滤
+    var files = allFiles;
     if (currentDir) {
-        files = files.filter(f => f.path.startsWith('/' + currentDir + '/'));
+        files = files.filter(function(f) { return f.path.indexOf('/' + currentDir + '/') === 0; });
     }
-
-    // 按文件类型过滤
     if (currentFilter !== 'all') {
-        files = files.filter(f => getFileType(f.name) === currentFilter);
+        files = files.filter(function(f) { return getFileType(f.name) === currentFilter; });
     }
-
-    renderFileTable(files);
-}
-
-function getFileType(filename) {
-    const ext = filename.split('.').pop().toLowerCase();
-    for (const [type, config] of Object.entries(FILE_TYPES)) {
-        if (config.exts.includes(ext)) return type;
-    }
-    return 'other';
-}
-
-function getFileConfig(filename) {
-    const type = getFileType(filename);
-    return FILE_TYPES[type] || { icon: '📄', color: 'secondary' };
+    renderTable(files);
 }
 
 
-// ==================== 子目录计算 ====================
+// ==================== 表格 ====================
 
-function getSubDirs(parentPath) {
-    const dirs = new Set();
-    const prefix = parentPath ? '/' + parentPath + '/' : '/';
-    allFiles.forEach(f => {
-        if (!f.path.startsWith(prefix)) return;
-        const relative = f.path.substring(prefix.length);
-        const slashIdx = relative.indexOf('/');
-        if (slashIdx > 0) {
-            const sub = (parentPath ? parentPath + '/' : '') + relative.substring(0, slashIdx);
-            dirs.add(sub);
-        }
-    });
-    return [...dirs].sort();
-}
+function renderTable(files) {
+    var table = document.getElementById('fileTable');
+    var body = document.getElementById('fileBody');
+    var empty = document.getElementById('emptyBox');
 
-
-// ==================== 表格渲染 ====================
-
-function renderFileTable(files) {
-    const fileTable = document.getElementById('fileTable');
-    const fileBody = document.getElementById('fileBody');
-    const emptyState = document.getElementById('emptyState');
-
-    if (files.length === 0) {
-        fileTable.classList.add('d-none');
-        emptyState.classList.remove('d-none');
+    if (!files.length) {
+        table.classList.add('d-none');
+        empty.classList.remove('d-none');
         document.getElementById('fileCount').textContent = '0';
         return;
     }
 
-    fileTable.classList.remove('d-none');
-    emptyState.classList.add('d-none');
-    fileBody.innerHTML = '';
+    table.classList.remove('d-none');
+    empty.classList.add('d-none');
+    body.innerHTML = '';
 
-    files.forEach((file, index) => {
-        const config = getFileConfig(file.name);
-        const size = formatSize(file.size);
-        const rawUrl = buildRawUrl(file.path);
-        const jsdelivrUrl = buildJsdelivrUrl(file.path);
+    files.forEach(function(f, i) {
+        var rawUrl = buildRaw(f.path);
+        var cdnUrl = buildCdn(f.path);
+        var size = formatSize(f.size);
+        var icon = getIcon(f.name);
 
-        const tr = document.createElement('tr');
-
-        tr.innerHTML = `
-            <td class="text-secondary small">${index + 1}</td>
-            <td>
-                <span class="text-${config.color} me-2">${config.icon}</span>
-                <span class="file-name" title="${escapeHtml(file.path)}">${escapeHtml(file.name)}</span>
-                <br><small class="text-secondary text-truncate d-inline-block" style="max-width:400px">${escapeHtml(file.path)}</small>
-            </td>
-            <td class="text-secondary small">${size}</td>
-            <td>
-                <div class="d-flex gap-1">
-                    <button class="btn btn-sm btn-outline-info" title="预览"
-                            onclick="previewFile('${escapeAttr(file.name)}', '${escapeAttr(rawUrl)}')">
-                        👁️
-                    </button>
-                    <button class="btn btn-sm btn-outline-success" title="下载"
-                            onclick="downloadFile('${escapeAttr(jsdelivrUrl)}', '${escapeAttr(file.name)}')">
-                        ⬇️
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary" title="复制链接"
-                            onclick="copyToClipboardUrl('${escapeAttr(jsdelivrUrl)}')">
-                        🔗
-                    </button>
-                </div>
-            </td>
-        `;
-
-        fileBody.appendChild(tr);
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+            '<td class="text-muted small">' + (i+1) + '</td>' +
+            '<td>' +
+                '<span class="file-icon">' + icon + '</span>' +
+                '<span class="file-name">' + esc(f.name) + '</span>' +
+                '<br><span class="file-path">' + esc(f.path) + '</span>' +
+            '</td>' +
+            '<td class="text-muted small">' + size + '</td>' +
+            '<td>' +
+                '<button class="btn btn-sm btn-outline-primary me-1" onclick="previewFile(\'' + escAttr(f.name) + '\',\'' + escAttr(rawUrl) + '\')">👁️</button>' +
+                '<button class="btn btn-sm btn-outline-success me-1" onclick="downloadFile(\'' + escAttr(cdnUrl) + '\',\'' + escAttr(f.name) + '\')">⬇️</button>' +
+                '<button class="btn btn-sm btn-outline-secondary" onclick="copyText(\'' + escAttr(cdnUrl) + '\')">🔗</button>' +
+            '</td>';
+        body.appendChild(tr);
     });
 
     document.getElementById('fileCount').textContent = files.length;
@@ -243,128 +188,88 @@ function renderFileTable(files) {
 
 // ==================== URL 构建 ====================
 
-function buildRawUrl(filepath) {
-    const encoded = filepath.split('/').map(s => encodeURIComponent(s)).join('/');
-    return `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}${encoded}`;
+function buildRaw(filepath) {
+    var p = filepath.split('/').map(function(s) { return encodeURIComponent(s); }).join('/');
+    return 'https://raw.githubusercontent.com/' + OWNER + '/' + REPO + '/' + BRANCH + p;
 }
 
-function buildJsdelivrUrl(filepath) {
-    const encoded = filepath.split('/').map(s => encodeURIComponent(s)).join('/');
-    return `https://cdn.jsdelivr.net/gh/${OWNER}/${REPO}@${BRANCH}${encoded}`;
+function buildCdn(filepath) {
+    var p = filepath.split('/').map(function(s) { return encodeURIComponent(s); }).join('/');
+    return 'https://cdn.jsdelivr.net/gh/' + OWNER + '/' + REPO + '@' + BRANCH + p;
 }
 
 
-// ==================== 预览 ====================
+// ==================== 预览 & 下载 ====================
 
 function previewFile(name, rawUrl) {
-    const title = document.getElementById('previewTitle');
-    const body = document.getElementById('previewBody');
-    const downloadBtn = document.getElementById('previewDownload');
-    const rawInput = document.getElementById('previewRawUrl');
+    document.getElementById('previewTitle').textContent = name;
+    document.getElementById('currentRaw').value = rawUrl;
+    document.getElementById('previewDl').href = rawUrl;
+    document.getElementById('previewDl').download = name;
 
-    title.textContent = name;
-    rawInput.value = rawUrl;
-    downloadBtn.href = rawUrl;
-    downloadBtn.download = name;
+    var body = document.getElementById('previewBody');
+    var ext = name.split('.').pop().toLowerCase();
 
-    const ext = name.split('.').pop().toLowerCase();
-    const imageExts = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico'];
-    const videoExts = ['mp4', 'webm', 'mov', 'ogg'];
-
-    if (imageExts.includes(ext)) {
-        body.innerHTML = `<img src="${rawUrl}" class="img-fluid rounded" style="max-height:70vh" alt="${name}"
-                            onerror="document.getElementById('previewBody').innerHTML='<div class=\\'p-5 text-danger\\'>预览失败，请尝试下载</div>'">`;
-    } else if (videoExts.includes(ext)) {
-        body.innerHTML = `<video controls class="img-fluid rounded" style="max-height:70vh">
-                            <source src="${rawUrl}">
-                            不支持播放此视频
-                          </video>`;
+    if (['png','jpg','jpeg','gif','webp','svg','bmp','ico'].indexOf(ext) >= 0) {
+        body.innerHTML = '<img src="' + rawUrl + '" class="preview-img" alt="' + esc(name) + '" onerror="document.getElementById(\'previewBody\').innerHTML=\'<p class=\\\'text-danger p-4\\\'>预览失败，请下载</p>\'">';
+    } else if (['mp4','webm','mov'].indexOf(ext) >= 0) {
+        body.innerHTML = '<video controls class="preview-video"><source src="' + rawUrl + '"></video>';
     } else if (ext === 'pdf') {
-        body.innerHTML = `<iframe src="${rawUrl}" width="100%" height="600" class="rounded"></iframe>`;
+        body.innerHTML = '<iframe src="' + rawUrl + '" width="100%" height="600" style="border:none"></iframe>';
     } else {
-        const config = getFileConfig(name);
-        body.innerHTML = `
-            <div class="p-5 text-center">
-                <div style="font-size:4rem">${config.icon}</div>
-                <p class="text-${config.color} mt-2">${escapeHtml(name)}</p>
-                <p class="text-secondary">${formatSize(0)} — 无法在线预览此文件类型</p>
-                <a href="${rawUrl}" class="btn btn-success" download="${name}">直接下载</a>
-            </div>
-        `;
+        body.innerHTML = '<div class="p-5"><span style="font-size:3rem">' + getIcon(name) + '</span><p class="text-muted mt-2">此文件类型不支持预览</p></div>';
     }
 
     new bootstrap.Modal(document.getElementById('previewModal')).show();
 }
 
+function copyRaw() {
+    var raw = document.getElementById('currentRaw').value;
+    navigator.clipboard.writeText(raw).then(function() { showToast('已复制 Raw 链接'); });
+}
 
-// ==================== 下载 ====================
-
-function downloadFile(url, filename) {
-    const a = document.createElement('a');
+function downloadFile(url, name) {
+    var a = document.createElement('a');
     a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
+    a.download = name;
     a.click();
-    document.body.removeChild(a);
+}
+
+function copyText(text) {
+    navigator.clipboard.writeText(text).then(function() { showToast('已复制'); })
+        .catch(function() { prompt('', text); });
+}
+
+function showToast(msg) {
+    var el = document.getElementById('copyToast');
+    el.querySelector('span').textContent = msg;
+    el.style.display = '';
+    clearTimeout(el._t);
+    el._t = setTimeout(function() { el.style.display = 'none'; }, 1500);
 }
 
 
-// ==================== 复制链接 ====================
-
-function copyToClipboardUrl(url) {
-    navigator.clipboard.writeText(url).then(() => {
-        showTempBadge('已复制');
-    }).catch(() => {
-        prompt('复制以下链接:', url);
-    });
-}
-
-function copyUrl(inputId) {
-    const input = document.getElementById(inputId);
-    navigator.clipboard.writeText(input.value).then(() => {
-        showTempBadge('已复制');
-    });
-}
-
-function showTempBadge(msg) {
-    const badge = document.createElement('span');
-    badge.className = 'position-fixed top-0 start-50 translate-middle-x badge bg-success mt-2';
-    badge.style.cssText = 'z-index:99999;font-size:1rem;padding:8px 20px';
-    badge.textContent = msg;
-    document.body.appendChild(badge);
-    setTimeout(() => badge.remove(), 1500);
-}
-
-
-// ==================== 工具函数 ====================
+// ==================== 工具 ====================
 
 function formatSize(bytes) {
-    if (!bytes || bytes === 0) return '0 B';
-    const units = ['B', 'KB', 'MB', 'GB'];
-    let i = 0, size = bytes;
-    while (size >= 1024 && i < units.length - 1) { size /= 1024; i++; }
-    return size.toFixed(i > 0 ? 1 : 0) + ' ' + units[i];
+    if (!bytes) return '0 B';
+    var u = ['B','KB','MB','GB'], i = 0, s = bytes;
+    while (s >= 1024 && i < u.length-1) { s /= 1024; i++; }
+    return s.toFixed(i > 0 ? 1 : 0) + ' ' + u[i];
 }
 
-function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
+function esc(str) {
+    var d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
 }
 
-function escapeAttr(str) {
-    return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+function escAttr(str) {
+    return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
-
-// ==================== 初始化 ====================
-
-document.addEventListener('DOMContentLoaded', () => {
-    loadFiles();
-});
-
-// 模态框关闭时停止视频播放
-document.addEventListener('hidden.bs.modal', () => {
-    const v = document.querySelector('#previewBody video');
+document.addEventListener('DOMContentLoaded', loadFiles);
+document.addEventListener('hidden.bs.modal', function() {
+    var v = document.querySelector('#previewBody video');
     if (v) v.pause();
 });
