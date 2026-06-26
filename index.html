@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>GitHub 图床 - 图片链接转换工具</title>
+    <link rel="stylesheet" href="bootstra538dist/css/bootstrap.min.css?v=20260626">
+    <link rel="stylesheet" href="css/style.css?v=20260626">
+</head>
+<body class="bg-dark text-light">
+
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-dark bg-dark border-bottom border-secondary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                🖼️ GitHub 图床 · 链接转换
+            </a>
+            <span class="navbar-text text-secondary small d-none d-md-inline">
+                支持 Raw / jsDelivr / Staticaly 三种 CDN
+            </span>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+
+        <!-- ====== 方式一：粘贴 GitHub 链接自动转换 ====== -->
+        <div class="card bg-secondary text-light border-secondary mb-4">
+            <div class="card-header border-secondary">
+                <h5 class="mb-0">📋 方式一：粘贴 GitHub 链接自动转换</h5>
+                <small class="text-secondary">支持 github.com/blob 页面链接或 raw.githubusercontent.com 链接</small>
+            </div>
+            <div class="card-body">
+                <!-- 输入区 -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">🔗 输入 GitHub 图片链接</label>
+                    <div class="input-group">
+                        <input type="text" id="inputUrl" class="form-control bg-dark text-light border-secondary"
+                               placeholder="https://github.com/ATX8T/ATX8T.github.io/blob/main/images/example.png"
+                               autocomplete="off">
+                        <button class="btn btn-primary" onclick="convertUrl()">
+                            ⚡ 转换
+                        </button>
+                    </div>
+                    <div class="form-text text-secondary mt-1">
+                        也支持粘贴 raw 链接或仓库路径（会自动识别）
+                    </div>
+                </div>
+
+                <!-- 转换结果 -->
+                <div id="resultArea" class="d-none">
+                    <hr class="border-secondary">
+                    <h6 class="fw-bold mb-3">✅ 转换结果</h6>
+
+                    <!-- Raw 链接 -->
+                    <div class="mb-2">
+                        <label class="form-label small text-info mb-1">📦 GitHub Raw（原始文件直链）</label>
+                        <div class="input-group input-group-sm">
+                            <input type="text" id="rawUrl" class="form-control bg-dark text-light border-secondary font-monospace small" readonly>
+                            <button class="btn btn-outline-info" onclick="copyToClipboard('rawUrl', this)">
+                                📋 复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- jsDelivr 链接 -->
+                    <div class="mb-2">
+                        <label class="form-label small text-success mb-1">🚀 jsDelivr CDN（全球加速·推荐）</label>
+                        <div class="input-group input-group-sm">
+                            <input type="text" id="jsdelivrUrl" class="form-control bg-dark text-light border-secondary font-monospace small" readonly>
+                            <button class="btn btn-outline-success" onclick="copyToClipboard('jsdelivrUrl', this)">
+                                📋 复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Staticaly 链接 -->
+                    <div class="mb-2">
+                        <label class="form-label small text-warning mb-1">🌐 Staticaly CDN</label>
+                        <div class="input-group input-group-sm">
+                            <input type="text" id="staticalyUrl" class="form-control bg-dark text-light border-secondary font-monospace small" readonly>
+                            <button class="btn btn-outline-warning" onclick="copyToClipboard('staticalyUrl', this)">
+                                📋 复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 图片预览 -->
+                    <div class="mt-3">
+                        <label class="form-label small text-secondary">👁️ 预览</label>
+                        <div class="text-center p-3 bg-dark rounded border border-secondary">
+                            <img id="imgPreview" src="" alt="预览" class="img-fluid rounded" style="max-height: 300px;"
+                                 onerror="this.parentElement.innerHTML='<span class=\'text-danger small\'>⚠️ 图片加载失败，请检查链接</span>'">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== 方式二：手动拼接 ====== -->
+        <div class="card bg-secondary text-light border-secondary mb-4">
+            <div class="card-header border-secondary">
+                <h5 class="mb-0">🔧 方式二：手动拼接链接</h5>
+                <small class="text-secondary">按仓库信息手动生成图床地址</small>
+            </div>
+            <div class="card-body">
+                <div class="row g-2 mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label small">仓库所有者</label>
+                        <input type="text" id="owner" class="form-control form-control-sm bg-dark text-light border-secondary"
+                               value="ATX8T" placeholder="username">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small">仓库名</label>
+                        <input type="text" id="repo" class="form-control form-control-sm bg-dark text-light border-secondary"
+                               value="ATX8T.github.io" placeholder="repo">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">分支</label>
+                        <input type="text" id="branch" class="form-control form-control-sm bg-dark text-light border-secondary"
+                               value="main" placeholder="main">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small">文件路径（含文件名）</label>
+                        <input type="text" id="filepath" class="form-control form-control-sm bg-dark text-light border-secondary"
+                               placeholder="images/example.png">
+                    </div>
+                </div>
+                <button class="btn btn-outline-light btn-sm" onclick="manualBuild()">
+                    🔗 生成链接
+                </button>
+                <div id="manualResult" class="mt-3 d-none">
+                    <hr class="border-secondary">
+                    <div id="manualRaw" class="small text-info mb-1"></div>
+                    <div id="manualJsdelivr" class="small text-success mb-1"></div>
+                    <div id="manualStaticaly" class="small text-warning mb-1"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== 使用说明 ====== -->
+        <div class="card bg-secondary text-light border-secondary">
+            <div class="card-header border-secondary">
+                <h5 class="mb-0">📖 使用说明</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h6 class="text-info">📦 GitHub Raw 直链</h6>
+                        <p class="small text-secondary mb-1">
+                            格式: <code class="text-info">https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{path}</code>
+                        </p>
+                        <p class="small text-secondary">
+                            ✅ 优点: GitHub 官方，无需第三方<br>
+                            ⚠️ 缺点: 国内访问可能较慢
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-success">🚀 jsDelivr CDN（推荐）</h6>
+                        <p class="small text-secondary mb-1">
+                            格式: <code class="text-success">https://cdn.jsdelivr.net/gh/{owner}/{repo}@{branch}/{path}</code>
+                        </p>
+                        <p class="small text-secondary">
+                            ✅ 优点: 全球 CDN 加速，国内访问快，免费<br>
+                            ⚠️ 缺点: 有缓存，更新非即时
+                        </p>
+                    </div>
+                    <div class="col-12">
+                        <h6 class="text-secondary">📌 图床使用流程</h6>
+                        <ol class="small text-secondary mb-0">
+                            <li>打开 <a href="https://github.com/ATX8T/ATX8T.github.io" class="text-info" target="_blank">GitHub 仓库</a> → <code>images</code> 文件夹</li>
+                            <li>点击 <strong>Add file</strong> → <strong>Upload files</strong> 上传图片</li>
+                            <li>上传后在图片页面复制浏览器地址栏的 URL</li>
+                            <li>粘贴到上方输入框 → 自动转换为可外链的图床地址</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div id="toast" class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">
+        <div class="toast align-items-center text-bg-success border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">✅ 已复制到剪贴板</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="bootstra538dist/js/bootstrap.bundle.min.js?v=20260626"></script>
+    <script src="js/converter.js?v=20260626"></script>
+</body>
+</html>
