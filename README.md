@@ -21,7 +21,6 @@
 │   └── bootstrap/
 │       ├── css/bootstrap.min.css
 │       └── js/bootstrap.bundle.min.js
-├── images/                 # 图片存储
 └── README.md               # 本文件
 ```
 
