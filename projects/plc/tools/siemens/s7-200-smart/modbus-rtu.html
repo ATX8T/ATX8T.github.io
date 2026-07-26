@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Siemens S7-200 SMART — Modbus RTU 工具</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','Microsoft YaHei',sans-serif;background:#f2f4f7;color:#333;padding:24px}
+.page{max-width:1140px;margin:0 auto}
+h1{font-size:1.15rem;font-weight:600;color:#222;margin-bottom:16px}
+h1 small{font-weight:400;color:#888;font-size:.75rem}
+
+.card{background:#fff;border:1px solid #e4e7ed;border-radius:6px;margin-bottom:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card-section{padding:16px 22px}
+.card-section+.card-section{border-top:1px solid #f0f0f0}
+.card-head{font-size:.72rem;font-weight:600;color:#999;letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.card-head::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#c0c4cc}
+.card-head .sub{font-weight:400;color:#bbb;text-transform:none;letter-spacing:0;font-size:.68rem;margin-left:auto}
+
+/* 对照表 */
+.tbl{width:100%;border-collapse:collapse;font-size:.76rem}
+.tbl th{text-align:left;padding:9px 10px;background:#f7f8fa;border-bottom:2px solid #e4e7ed;font-weight:600;color:#555;font-size:.7rem;white-space:nowrap}
+.tbl td{padding:9px 10px;border-bottom:1px solid #f0f0f0;vertical-align:top;line-height:1.5}
+.tbl td.mono{font-family:'Consolas',monospace;font-size:.74rem}
+.tbl tr:last-child td{border-bottom:none}
+.tag-fc{display:inline-block;padding:1px 7px;font-size:.6rem;border-radius:8px;background:#e8f0fe;color:#1a56b0;font-weight:600;margin-right:3px}
+.tag-rw{display:inline-block;padding:1px 7px;font-size:.6rem;border-radius:8px;background:#d4edda;color:#0d6b2e;font-weight:600}
+.tag-ro{display:inline-block;padding:1px 7px;font-size:.6rem;border-radius:8px;background:#fef9e7;color:#7a5d00;font-weight:600}
+.inline-tag{display:inline-block;padding:1px 7px;font-size:.62rem;border-radius:3px;background:#edf3fb;color:#4a90d9;font-family:'Consolas',monospace}
+
+/* 输入行 */
+.inp-line{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.inp-line label{width:100px;text-align:right;font-size:.78rem;color:#666;flex-shrink:0;user-select:none}
+.inp-line input,.inp-line select{padding:7px 10px;border:1px solid #c0c4cc;border-radius:4px;font-family:'Consolas',monospace;font-size:.84rem;outline:none;background:#fff;transition:border-color .2s, box-shadow .2s}
+.inp-line input{flex:1;max-width:260px}
+.inp-line input:focus,.inp-line select:focus{border-color:#4a90d9;box-shadow:0 0 0 3px rgba(74,144,217,.12)}
+.unit{font-family:'Consolas',monospace;font-size:.72rem;color:#999;flex-shrink:0}
+
+.btn{padding:7px 22px;background:#4a90d9;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:.82rem;white-space:nowrap;transition:background .2s;letter-spacing:.4px}
+.btn:hover{background:#3a7bc8}
+.btn:active{background:#2e6ab5}
+.btn:disabled{background:#c0c4cc;cursor:not-allowed;opacity:.65}
+
+/* 结果区 */
+.result-box{margin-top:10px;padding:14px 18px;background:#f7f8fa;border:1px solid #e8eaed;border-radius:4px;font-size:.78rem}
+.result-box table{width:100%;border-collapse:collapse}
+.result-box td{padding:4px 10px;vertical-align:top;font-size:.78rem}
+.result-box td.lbl{color:#888;width:90px;font-size:.7rem;text-align:right;white-space:nowrap}
+.result-box td.val{font-family:'Consolas',monospace;font-weight:600;color:#222}
+.result-box td.val.hi{color:#1a56b0}
+
+/* 地址展开表 */
+.exp-table{width:100%;border-collapse:collapse;font-size:.74rem;margin-top:6px}
+.exp-table th{text-align:left;padding:6px 10px;background:#e8f0fe;border-bottom:1px solid #c8d8f0;font-weight:600;color:#1a56b0;font-size:.68rem}
+.exp-table td{padding:5px 10px;border-bottom:1px solid #f0f0f0;font-family:'Consolas',monospace;font-size:.73rem}
+.exp-table tr:nth-child(even) td{background:#fafbfc}
+.exp-table .idx{color:#aaa;width:36px;text-align:right;padding-right:10px}
+
+.hint{font-size:.68rem;color:#aaa;margin-top:8px;line-height:1.6}
+.err{color:#e6423a;font-size:.74rem;margin-top:8px;min-height:20px;line-height:20px}
+.sep{border:none;border-top:1px dashed #e5e5e5;margin:12px 0}
+.section-label{font-size:.74rem;font-weight:600;color:#555;margin-bottom:8px}
+
+/* 公式换算卡片 */
+.area-tabs{display:flex;gap:0;margin-bottom:14px}
+.area-tab{padding:7px 18px;border:1px solid #d4dff7;background:#f8fafe;color:#666;font-size:.74rem;cursor:pointer;transition:all .2s;user-select:none}
+.area-tab:first-child{border-radius:4px 0 0 4px}
+.area-tab:last-child{border-radius:0 4px 4px 0}
+.area-tab+.area-tab{border-left:none}
+.area-tab.active{background:#4a90d9;color:#fff;border-color:#4a90d9;font-weight:600}
+.area-tab:hover:not(.active){background:#e8f0fe}
+
+.formula-box{margin:0 0 14px;padding:12px 16px;background:#f0f4ff;border:1px solid #d4dff7;border-radius:4px;font-family:'Consolas',monospace}
+.formula-box .eq{font-size:.88rem;font-weight:700;color:#1a56b0}
+.formula-box .eq2{font-size:.76rem;color:#4a90d9;margin-top:4px}
+.formula-box .note{font-size:.66rem;color:#888;margin-top:4px}
+
+.calc-result{display:inline-block;padding:4px 12px;background:#e8f5e9;border:1px solid #b7e1ba;border-radius:4px;font-family:'Consolas',monospace;font-weight:700;color:#0d6b2e;font-size:.86rem;min-width:60px;text-align:center;white-space:nowrap}
+.calc-result.err{background:#ffeaea;border-color:#f5c6cb;color:#e6423a}
+.calc-result.none{background:#f5f5f5;border-color:#ddd;color:#aaa}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>S7-200 SMART &nbsp; Modbus RTU 工具 <small>地址自动求值 &middot; 地址空间展开 &middot; 对照表</small></h1>
+
+<!-- ===== 卡片1: 地址自动求值 ===== -->
+<div class="card">
+  <div class="card-section">
+    <div class="card-head">地址自动求值 <span class="sub">输入从站地址 / Modbus Addr &rarr; 自动换算</span></div>
+
+    <!-- 区域选择 -->
+    <div class="area-tabs" id="areaTabs">
+      <div class="area-tab active" data-area="V">V 保持寄存器</div>
+      <div class="area-tab" data-area="Q">Q 线圈</div>
+      <div class="area-tab" data-area="I">I 离散输入</div>
+      <div class="area-tab" data-area="AI">AI 输入寄存器</div>
+    </div>
+
+    <!-- 公式展示 -->
+    <div class="formula-box">
+      <div class="eq" id="formulaEq">Addr = 40001 + T/2</div>
+      <div class="eq2" id="formulaEq2">反向: T = 2 &times; (Addr &minus; 40001)</div>
+      <div class="note" id="formulaNote">T = V 区字节偏移（偶数），如 VW100 &rarr; T = 100</div>
+    </div>
+
+    <div class="err" id="errFormula" style="min-height:20px;line-height:20px"></div>
+
+    <!-- 从站 → Modbus -->
+    <div class="inp-line">
+      <label>从站地址</label>
+      <input id="inpSlave" type="text" placeholder="VW100 / Q0.5 / I1.3 / AIW4 / VD200 / VB100" style="max-width:280px;">
+      <span class="unit">&rarr; Addr =</span>
+      <span class="calc-result none" id="resStoM">&mdash;</span>
+    </div>
+
+    <!-- Modbus → 从站 -->
+    <div class="inp-line">
+      <label>Modbus Addr</label>
+      <input id="inpMb" type="text" placeholder="输入 Modbus 地址" style="max-width:200px;">
+      <span class="unit">&rarr; 从站 =</span>
+      <span class="calc-result none" id="resMtoS">&mdash;</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 卡片2: 地址空间展开 ===== -->
+<div class="card">
+  <div class="card-section">
+    <div class="card-head">地址空间展开 <span class="sub">Addr + Count + DataPtr &rarr; 主站/从站地址对应表</span></div>
+
+    <div class="inp-line">
+      <label>Addr</label>
+      <input id="expAddr" type="text" placeholder="40001" style="max-width:220px;">
+      <span class="unit">Modbus 起始地址</span>
+    </div>
+    <div class="inp-line">
+      <label>Count</label>
+      <input id="expCount" type="text" placeholder="4" style="max-width:220px;">
+      <span class="unit">数据个数（最大 2000）</span>
+    </div>
+    <div class="inp-line">
+      <label>DataPtr</label>
+      <input id="expDataPtr" type="text" placeholder="&amp;VB100" style="max-width:220px;">
+      <span class="unit">本地指针，如 &amp;VB100 / &amp;QB0 / &amp;AIW0</span>
+    </div>
+
+    <div style="margin-top:12px;">
+      <button class="btn" id="btnExpand" style="min-width:120px;">展开地址表</button>
+      <span style="font-size:.68rem;color:#bbb;margin-left:8px;">Enter 回车触发</span>
+    </div>
+
+    <div id="resExpand" style="display:none;">
+      <div class="result-box" id="resExpSummary" style="margin-top:14px;"></div>
+      <div id="resExpTable"></div>
+    </div>
+
+    <div class="err" id="errExpand" style="min-height:20px;line-height:20px"></div>
+  </div>
+</div>
+
+<!-- ===== 卡片3: 地址映射对照表 ===== -->
+<div class="card">
+  <div class="card-section">
+    <div class="card-head">Modbus RTU 地址映射对照表 <span class="sub">S7-200 SMART 做从站时的标准映射</span></div>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th style="width:12%">功能码</th>
+          <th style="width:16%">Modbus 地址</th>
+          <th style="width:12%">数据类型</th>
+          <th style="width:14%">S7-200 存储区</th>
+          <th style="width:9%">访问</th>
+          <th>地址映射公式</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag-fc">01</span><span class="tag-fc">05</span><span class="tag-fc">15</span></td>
+          <td class="mono">00001 ~ 09999</td>
+          <td>线圈 Coil</td>
+          <td class="mono">Q 区</td>
+          <td><span class="tag-rw">读写</span></td>
+          <td class="mono"><span class="inline-tag">00001</span> = Q0.0 &nbsp; <span class="inline-tag">00009</span> = Q1.0<br>Q<em>b</em>.<em>n</em> &rarr; Addr = 00001 + <em>b</em>&times;8 + <em>n</em></td>
+        </tr>
+        <tr>
+          <td><span class="tag-fc">02</span></td>
+          <td class="mono">10001 ~ 19999</td>
+          <td>离散输入 DI</td>
+          <td class="mono">I 区</td>
+          <td><span class="tag-ro">只读</span></td>
+          <td class="mono"><span class="inline-tag">10001</span> = I0.0 &nbsp; <span class="inline-tag">10009</span> = I1.0<br>I<em>b</em>.<em>n</em> &rarr; Addr = 10001 + <em>b</em>&times;8 + <em>n</em></td>
+        </tr>
+        <tr>
+          <td><span class="tag-fc">04</span></td>
+          <td class="mono">30001 ~ 39999</td>
+          <td>输入寄存器 IR</td>
+          <td class="mono">AIW 区</td>
+          <td><span class="tag-ro">只读</span></td>
+          <td class="mono"><span class="inline-tag">30001</span> = AIW0 &nbsp; <span class="inline-tag">30002</span> = AIW2<br>AIW<em>n</em> &rarr; Addr = 30001 + <em>n</em>/2 &nbsp;(<em>n</em> 必须偶数)</td>
+        </tr>
+        <tr>
+          <td><span class="tag-fc">03</span><span class="tag-fc">06</span><span class="tag-fc">16</span></td>
+          <td class="mono">40001 ~ 49999</td>
+          <td>保持寄存器 HR</td>
+          <td class="mono">V 区</td>
+          <td><span class="tag-rw">读写</span></td>
+          <td class="mono"><span class="inline-tag">40001</span> = VW(HoldStart) &nbsp; <span class="inline-tag">40002</span> = VW(HoldStart+2)<br>VW<em>n</em> &rarr; Addr = 40001 + (<em>n</em> &minus; HoldStart)/2</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="hint">※ HoldStart 为从站 MBUS_INIT 中配置的 V 区起始字节偏移，默认 = 0（即 40001 &rarr; VW0）。</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ============================================================
+// S7-200 SMART Modbus RTU 工具  —  JS 逻辑
+// ============================================================
+
+// ============================================================
+// 区域配置：Base+1 为起始 Modbus 地址
+// ============================================================
+var AREA = {
+  V:  { base:40001, div:2, isWord:true,  prefix:'V',  sfx:'W',  desc:'保持寄存器 HR', note:'VW100 → T=100, V 区字节偏移(偶数)' },
+  Q:  { base:1,     div:1, isWord:false, prefix:'Q',  sfx:'',   desc:'线圈 Coil',      note:'Q0.0→T=0, Q1.0→T=8, 位偏移' },
+  I:  { base:10001, div:1, isWord:false, prefix:'I',  sfx:'',   desc:'离散输入 DI',    note:'I0.0→T=0, I1.0→T=8, 位偏移' },
+  AI: { base:30001, div:2, isWord:true,  prefix:'AI', sfx:'W',  desc:'输入寄存器 IR',  note:'AIW0→T=0, AIW2→T=2, 字节偏移(偶数)' }
+};
+
+var curArea = 'V';
+
+// T → 从站显示名
+function tToSlave(area, T) {
+  var a = AREA[area];
+  if (a.isWord) return a.prefix + a.sfx + T;
+  return a.prefix + Math.floor(T/8) + '.' + (T%8);
+}
+
+// T → Modbus Addr
+function tToAddr(area, T) {
+  var a = AREA[area];
+  return a.base + Math.floor(T / a.div);
+}
+
+// Modbus Addr → T
+function addrToT(area, addr) {
+  var a = AREA[area];
+  return (addr - a.base) * a.div;
+}
+
+// Modbus Addr → 区域自动分类
+function classify(addr) {
+  var n = parseInt(addr,10);
+  if (n>=1 && n<=9999)   return 'Q';
+  if (n>=10001 && n<=19999) return 'I';
+  if (n>=30001 && n<=39999) return 'AI';
+  if (n>=40001 && n<=49999) return 'V';
+  return null;
+}
+
+// ============================================================
+// 卡片1: 从站地址解析 → T
+// ============================================================
+function parseSlave(raw) {
+  var s = raw.trim().toUpperCase();
+  // VW100 / VD200 / VB100 / QW0 / IW2 / AIW4
+  var mW = s.match(/^(V|Q|I|AI)(W|D|B)(\d+)$/);
+  if (mW) {
+    var pfx = mW[1], sz = mW[2], off = parseInt(mW[3],10);
+    var area = (pfx==='AI') ? 'AI' : (pfx==='V') ? 'V' : (pfx==='I') ? 'I' : 'Q';
+    var a = AREA[area];
+    if (sz==='D') { if(off%4!==0) return {err:'VD 必须 4 字节对齐'}; return {area:area, T:off, type:'DWORD', note:'占 2 个寄存器, Count 建议设为 2'}; }
+    if (sz==='B') {
+      var vwB = (off%2===0) ? off : off-1;
+      return {area:area, T:vwB, type:'BYTE', note:'VB'+off+' = VW'+vwB+' 的'+(off%2===0?'低':'高')+'字节'};
+    }
+    if (!a.isWord && sz==='W') return {area:area, T:off*8, type:'WORD', note:'QW/IW 映射范围跨 16 位, 建议用 Qb.n/Ib.n 位寻址'};
+    if (off%2!==0) return {err:a.prefix+'W 必须偶数对齐'};
+    return {area:area, T:off, type:'WORD'};
+  }
+  // Q0.5 / I1.3 / V100.3
+  var mB = s.match(/^(V|Q|I)(\d+)\.(\d)$/);
+  if (mB) {
+    var pfx2 = mB[1], bo = parseInt(mB[2],10), bn = parseInt(mB[3],10);
+    if (bn>7) return {err:'位号 0~7'};
+    var area2 = (pfx2==='V')?'V':(pfx2==='I')?'I':'Q';
+    return {area:area2, T:bo*8+bn, type:'BIT'};
+  }
+  return {err:'格式无效。支持: VW100 / Q0.5 / I1.3 / AIW4 / VD200 / VB100 / V100.3 / IW2 / QW0'};
+}
+
+// ============================================================
+// 卡片1: 公式刷新
+// ============================================================
+function refreshFormula() {
+  var a = AREA[curArea];
+  if (a.div === 1) {
+    document.getElementById('formulaEq').textContent = 'Addr = ' + a.base + ' + T';
+    document.getElementById('formulaEq2').textContent = '反向: T = Addr \u2212 ' + a.base;
+  } else {
+    document.getElementById('formulaEq').textContent = 'Addr = ' + a.base + ' + T/' + a.div;
+    document.getElementById('formulaEq2').textContent = '反向: T = ' + a.div + ' \u00D7 (Addr \u2212 ' + a.base + ')';
+  }
+  document.getElementById('formulaNote').textContent = a.note;
+}
+
+// 从站 → Modbus
+function calcStoM() {
+  var raw = document.getElementById('inpSlave').value.trim();
+  var resEl = document.getElementById('resStoM');
+  var errEl = document.getElementById('errFormula');
+  errEl.textContent = '';
+  if (!raw) { resEl.className='calc-result none'; resEl.textContent='\u2014'; return; }
+
+  var p = parseSlave(raw);
+  if (p.err) { resEl.className='calc-result err'; resEl.textContent=p.err; return; }
+
+  var addr = tToAddr(p.area, p.T);
+  var slave = tToSlave(p.area, p.T);
+  resEl.className = 'calc-result';
+  resEl.textContent = String(addr).padStart(5,'0');
+  resEl.title = AREA[p.area].desc + ' : ' + slave + (p.note ? '\n' + p.note : '');
+}
+
+// Modbus → 从站
+function calcMtoS() {
+  var raw = document.getElementById('inpMb').value.trim();
+  var resEl = document.getElementById('resMtoS');
+  var errEl = document.getElementById('errFormula');
+  errEl.textContent = '';
+  if (!raw) { resEl.className='calc-result none'; resEl.textContent='\u2014'; return; }
+
+  var addr = parseInt(raw,10);
+  if (isNaN(addr)) { resEl.className='calc-result err'; resEl.textContent='无效'; return; }
+
+  var area = classify(addr);
+  if (!area) { resEl.className='calc-result err'; resEl.textContent='超范围'; return; }
+
+  var T = addrToT(area, addr);
+  if (T<0 || !Number.isInteger(T)) { resEl.className='calc-result err'; resEl.textContent='超范围'; return; }
+
+  var a = AREA[area];
+  if (a.isWord && T%2!==0) { resEl.className='calc-result err'; resEl.textContent='T非偶数'; return; }
+  if (!a.isWord && T>7999) { resEl.className='calc-result err'; resEl.textContent='超范围'; return; }
+
+  var slave = tToSlave(area, T);
+  resEl.className = 'calc-result';
+  resEl.textContent = slave;
+  resEl.title = a.desc + ' | 区域: ' + area;
+}
+
+// 切换区域
+function switchArea(area) {
+  curArea = area;
+  var tabs = document.getElementById('areaTabs').querySelectorAll('.area-tab');
+  for (var i=0; i<tabs.length; i++)
+    tabs[i].classList.toggle('active', tabs[i].getAttribute('data-area')===area);
+
+  // 清空输入框
+  document.getElementById('inpSlave').value = '';
+  document.getElementById('inpMb').value = '';
+  // 清空结果区
+  var r1 = document.getElementById('resStoM');
+  var r2 = document.getElementById('resMtoS');
+  r1.className = 'calc-result none'; r1.textContent = '\u2014';
+  r2.className = 'calc-result none'; r2.textContent = '\u2014';
+  // 清空错误提示
+  document.getElementById('errFormula').textContent = '';
+  // 刷新公式
+  refreshFormula();
+}
+
+// ============================================================
+// 卡片2: 地址空间展开
+// ============================================================
+function expandTable() {
+  var errEl = document.getElementById('errExpand');
+  var resDiv = document.getElementById('resExpand');
+  errEl.textContent = '';
+
+  var aRaw = document.getElementById('expAddr').value.trim();
+  var cRaw = document.getElementById('expCount').value.trim();
+  var dRaw = document.getElementById('expDataPtr').value.trim();
+  if (!aRaw||!cRaw||!dRaw) { resDiv.style.display='none'; errEl.textContent='请填写 Addr / Count / DataPtr'; return; }
+
+  var addr = parseInt(aRaw,10);
+  var count = parseInt(cRaw,10);
+  if (isNaN(addr)||isNaN(count)||count<=0) { resDiv.style.display='none'; errEl.textContent='Addr / Count 需有效正整数'; return; }
+  if (count>2000) { resDiv.style.display='none'; errEl.textContent='Count 最大 2000'; return; }
+
+  var area = classify(addr);
+  if (!area) { resDiv.style.display='none'; errEl.textContent='Addr 超出 Modbus 范围（1~9999 / 10001~19999 / 30001~39999 / 40001~49999）'; return; }
+
+  var a = AREA[area];
+  if (addr+count-1 > (a.base + (a.isWord?4999:9999))) { resDiv.style.display='none'; errEl.textContent='Addr+Count 超出区域范围'; return; }
+
+  // 解析 DataPtr
+  var dp = parseDataPtr(dRaw);
+  if (!dp) { resDiv.style.display='none'; errEl.textContent='DataPtr 格式无效。示例: &VB100 / &QB0 / &IB0 / &AIW0'; return; }
+
+  // 摘要
+  var s = '<table>';
+  s += '<tr><td class="lbl">区域</td><td class="val hi">'+a.desc+' ('+area+')</td></tr>';
+  s += '<tr><td class="lbl">Modbus 范围</td><td class="val hi">'+String(addr).padStart(5,'0')+' ~ '+String(addr+count-1).padStart(5,'0')+' ('+count+')</td></tr>';
+  if (a.isWord) {
+    s += '<tr><td class="lbl">主站发送/接收</td><td class="val">'+count+' Word / '+count*2+' Byte</td></tr>';
+  } else {
+    s += '<tr><td class="lbl">主站发送/接收</td><td class="val">'+count+' Bit / '+Math.ceil(count/8)+' Byte</td></tr>';
+  }
+  s += '<tr><td class="lbl">从站本地存储</td><td class="val hi">'+dp.dispStart+' ~ '+dp.dispEnd+'</td></tr>';
+  s += '</table>';
+  document.getElementById('resExpSummary').innerHTML = s;
+
+  // 展开表
+  var h = '<div style="margin-top:12px;font-size:.72rem;font-weight:600;color:#555;">地址空间对应明细</div>';
+  h += '<table class="exp-table"><thead><tr>';
+  h += '<th style="width:40px;">#</th><th>Modbus Addr(主站)</th><th>本地存储(DataPtr)</th><th>从站存储区</th>';
+  h += '</tr></thead><tbody>';
+
+  var show = Math.min(count, 80);
+  for (var i=0; i<show; i++) {
+    var mb = addr + i;
+    var T = addrToT(area, mb);
+    var slave = tToSlave(area, T + i*a.div - i*a.div);
+    // Recompute: slave for each entry
+    var T_i = addrToT(area, mb);
+    var slave_i = tToSlave(area, T_i);
+    var local = '';
+
+    if (a.isWord) {
+      if (dp.prefix==='AI') local = 'AIW' + (dp.byteOff + i*2);
+      else local = dp.prefix + 'W' + (dp.byteOff + i*2);
+    } else {
+      var bi = dp.byteOff*8 + i;
+      local = dp.prefix + Math.floor(bi/8) + '.' + (bi%8);
+    }
+
+    h += '<tr><td class="idx">'+(i+1)+'</td>';
+    h += '<td style="font-weight:600;color:#1a56b0;">'+String(mb).padStart(5,'0')+'</td>';
+    h += '<td>'+local+'</td>';
+    h += '<td>'+slave_i+'</td></tr>';
+  }
+
+  if (count>show) {
+    h += '<tr><td class="idx" style="color:#ccc;">...</td>';
+    h += '<td colspan="3" style="color:#888;font-size:.68rem;">共 '+count+' 项，仅显示前 '+show+' 项</td></tr>';
+  }
+
+  // 汇总行
+  h += '<tr style="background:#f0f7eb;"><td class="idx" style="font-weight:700;">\u03A3</td>';
+  h += '<td colspan="3" style="font-weight:600;color:#0d6b2e;">';
+  h += '主站 Addr='+String(addr).padStart(5,'0')+' Count='+count;
+  if (a.isWord) h += ' → 发送/接收 '+count+' Word('+count*2+' Byte)';
+  else          h += ' → 发送/接收 '+count+' Bit('+Math.ceil(count/8)+' Byte)';
+  h += '</td></tr>';
+  h += '</tbody></table>';
+  document.getElementById('resExpTable').innerHTML = h;
+
+  resDiv.style.display = 'block';
+}
+
+// DataPtr 解析: &VB100 → {prefix, byteOff, dispStart, dispEnd}
+function parseDataPtr(raw) {
+  var s = raw.trim().toUpperCase();
+  var m = s.match(/^&(V|Q|I|M|SM|S|L|AI)([BW])?(\d+)$/);
+  if (!m) return null;
+  var pfx = m[1], sz = m[2]||'B', off = parseInt(m[3],10);
+  return {prefix:pfx, byteOff:off, dispStart:pfx+sz+off, dispEnd:'(由 Count 决定)'};
+}
+
+// ============================================================
+// 事件绑定
+// ============================================================
+
+// 卡片1 自动求值
+var tabs = document.getElementById('areaTabs').querySelectorAll('.area-tab');
+for (var i=0; i<tabs.length; i++) {
+  tabs[i].addEventListener('click', function(){ switchArea(this.getAttribute('data-area')); });
+}
+document.getElementById('inpSlave').addEventListener('input', calcStoM);
+document.getElementById('inpSlave').addEventListener('keydown', function(e){ if(e.key==='Enter') document.getElementById('inpMb').focus(); });
+document.getElementById('inpMb').addEventListener('input', calcMtoS);
+document.getElementById('inpMb').addEventListener('keydown', function(e){ if(e.key==='Enter') document.getElementById('inpSlave').focus(); });
+
+// 卡片2 地址展开
+document.getElementById('btnExpand').addEventListener('click', expandTable);
+document.getElementById('expAddr').addEventListener('keydown', function(e){ if(e.key==='Enter') document.getElementById('expCount').focus(); });
+document.getElementById('expCount').addEventListener('keydown', function(e){ if(e.key==='Enter') document.getElementById('expDataPtr').focus(); });
+document.getElementById('expDataPtr').addEventListener('keydown', function(e){ if(e.key==='Enter') expandTable(); });
+
+// 初始化
+refreshFormula();
+</script>
+</body>
+</html>

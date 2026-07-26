@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S7-200 SMART 地址空间拆解</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  background:#f2f4f7; color:#333; padding:24px;
+}
+.page { max-width:1100px; margin:0 auto; }
+h1 { font-size:1.15rem; font-weight:600; color:#222; margin-bottom:16px; }
+h1 small { font-weight:400; color:#888; font-size:.75rem; }
+
+/* ===== 卡片 ===== */
+.card { background:#fff; border:1px solid #e4e7ed; border-radius:6px; padding:0; margin-bottom:14px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+.card-section { padding:14px 20px; }
+.card-section + .card-section { border-top:1px solid #f0f0f0; }
+.card-head {
+  font-size:.72rem; font-weight:600; color:#999; letter-spacing:.5px;
+  text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:6px;
+}
+.card-head::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:#c0c4cc; }
+
+/* ===== 地址输入行 ===== */
+.inp-line { display:flex; gap:8px; }
+.inp-line input {
+  flex:1; padding:8px 12px; border:1px solid #c0c4cc; border-radius:4px;
+  font-family:'Consolas',monospace; font-size:.88rem; outline:none;
+  transition:border-color .2s, box-shadow .2s; background:#fff;
+}
+.inp-line input:focus { border-color:#4a90d9; box-shadow:0 0 0 3px rgba(74,144,217,.12); }
+.btn {
+  padding:7px 22px; background:#4a90d9; color:#fff; border:none;
+  border-radius:4px; cursor:pointer; font-size:.82rem; white-space:nowrap;
+  transition:background .2s, opacity .2s; letter-spacing:.4px;
+}
+.btn:hover { background:#3a7bc8; }
+.btn:active { background:#2e6ab5; }
+.btn:disabled { background:#c0c4cc; cursor:not-allowed; opacity:.65; }
+
+/* ===== 快速标签 ===== */
+.qrow { margin-top:10px; display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+.ql { font-size:.7rem; color:#bbb; flex-shrink:0; user-select:none; }
+.tag {
+  display:inline-block; padding:2px 10px; font-size:.7rem; font-family:'Consolas',monospace;
+  color:#4a90d9; background:#edf3fb; border:1px solid #d4e3f9; border-radius:12px;
+  cursor:pointer; transition:all .2s; user-select:none;
+}
+.tag:hover { background:#4a90d9; color:#fff; border-color:#4a90d9; }
+.tag:active { transform:scale(.96); }
+
+/* ===== 错误提示 ===== */
+.err { color:#e6423a; font-size:.74rem; margin-top:8px; min-height:20px; line-height:20px; transition:color .2s; }
+
+/* ===== 赋值输入行 ===== */
+.val-row {
+  display:flex; gap:10px; align-items:center; margin-top:8px;
+}
+.val-row label {
+  width:72px; text-align:right; font-size:.78rem; color:#666; flex-shrink:0; user-select:none;
+}
+.val-row input {
+  width:320px; padding:7px 10px; border:1px solid #c0c4cc; border-radius:4px;
+  font-family:'Consolas',monospace; font-size:.84rem; outline:none; background:#fff;
+  transition:border-color .2s, box-shadow .2s;
+}
+.val-row input:focus { border-color:#4a90d9; box-shadow:0 0 0 3px rgba(74,144,217,.12); }
+.val-row input:disabled { background:#f5f5f5; color:#bbb; }
+.val-row input::placeholder { color:#ccc; }
+.val-pfx {
+  font-family:'Consolas',monospace; font-size:.78rem; color:#999; user-select:none; font-weight:600;
+  margin-right:6px;
+}
+
+/* ===== 按钮行 ===== */
+.val-btnrow { margin-top:10px; display:flex; gap:8px; align-items:center; }
+.btn-outline {
+  padding:5px 16px; background:#fff; color:#999; border:1px solid #dcdfe6;
+  border-radius:4px; cursor:pointer; font-size:.8rem; transition:all .2s;
+}
+.btn-outline:hover { color:#e6423a; border-color:#e6423a; background:#fef0ef; }
+
+/* 结果区 */
+.sec { margin-bottom:12px; }
+.sec-label {
+  display:inline-block; width:60px; font-size:.75rem; font-weight:600;
+  color:#555; vertical-align:middle; text-align:right; padding-right:10px;
+}
+
+/* DWORD */
+.dw-box {
+  display:inline-block; background:#e8f0fe; border:1px solid #a8c8f0;
+  border-radius:3px; padding:5px 18px; font-family:'Consolas',monospace;
+  font-size:.82rem; color:#1a56b0; font-weight:600;
+}
+.dw-box.hi { background:#ffd6e7; border-color:#f08cb4; color:#b91c5c; }
+
+/* WORD */
+.wd-wrap { display:inline-flex; gap:8px; }
+.wd-box {
+  background:#e6f4ea; border:1px solid #86c896; border-radius:3px;
+  padding:5px 18px; font-family:'Consolas',monospace;
+  font-size:.78rem; color:#0d6b2e; font-weight:600;
+}
+.wd-box.hi { background:#ffd6e7; border-color:#f08cb4; color:#b91c5c; }
+
+/* BYTE */
+.bt-wrap { display:inline-flex; gap:8px; }
+.bt-box {
+  background:#fef9e7; border:1px solid #d4b84c; border-radius:3px;
+  padding:5px 18px; font-family:'Consolas',monospace;
+  font-size:.75rem; color:#7a5d00; font-weight:600;
+}
+.bt-box.hi { background:#ffd6e7; border-color:#f08cb4; color:#b91c5c; }
+
+/* BIT */
+.bit-section { margin-top:4px; }
+.bit-word-head {
+  font-family:'Consolas',monospace; font-size:.66rem; color:#15803d;
+  padding:2px 0 2px 72px; font-weight:600; margin:6px 0 2px;
+}
+.bit-word-divider { height:0; border-top:1px dashed #ddd; margin:6px 0 4px 72px; }
+.bit-row { display:flex; align-items:flex-start; margin-bottom:6px; }
+.bit-byte-label {
+  width:62px; text-align:right; padding-right:10px;
+  font-family:'Consolas',monospace; font-size:.68rem; color:#888;
+  font-weight:600; flex-shrink:0; line-height:24px;
+}
+.bit-byte-label.hi { color:#b91c5c; }
+.bit-grid { display:flex; gap:4px; flex-wrap:wrap; }
+.bit-cell {
+  width:62px; text-align:center; padding:3px 0; border-radius:2px;
+  font-family:'Consolas',monospace; font-size:.62rem; color:#999;
+  background:#f5f5f5; border:1px solid #e8e8e8;
+}
+.bit-cell.on { background:#d4edda; border-color:#86c896; color:#0d6b2e; font-weight:700; }
+.bit-cell.hi { border-color:#f08cb4; border-width:2px; padding:2px 0; }
+.bit-cell.on.hi { background:#d4edda; border-color:#f08cb4; border-width:2px; color:#0d6b2e; font-weight:700; }
+
+/* separator */
+.sep { border:none; border-top:1px dashed #e5e5e5; margin:10px 0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>S7-200 SMART 地址空间拆解 <small>DWORD → WORD → BYTE → BIT</small></h1>
+
+<div class="card">
+  <!-- ====== 地址解析区 ====== -->
+  <div class="card-section">
+    <div class="card-head">地址解析</div>
+    <div class="inp-line">
+      <input id="inp" type="text" placeholder="V102.3 / VB101 / VW102 / VD100 / I0.5 / MW20 ..." autofocus>
+      <button class="btn" id="btnGo">解析</button>
+    </div>
+    <div class="qrow">
+      <span class="ql">快速</span>
+      <span class="tag" data-addr="V102.3">V102.3</span>
+      <span class="tag" data-addr="VB101">VB101</span>
+      <span class="tag" data-addr="VW102">VW102</span>
+      <span class="tag" data-addr="VD100">VD100</span>
+      <span class="tag" data-addr="I0.5">I0.5</span>
+      <span class="tag" data-addr="IW2">IW2</span>
+      <span class="tag" data-addr="M10.5">M10.5</span>
+      <span class="tag" data-addr="QD4">QD4</span>
+      <span class="tag" data-addr="SM0.7">SM0.7</span>
+    </div>
+    <div class="err" id="err"></div>
+  </div>
+
+  <!-- ====== 赋值操作区 ====== -->
+  <div class="card-section">
+    <div class="card-head">赋值 <span style="font-weight:400;color:#bbb;text-transform:none;letter-spacing:0;font-size:.68rem;" id="assignTarget">—</span></div>
+    <div class="val-row">
+      <label>十六进制</label>
+      <input id="vHex" type="text" placeholder="A5" autocomplete="off" disabled>
+    </div>
+    <div class="val-row">
+      <label>十进制</label>
+      <input id="vDec" type="text" placeholder="165" autocomplete="off" disabled>
+    </div>
+    <div class="val-row">
+      <label>二进制</label>
+      <input id="vBin" type="text" placeholder="10100101" autocomplete="off" disabled>
+    </div>
+    <div class="val-btnrow">
+      <button class="btn-outline" id="btnClr" disabled>清零</button>
+    </div>
+  </div>
+</div>
+
+<div class="card res" id="res">
+<div class="card-section">
+  <!-- DWORD -->
+  <div class="sec">
+    <span class="sec-label">DWORD</span>
+    <span id="dw" class="dw-box"></span>
+  </div>
+
+  <!-- WORD -->
+  <div class="sec">
+    <span class="sec-label">WORD</span>
+    <span class="wd-wrap" id="wd"></span>
+  </div>
+
+  <!-- BYTE -->
+  <div class="sec">
+    <span class="sec-label">BYTE</span>
+    <span class="bt-wrap" id="bt"></span>
+  </div>
+
+  <hr class="sep">
+
+  <!-- BIT (4 rows) -->
+  <div class="sec bit-section" id="bitSec"></div>
+</div><!-- /card-section -->
+</div>
+
+</div>
+
+<script>
+// ==========================================
+// 全局状态
+// ==========================================
+var currentParsed   = null;   // 当前解析的地址
+var currentDwordVal = 0;      // 32 位 DWORD 值
+
+// ==========================================
+// 赋值区启用/禁用联动
+// ==========================================
+function setAssignEnabled(enabled) {
+  var inputs = ['vHex','vDec','vBin'];
+  for (var i = 0; i < inputs.length; i++) {
+    var el = document.getElementById(inputs[i]);
+    el.disabled = !enabled;
+    if (!enabled) el.value = '';
+    el.style.opacity = enabled ? '' : '.5';
+  }
+  document.getElementById('btnClr').disabled = !enabled;
+}
+
+function updateAssignTarget(parsed) {
+  var el = document.getElementById('assignTarget');
+  if (!parsed) {
+    el.textContent = '— 请先解析地址';
+    return;
+  }
+  var p = parsed;
+  var addr;
+  if (p.type === 'bit')   addr = p.prefix + p.byteOff + '.' + p.bitNum;
+  if (p.type === 'byte')  addr = p.prefix + 'B' + p.byteOff;
+  if (p.type === 'word')  addr = p.prefix + 'W' + p.byteOff;
+  if (p.type === 'dword') addr = p.prefix + 'D' + p.byteOff;
+  el.textContent = '\u2192 ' + addr + ' (' + p.type.toUpperCase() + ')';
+}
+
+// ==========================================
+// 核心算法
+// ==========================================
+
+// S7-200 SMART 地址范围 (字节偏移最大值)
+var ADDR_RANGE = {
+  'I':  31,       // I0.0 ~ I31.7
+  'Q':  31,       // Q0.0 ~ Q31.7
+  'M':  31,       // M0.0 ~ M31.7
+  'V':  8191,     // V0.0 ~ V8191.7
+  'SM': 1499,     // SM0.0 ~ SM1499.7
+  'S':  31,       // S0.0 ~ S31.7
+  'L':  63        // L0.0 ~ L63.7
+};
+
+function parseAddr(raw) {
+  var s = raw.trim().toUpperCase();
+  if (!s) return null;
+
+  var mBit = s.match(/^(V|I|Q|M|SM|S|L)(\d+)\.(\d)$/);
+  if (mBit) {
+    var byteOff = parseInt(mBit[2], 10);
+    var bitNum  = parseInt(mBit[3], 10);
+    if (bitNum > 7) return null;
+    return { prefix: mBit[1], type: 'bit', byteOff: byteOff, bitNum: bitNum };
+  }
+
+  var mByte = s.match(/^(V|I|Q|M|SM|S|L)B(\d+)$/);
+  if (mByte) return { prefix: mByte[1], type: 'byte', byteOff: parseInt(mByte[2],10), bitNum: null };
+
+  var mWord = s.match(/^(V|I|Q|M|SM|S|L)W(\d+)$/);
+  if (mWord) return { prefix: mWord[1], type: 'word', byteOff: parseInt(mWord[2],10), bitNum: null };
+
+  var mDword = s.match(/^(V|I|Q|M|SM|S|L)D(\d+)$/);
+  if (mDword) return { prefix: mDword[1], type: 'dword', byteOff: parseInt(mDword[2],10), bitNum: null };
+
+  return null;
+}
+
+/**
+ * 验证地址是否在合法范围内
+ * @returns 错误消息字符串，合法则返回空串
+ */
+function validateAddr(parsed) {
+  var maxByte = ADDR_RANGE[parsed.prefix];
+  if (maxByte === undefined) return '';
+
+  var byteOff = parsed.byteOff;
+  var pfx = parsed.prefix;
+  var suffix;
+
+  if (byteOff > maxByte) {
+    suffix = pfx + '0 ~ ' + pfx + maxByte;
+    if (parsed.type === 'bit')   suffix = pfx + '0.0 ~ ' + pfx + maxByte + '.7';
+    if (parsed.type === 'byte')  suffix = pfx + 'B0 ~ ' + pfx + 'B' + maxByte;
+    if (parsed.type === 'word')  suffix = pfx + 'W0 ~ ' + pfx + 'W' + maxByte;
+    if (parsed.type === 'dword') suffix = pfx + 'D0 ~ ' + pfx + 'D' + maxByte;
+    return pfx + ' 区地址超出范围（' + suffix + '）';
+  }
+
+  // WORD: 地址必须偶数对齐（VW0, VW2, VW4...）
+  if (parsed.type === 'word' && byteOff % 2 !== 0) {
+    return pfx + ' 区 W 地址必须偶数对齐（如 ' + pfx + 'W0, ' + pfx + 'W2 ...）';
+  }
+
+  // DWORD: 地址必须 4 字节对齐（VD0, VD4, VD8...）
+  if (parsed.type === 'dword' && byteOff % 4 !== 0) {
+    return pfx + ' 区 D 地址必须 4 字节对齐（如 ' + pfx + 'D0, ' + pfx + 'D4 ...）';
+  }
+
+  // WORD: 字节+1 不能超界
+  if (parsed.type === 'word' && byteOff + 1 > maxByte) {
+    suffix = pfx + 'W0 ~ ' + pfx + 'W' + (maxByte - 1);
+    return pfx + ' 区 W 超出范围（' + suffix + '）';
+  }
+
+  // DWORD: 字节+3 不能超界
+  if (parsed.type === 'dword' && byteOff + 3 > maxByte) {
+    suffix = pfx + 'D0 ~ ' + pfx + 'D' + (maxByte - 3);
+    return pfx + ' 区 D 超出范围（' + suffix + '）';
+  }
+
+  return '';
+}
+
+function dwordRoot(byteOff) { return (byteOff >> 2) << 2; }
+function fmtAddr(pfx, sz, off) { return pfx + sz + off; }
+function fmtBit(pfx, off, b) { return pfx + off + '.' + b; }
+
+// ==========================================
+// 三输入框联动同步
+// ==========================================
+var syncLock = false; // 防止循环触发
+
+function syncFrom(source) {
+  if (syncLock) return;
+  syncLock = true;
+
+  var hexEl = document.getElementById('vHex');
+  var decEl = document.getElementById('vDec');
+  var binEl = document.getElementById('vBin');
+  var raw, val;
+
+  if (source === 'hex') {
+    raw = hexEl.value.replace(/\s/g, '');
+    if (/^[0-9a-fA-F]+$/.test(raw)) {
+      val = parseInt(raw, 16);
+      decEl.value = val.toString(10);
+      binEl.value = val.toString(2);
+    } else if (raw === '') {
+      decEl.value = '';
+      binEl.value = '';
+    }
+  } else if (source === 'dec') {
+    raw = decEl.value.replace(/\s/g, '');
+    if (/^\d+$/.test(raw)) {
+      val = parseInt(raw, 10);
+      hexEl.value = val.toString(16).toUpperCase();
+      binEl.value = val.toString(2);
+    } else if (raw === '') {
+      hexEl.value = '';
+      binEl.value = '';
+    }
+  } else if (source === 'bin') {
+    raw = binEl.value.replace(/\s/g, '');
+    if (/^[01]+$/.test(raw)) {
+      val = parseInt(raw, 2);
+      hexEl.value = val.toString(16).toUpperCase();
+      decEl.value = val.toString(10);
+    } else if (raw === '') {
+      hexEl.value = '';
+      decEl.value = '';
+    }
+  }
+
+  syncLock = false;
+
+  // 实时写入：联动同步后自动写入到地址空间
+  autoWrite();
+}
+
+/**
+ * 从当前三输入框中获取有效数值（优先 hex → dec → bin）
+ */
+function getValueFromInputs() {
+  var hex = document.getElementById('vHex').value.replace(/\s/g, '');
+  var dec = document.getElementById('vDec').value.replace(/\s/g, '');
+  var bin = document.getElementById('vBin').value.replace(/\s/g, '');
+
+  if (/^[0-9a-fA-F]+$/.test(hex)) return { val: parseInt(hex, 16), src: 'hex' };
+  if (/^\d+$/.test(dec))             return { val: parseInt(dec, 10), src: 'dec' };
+  if (/^[01]+$/.test(bin))           return { val: parseInt(bin, 2),  src: 'bin' };
+  return null;
+}
+
+function clearAllInputs() {
+  syncLock = true;
+  document.getElementById('vHex').value = '';
+  document.getElementById('vDec').value = '';
+  document.getElementById('vBin').value = '';
+  syncLock = false;
+}
+
+/**
+ * 将值应用到 DWORD 的对应位置
+ * @param {object} parsed - 解析结果
+ * @param {number} val - 输入值
+ * @param {number} curDword - 当前 32 位 DWORD 值
+ * @returns {number} 新的 DWORD 值
+ */
+function applyValue(parsed, val, curDword) {
+  var root = dwordRoot(parsed.byteOff);
+  var byteIdx = parsed.byteOff - root; // 0~3
+
+  switch (parsed.type) {
+    case 'bit':
+      // 位号 bitNum 对应大端序: V100.7=bit31, V100.0=bit24, V103.7=bit7, V103.0=bit0
+      var bitPos = (3 - byteIdx) * 8 + parsed.bitNum;
+      if (val) {
+        curDword |= (1 << bitPos);
+      } else {
+        curDword &= ~(1 << bitPos);
+      }
+      break;
+
+    case 'byte':
+      // 1 字节: byteIdx=0→bits24-31, byteIdx=1→bits16-23, byteIdx=2→bits8-15, byteIdx=3→bits0-7
+      val = val & 0xFF;
+      var bShift = (3 - byteIdx) * 8;
+      var mask = 0xFF << bShift;
+      curDword = (curDword & ~mask) | (val << bShift);
+      break;
+
+    case 'word':
+      // 1 字(2字节): byteIdx=0→bits16-31(VW100=VB100+VB101), byteIdx=2→bits0-15(VW102=VB102+VB103)
+      val = val & 0xFFFF;
+      var wShift = (2 - byteIdx) * 8;
+      var wMask = 0xFFFF << wShift;
+      curDword = (curDword & ~wMask) | (val << wShift);
+      break;
+
+    case 'dword':
+      // 设置整个 DWORD，限制 0~4294967295
+      curDword = val >>> 0; // 转为无符号 32 位
+      break;
+  }
+
+  return curDword >>> 0;
+}
+
+// ==========================================
+// 渲染
+// ==========================================
+
+function matchRange(parsed, root) {
+  var off = parsed.byteOff;
+  if (parsed.type === 'bit') {
+    var col = (off - root) * 8 + (7 - parsed.bitNum);
+    return { start: col, end: col };
+  }
+  if (parsed.type === 'byte') {
+    var s = (off - root) * 8;
+    return { start: s, end: s + 7 };
+  }
+  if (parsed.type === 'word') {
+    var s = (off - root) * 8;
+    return { start: s, end: s + 15 };
+  }
+  return { start: 0, end: 31 };
+}
+
+function inRange(col, mr) { return mr && col >= mr.start && col <= mr.end; }
+
+/**
+ * 获取指定位是否为 1 (列索引 0=bit31 MSB)
+ * 列 0 → DWORD bit 31 (最高位)
+ * 列 31 → DWORD bit 0 (最低位)
+ */
+function isBitOn(col, dwordVal) {
+  var bitIdx = 31 - col; // 列 0=bit31, 列 31=bit0
+  return ((dwordVal >>> bitIdx) & 1) === 1;
+}
+
+/**
+ * 主渲染函数
+ */
+function render(parsed, dwordVal) {
+  dwordVal = dwordVal || 0;
+
+  var p, root, mr, type;
+  if (parsed) {
+    p    = parsed.prefix;
+    root = dwordRoot(parsed.byteOff);
+    mr   = matchRange(parsed, root);
+    type = parsed.type;
+  } else {
+    p    = 'V';
+    root = 0;
+    mr   = null;
+    type = null;
+  }
+
+  // -- DWORD --
+  var dwEl = document.getElementById('dw');
+  dwEl.innerHTML = fmtAddr(p, 'D', root) +
+    ' &ensp; <small>' + fmtAddr(p,'B',root) + ' ~ ' + fmtAddr(p,'B',root+3) + '</small>';
+  dwEl.className = 'dw-box' + (type === 'dword' ? ' hi' : '');
+
+  // -- WORD --
+  var wdEl = document.getElementById('wd');
+  var wLoHi = (type === 'word' && parsed && parsed.byteOff === root);
+  var wHiHi = (type === 'word' && parsed && parsed.byteOff === root + 2);
+  var wAllHi = (type === 'dword');
+  wdEl.innerHTML =
+    '<span class="wd-box' + ((wLoHi||wAllHi)?' hi':'') + '">' + fmtAddr(p,'W',root) +
+      ' <small>低字</small></span>' +
+    '<span class="wd-box' + ((wHiHi||wAllHi)?' hi':'') + '">' + fmtAddr(p,'W',root+2) +
+      ' <small>高字</small></span>';
+
+  // -- BYTE --
+  var btEl = document.getElementById('bt');
+  var btHtml = '';
+  for (var i = 0; i < 4; i++) {
+    var bo = root + i;
+    var bAddr = fmtAddr(p, 'B', bo);
+    var label = (i === 0 || i === 2) ? '低' : '高';
+    var bHi = (type === 'dword') ||
+              (type === 'byte' && parsed && parsed.byteOff === bo) ||
+              (type === 'word' && parsed && parsed.byteOff <= bo && bo < parsed.byteOff + 2) ||
+              (type === 'bit' && parsed && parsed.byteOff === bo);
+    btHtml += '<span class="bt-box' + (bHi ? ' hi' : '') + '">' + bAddr +
+      ' <small>' + label + '</small></span>';
+  }
+  btEl.innerHTML = btHtml;
+
+  // -- BIT (4 rows, grouped by word) --
+  var bitSec = document.getElementById('bitSec');
+  var bitHtml = '';
+
+  for (var wi = 0; wi < 2; wi++) {
+    // 字组头
+    var wBase = root + wi * 2;
+    bitHtml += '<div class="bit-word-head">' + fmtAddr(p, 'W', wBase);
+    bitHtml += ' <small>' + (wi === 0 ? '低字' : '高字') + '</small>';
+    bitHtml += '  ( ' + fmtAddr(p,'B',wBase) + ' + ' + fmtAddr(p,'B',wBase+1) + ' )</div>';
+
+    // 字组分隔线（仅两组之间）
+    if (wi === 1) {
+      bitHtml += '<div class="bit-word-divider"></div>';
+    }
+
+    for (var bj = 0; bj < 2; bj++) {
+      var bi = wi * 2 + bj;
+      var bo = root + bi;
+      var bAddr = fmtAddr(p, 'B', bo);
+      var rowHi = (type === 'dword') ||
+                  (type === 'byte' && parsed && parsed.byteOff === bo) ||
+                  (type === 'word' && parsed && parsed.byteOff <= bo && bo < parsed.byteOff + 2) ||
+                  (type === 'bit' && parsed && parsed.byteOff === bo);
+      bitHtml += '<div class="bit-row">';
+      bitHtml += '<span class="bit-byte-label' + (rowHi ? ' hi' : '') + '">' + bAddr + '</span>';
+      bitHtml += '<div class="bit-grid">';
+      for (var bn = 7; bn >= 0; bn--) {
+        var col = bi * 8 + (7 - bn);
+        var matched = inRange(col, mr);
+        var on = isBitOn(col, dwordVal);
+        var cellAddr = fmtBit(p, bo, bn);
+        var cls = 'bit-cell';
+        if (on)      cls += ' on';
+        if (matched) cls += ' hi';
+        bitHtml += '<span class="' + cls + '">' + cellAddr + '</span>';
+      }
+      bitHtml += '</div></div>';
+    }
+  }
+  bitSec.innerHTML = bitHtml;
+}
+
+// ==========================================
+// 入口
+// ==========================================
+
+function analyze(raw) {
+  var errEl = document.getElementById('err');
+  errEl.textContent = '';
+
+  if (!raw.trim()) {
+    currentParsed = null;
+    currentDwordVal = 0;
+    setAssignEnabled(false);
+    updateAssignTarget(null);
+    render(null, 0);
+    return;
+  }
+
+  var parsed = parseAddr(raw);
+  if (!parsed) {
+    errEl.textContent = '无效地址格式。支持: I/Q/M/V/SM/S/L + B/W/D/+.bit';
+    setAssignEnabled(false);
+    updateAssignTarget(null);
+    return;
+  }
+
+  var err = validateAddr(parsed);
+  if (err) {
+    errEl.textContent = err;
+    setAssignEnabled(false);
+    updateAssignTarget(null);
+    return;
+  }
+
+  currentParsed = parsed;
+  currentDwordVal = 0;
+  clearAllInputs();
+  setAssignEnabled(true);
+  updateAssignTarget(parsed);
+  render(parsed, currentDwordVal);
+}
+
+/**
+ * 实时写入：输入框值变更时自动写入地址空间（静默，不弹错误）
+ */
+function autoWrite() {
+  if (!currentParsed) return;
+
+  var result = getValueFromInputs();
+  if (!result) return;
+
+  var val = result.val;
+
+  // 范围检查
+  var maxVal;
+  switch (currentParsed.type) {
+    case 'bit':   maxVal = 1; break;
+    case 'byte':  maxVal = 255; break;
+    case 'word':  maxVal = 65535; break;
+    case 'dword': maxVal = 4294967295; break;
+  }
+  if (val > maxVal) {
+    document.getElementById('err').textContent = '值超出范围（' + currentParsed.type.toUpperCase() + ' 最大 ' + maxVal + '）';
+    return;
+  }
+
+  document.getElementById('err').textContent = '';
+  currentDwordVal = applyValue(currentParsed, val, currentDwordVal);
+  render(currentParsed, currentDwordVal);
+}
+
+function clearValue() {
+  if (!currentParsed) return;
+  currentDwordVal = 0;
+  clearAllInputs();
+  document.getElementById('err').textContent = '';
+  render(currentParsed, currentDwordVal);
+}
+
+// ── 页面初始化 ──
+setAssignEnabled(false);
+updateAssignTarget(null);
+render(null, 0);
+
+// ==========================================
+// 事件
+// ==========================================
+
+document.getElementById('btnGo').addEventListener('click', function() {
+  analyze(document.getElementById('inp').value);
+});
+
+document.getElementById('inp').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') { analyze(this.value); }
+});
+
+// 三输入框联动 + 实时写入
+document.getElementById('vHex').addEventListener('input', function() { syncFrom('hex'); });
+document.getElementById('vDec').addEventListener('input', function() { syncFrom('dec'); });
+document.getElementById('vBin').addEventListener('input', function() { syncFrom('bin'); });
+
+document.getElementById('btnClr').addEventListener('click', clearValue);
+
+document.querySelectorAll('.tag').forEach(function(el) {
+  el.addEventListener('click', function() {
+    var addr = this.getAttribute('data-addr');
+    document.getElementById('inp').value = addr;
+    analyze(addr);
+  });
+});
+</script>
+</body>
+</html>
