@@ -3,37 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link rel="icon" type="image/png" sizes="64x64" href="https://github.com/ATX8T.png">
-    <title>SSH 配置工具 · ATX8T</title>
+    <title>SSH 密钥配置工具 · ATX8T</title>
     <style>
-        :root { --bg:#f8fafc; --text:#1e293b; --text2:#64748b; --border:#e2e8f0; --accent:#2563eb; --radius:10px; }
+        :root { --bg:#f8fafc; --text:#1e293b; --text2:#64748b; --border:#e2e8f0; --accent:#2563eb; --accent-hover:#1d4ed8; --green:#16a34a; --radius:12px; }
         *{margin:0;padding:0;box-sizing:border-box}
-        body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+        body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft YaHei',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
         .nav{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between}
         .nav a{text-decoration:none;font-size:.88rem;font-weight:600;color:var(--text);display:flex;align-items:center;gap:10px}
-        .nav img{width:32px;height:32px;border-radius:50%}.nav .back{color:var(--accent)}
+        .nav img{width:32px;height:32px;border-radius:50%}.nav .back{color:var(--accent);font-size:.84rem}
         .main{max-width:860px;margin:0 auto;padding:24px 20px 60px}
-        .content{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:28px 32px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-        .content h1{font-size:1.5rem;margin:0 0 8px;padding-bottom:12px;border-bottom:1px solid var(--border)}
-        .content h2{font-size:1.15rem;margin:28px 0 10px}
-        .content h3{font-size:1rem;margin:20px 0 8px}
-        .content p{font-size:.9rem;line-height:1.7;color:var(--text2);margin-bottom:10px}
-        .content code{background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:.84em;font-family:'JetBrains Mono',monospace}
-        .content pre{background:#0f172a;color:#e2e8f0;padding:16px 20px;border-radius:8px;overflow-x:auto;font-size:.82rem;line-height:1.6;margin:12px 0;font-family:'JetBrains Mono',monospace;white-space:pre-wrap}
-        .content pre code{background:none;padding:0;font-size:inherit;color:inherit}
-        .content ul,.content ol{padding-left:24px;margin-bottom:10px}
-        .content li{font-size:.9rem;line-height:1.7;color:var(--text2);margin-bottom:4px}
-        .content table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.86rem}
-        .content th,.content td{padding:8px 12px;border:1px solid var(--border);text-align:left}
-        .content th{background:#f8fafc;font-weight:600}
-        .content td{color:var(--text2)}
-        .content a{color:var(--accent);text-decoration:underline}
-        .content hr{border:none;border-top:1px solid var(--border);margin:24px 0}
-        .content strong{color:var(--text)}
-        .content blockquote{border-left:3px solid var(--accent);padding:8px 16px;margin:12px 0;background:#f8fafc;border-radius:0 8px 8px 0}
-        .content img{max-width:100%;border-radius:8px;margin:8px 0}
-        .loading{text-align:center;padding:60px 0;color:var(--text2)}
+
+        .card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:0;margin-bottom:18px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+        .card-body{padding:24px 28px}
+
+        h1{font-size:1.35rem;font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:6px}
+        h1 .icon{font-size:1.6rem}
+        .subtitle{font-size:.84rem;color:var(--text2);margin-bottom:16px}
+
+        h2{font-size:1rem;font-weight:700;margin:24px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+        h2:first-of-type{margin-top:0}
+
+        p{font-size:.88rem;line-height:1.65;color:var(--text2);margin-bottom:10px}
+
+        .oneliner{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:16px 20px;margin:14px 0;position:relative;overflow:hidden}
+        .oneliner .label{font-size:.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+        .oneliner code{font-size:.8rem;line-height:1.7;word-break:break-all;font-family:'JetBrains Mono','Consolas',monospace;color:#7dd3fc}
+        .oneliner .copy-btn{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#94a3b8;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:.7rem;transition:all .2s}
+        .oneliner .copy-btn:hover{background:rgba(255,255,255,.15);color:#fff}
+
+        .btn-group{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+        .btn{padding:9px 20px;border-radius:6px;font-size:.84rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .2s;border:1px solid transparent;cursor:pointer}
+        .btn-primary{background:var(--accent);color:#fff}
+        .btn-primary:hover{background:var(--accent-hover);transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.3)}
+        .btn-outline{background:#fff;color:var(--accent);border-color:var(--border)}
+        .btn-outline:hover{border-color:var(--accent);background:#f8fafc}
+
+        table{width:100%;border-collapse:collapse;font-size:.84rem;margin:12px 0}
+        th{text-align:left;padding:9px 12px;background:#f8fafc;border-bottom:2px solid var(--border);font-weight:600;color:var(--text);font-size:.76rem}
+        td{padding:9px 12px;border-bottom:1px solid #f1f5f9;color:var(--text2);line-height:1.5}
+        td code,table code{background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:.82em;font-family:'JetBrains Mono','Consolas',monospace;color:#1e293b}
+
+        .tag{display:inline-block;padding:2px 8px;font-size:.66rem;border-radius:10px;font-weight:600;margin-right:4px}
+        .tag-green{background:#dcfce7;color:#166534}
+        .tag-blue{background:#dbeafe;color:#1e40af}
+
+        .warning{background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:14px 18px;margin:16px 0;font-size:.84rem;color:#854d0e;line-height:1.6}
+        .warning strong{color:#713f12}
+
+        .rule-box{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin:12px 0;font-size:.82rem}
+        .rule-box .arrow{color:var(--accent);font-weight:700}
+
+        .footer{text-align:center;padding:20px;font-size:.72rem;color:#94a3b8}
+        .footer a{color:var(--accent);text-decoration:none}
+
+        .mono{font-family:'JetBrains Mono','Consolas',monospace}
+
+        @media(max-width:640px){
+            .card-body{padding:18px 16px}
+            .oneliner code{font-size:.72rem}
+        }
     </style>
 </head>
 <body>
@@ -44,21 +76,158 @@
 </nav>
 
 <div class="main">
-    <div class="content" id="content">
-        <div class="loading">加载中...</div>
+
+    <div class="card">
+        <div class="card-body">
+            <h1><span class="icon">🔑</span> SSH 密钥自动配置工具</h1>
+            <p class="subtitle">一键在 Linux 服务器上生成 SSH 密钥对并完成安全配置</p>
+            <div>
+                <span class="tag tag-green">Debian/Ubuntu</span>
+                <span class="tag tag-green">CentOS/RHEL</span>
+                <span class="tag tag-green">Alpine</span>
+                <span class="tag tag-green">Arch</span>
+                <span class="tag tag-blue">RSA 4096</span>
+                <span class="tag tag-blue">RSA 8192</span>
+                <span class="tag tag-blue">Ed25519</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h2>🚀 一键执行</h2>
+            <p>在 Linux 服务器终端中粘贴以下命令：</p>
+            <div class="oneliner">
+                <div class="label">命令行一键执行</div>
+                <code>bash &lt;(curl -s https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/projects/OpenSSHorSSL/ssh_admin_toolkit.sh)</code>
+                <button class="copy-btn" onclick="copyCmd()">📋 复制</button>
+            </div>
+            <p style="font-size:.78rem;color:var(--text2)">国内加速：把 <code>raw.githubusercontent.com</code> 替换为 Gitee 镜像源，或使用 <a href="/projects/converter/" target="_blank">直链转换工具</a></p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h2>📥 下载</h2>
+            <div class="btn-group">
+                <a class="btn btn-primary" href="https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/projects/OpenSSHorSSL/ssh_admin_toolkit.sh" target="_blank">🌐 浏览器下载 .sh</a>
+                <a class="btn btn-outline" href="ssh_admin_toolkit.sh" download>📋 直接下载</a>
+            </div>
+            <table>
+                <tr><th style="width:120px">方式</th><th>说明</th></tr>
+                <tr><td>🌐 浏览器下载</td><td>右键「另存为」保存到本地，再通过 SFTP 上传到服务器</td></tr>
+                <tr><td>💻 命令行执行</td><td>上方一键命令直接运行，无需手动下载</td></tr>
+                <tr><td>📋 wget 下载</td><td><code>wget https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/projects/OpenSSHorSSL/ssh_admin_toolkit.sh</code>，然后 <code>chmod +x</code> 执行</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h2>⚙️ 功能</h2>
+            <table>
+                <tr><th style="width:100px">项目</th><th>说明</th></tr>
+                <tr><td>发行版</td><td>Debian/Ubuntu · CentOS/RHEL · Alpine · Arch</td></tr>
+                <tr><td>算法</td><td>RSA 4096 · RSA 8192 · Ed25519</td></tr>
+                <tr><td>配置</td><td><code>PubkeyAuthentication yes</code> · <code>PasswordAuthentication no</code> · 自动备份</td></tr>
+            </table>
+
+            <h2>📋 执行流程</h2>
+            <ol style="padding-left:22px;font-size:.84rem;color:var(--text2);line-height:2">
+                <li>检测发行版 → 安装 OpenSSH</li>
+                <li>选择密钥算法（RSA 4096 / RSA 8192 / Ed25519）</li>
+                <li>生成密钥 → 配置 sshd_config（备份至 <code>/etc/ssh/backup/</code>）</li>
+                <li>可选显示私钥内容，复制到本地</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h2>🔌 连接服务器</h2>
+            <p>生成后将私钥复制到本地 Windows，然后：</p>
+            <div class="oneliner" style="background:#1a1a2e">
+                <code style="color:#a5d6ff">ssh -i "C:\Users\用户名\.ssh\id_rsa" root@服务器IP</code>
+            </div>
+            <table>
+                <tr><th style="width:100px">文件</th><th style="width:100px">作用</th><th>处理</th></tr>
+                <tr><td><code>id_rsa</code></td><td>私钥</td><td>下载到本地，妥善保管</td></tr>
+                <tr><td><code>id_rsa.pub</code></td><td>公钥</td><td>留在服务器，无需下载</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h2>⚠️ 安全警告</h2>
+            <div class="warning">
+                <strong>⚠ 请注意以下安全事项：</strong><br>
+                • 需要 <strong>root 权限</strong>执行<br>
+                • 执行后请<strong>删除服务器上的私钥</strong><br>
+                • 建议配合防火墙限制来源 IP<br>
+                • 执行前确认服务器能连接 GitHub：<code>ping raw.githubusercontent.com</code>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h2>📖 在线脚本链接组合方法</h2>
+            <p>在浏览器中打开脚本文件时，地址栏显示的是 <strong>页面链接</strong>（带 GitHub 网页外壳），不能直接用于 <code>curl</code>。需要将其转换为 <strong>原始文件直链</strong>。</p>
+
+            <h3 style="font-size:.92rem;font-weight:600;margin:14px 0 8px">GitHub 转换规则</h3>
+            <div class="rule-box">
+                <strong>页面链接：</strong><br>
+                <code class="mono" style="font-size:.76rem">https://<span style="color:#dc2626">github.com</span>/ATX8T/ATX8T.github.io/<span style="color:#dc2626">blob/</span>main/...ssh_admin_toolkit.sh</code><br><br>
+                <strong>转换为直链：</strong><br>
+                <span class="arrow">①</span> 把 <code>github.com</code> → <code>raw.githubusercontent.com</code><br>
+                <span class="arrow">②</span> 删除 <code>/blob</code><br><br>
+                <code class="mono" style="font-size:.76rem">https://<span style="color:var(--green)">raw.githubusercontent.com</span>/ATX8T/ATX8T.github.io/main/...ssh_admin_toolkit.sh</code>
+            </div>
+
+            <h3 style="font-size:.92rem;font-weight:600;margin:14px 0 8px">Gitee 转换规则（国内更快）</h3>
+            <div class="rule-box">
+                <code class="mono" style="font-size:.76rem">https://gitee.com/.../<span style="color:#dc2626">blob</span>/main/... → https://gitee.com/.../<span style="color:var(--green)">raw</span>/main/...</code><br>
+                <span style="font-size:.74rem;color:var(--text2)">把 <code>/blob</code> 替换为 <code>/raw</code></span>
+            </div>
+
+            <table style="margin-top:12px">
+                <tr><th>链接类型</th><th>返回内容</th><th>能否 curl</th></tr>
+                <tr><td><code>github.com/.../blob/...</code></td><td>HTML 网页</td><td>❌ 不能</td></tr>
+                <tr><td><code>raw.githubusercontent.com/...</code></td><td>纯文本</td><td>✅ 可以</td></tr>
+                <tr><td><code>gitee.com/.../blob/...</code></td><td>HTML 网页</td><td>❌ 不能</td></tr>
+                <tr><td><code>gitee.com/.../raw/...</code></td><td>纯文本</td><td>✅ 可以</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        <a href="https://github.com/ATX8T/ATX8T.github.io/tree/main/projects/OpenSSHorSSL" target="_blank">📂 在 GitHub 查看源码</a>
+        &nbsp;·&nbsp;
+        <a href="LICENSE" target="_blank">MIT License</a>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
-fetch('README.md?t='+Date.now())
-    .then(function(r){return r.text()})
-    .then(function(md){
-        document.getElementById('content').innerHTML = marked.parse(md);
-    })
-    .catch(function(){
-        document.getElementById('content').innerHTML = '<p style="color:#dc2626">加载 README.md 失败</p>';
-    });
+function copyCmd(){
+    var cmd='bash <(curl -s https://raw.githubusercontent.com/ATX8T/ATX8T.github.io/main/projects/OpenSSHorSSL/ssh_admin_toolkit.sh)';
+    if(navigator.clipboard){
+        navigator.clipboard.writeText(cmd).then(function(){
+            var btn=document.querySelector('.copy-btn');
+            btn.textContent='✅ 已复制';
+            setTimeout(function(){btn.textContent='📋 复制'},2000);
+        });
+    } else {
+        var ta=document.createElement('textarea');
+        ta.value=cmd;ta.style.position='fixed';ta.style.opacity='0';
+        document.body.appendChild(ta);ta.select();
+        document.execCommand('copy');document.body.removeChild(ta);
+        var btn=document.querySelector('.copy-btn');
+        btn.textContent='✅ 已复制';
+        setTimeout(function(){btn.textContent='📋 复制'},2000);
+    }
+}
 </script>
+
 </body>
 </html>
