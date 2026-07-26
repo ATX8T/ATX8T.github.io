@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <link rel="icon" type="image/png" sizes="64x64" href="https://github.com/ATX8T.png">
+    <title>SSH 配置工具 · ATX8T</title>
+    <style>
+        :root { --bg:#f8fafc; --text:#1e293b; --text2:#64748b; --border:#e2e8f0; --accent:#2563eb; --radius:10px; }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+        .nav{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between}
+        .nav a{text-decoration:none;font-size:.88rem;font-weight:600;color:var(--text);display:flex;align-items:center;gap:10px}
+        .nav img{width:32px;height:32px;border-radius:50%}.nav .back{color:var(--accent)}
+        .main{max-width:860px;margin:0 auto;padding:24px 20px 60px}
+        .content{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:28px 32px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+        .content h1{font-size:1.5rem;margin:0 0 8px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+        .content h2{font-size:1.15rem;margin:28px 0 10px}
+        .content h3{font-size:1rem;margin:20px 0 8px}
+        .content p{font-size:.9rem;line-height:1.7;color:var(--text2);margin-bottom:10px}
+        .content code{background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:.84em;font-family:'JetBrains Mono',monospace}
+        .content pre{background:#0f172a;color:#e2e8f0;padding:16px 20px;border-radius:8px;overflow-x:auto;font-size:.82rem;line-height:1.6;margin:12px 0;font-family:'JetBrains Mono',monospace;white-space:pre-wrap}
+        .content pre code{background:none;padding:0;font-size:inherit;color:inherit}
+        .content ul,.content ol{padding-left:24px;margin-bottom:10px}
+        .content li{font-size:.9rem;line-height:1.7;color:var(--text2);margin-bottom:4px}
+        .content table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.86rem}
+        .content th,.content td{padding:8px 12px;border:1px solid var(--border);text-align:left}
+        .content th{background:#f8fafc;font-weight:600}
+        .content td{color:var(--text2)}
+        .content a{color:var(--accent);text-decoration:underline}
+        .content hr{border:none;border-top:1px solid var(--border);margin:24px 0}
+        .content strong{color:var(--text)}
+        .content blockquote{border-left:3px solid var(--accent);padding:8px 16px;margin:12px 0;background:#f8fafc;border-radius:0 8px 8px 0}
+        .content img{max-width:100%;border-radius:8px;margin:8px 0}
+        .loading{text-align:center;padding:60px 0;color:var(--text2)}
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <a href="/"><img src="https://github.com/ATX8T.png" alt=""> ATX8T · SSH 配置</a>
+    <a class="back" href="/">← 首页</a>
+</nav>
+
+<div class="main">
+    <div class="content" id="content">
+        <div class="loading">加载中...</div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+fetch('README.md?t='+Date.now())
+    .then(function(r){return r.text()})
+    .then(function(md){
+        document.getElementById('content').innerHTML = marked.parse(md);
+    })
+    .catch(function(){
+        document.getElementById('content').innerHTML = '<p style="color:#dc2626">加载 README.md 失败</p>';
+    });
+</script>
+</body>
+</html>

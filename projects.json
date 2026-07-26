@@ -2,7 +2,7 @@
   "site": {
     "title": "ATX8T",
     "desc": "GitHub 资源一站管理 — 链接转换、密码生成、全部在浏览器端完成",
-    "footer": "Powered by GitHub Pages · 纯前端 · 无需登录 · v20260726-2"
+    "footer": "Powered by GitHub Pages · 纯前端 · 无需登录 · v20260726-3"
   },
   "projects": [
     {
@@ -34,7 +34,7 @@
       "name": "SSH 密钥配置工具",
       "icon": "🔑",
       "desc": "一键生成 SSH 密钥对并配置服务器，支持多种算法和 Linux 发行版",
-      "path": "https://github.com/ATX8T/ATX8T.github.io/tree/main/projects/OpenSSHorSSL",
+      "path": "projects/OpenSSHorSSL/",
       "tags": ["ssh", "安全", "运维"]
     },
     {
