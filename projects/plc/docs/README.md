@@ -7,8 +7,7 @@
 | 工具 | 品牌 | 系列 | 说明 |
 |------|------|------|------|
 | [寻址工具](../tools/siemens/s7-200-smart/addressing.html) | Siemens | S7-200 SMART | 地址空间拆解演示，输入任意地址自动展开 DWORD/WORD/BYTE/BIT |
-| [Modbus RTU 参考表](../tools/siemens/s7-200-smart/modbus-rtu.html) | Siemens | S7-200 SMART | Modbus 地址映射对照表、功能码与寄存器类型速查 |
-| [Modbus 地址计算器](../tools/siemens/s7-200-smart/modbus-address-calc.html) | Siemens | S7-200 SMART | Modbus Addr 双向换算、MBUS_MSG 指令参数模拟 |
+| [Modbus RTU 地址 快捷工具](../tools/siemens/s7-200-smart/modbus-address-calc.html) | Siemens | S7-200 SMART | Modbus Addr 双向换算、MBUS_MSG 指令参数模拟 |
 | [Poll 主站 / Slave 工具](../tools/siemens/s7-200-smart/poll-slave-table.html) | Siemens | S7-200 SMART | 自动生成 Mbslave 寄存器表，支持导出 |
 
 ## 使用方式

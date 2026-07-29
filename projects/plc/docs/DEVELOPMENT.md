@@ -12,8 +12,7 @@ projects/plc/
 │   ├── siemens/                   # 西门子 PLC 工具
 │   │   ├── s7-200-smart/
 │   │   │   ├── addressing.html            # 寻址工具
-│   │   │   ├── modbus-rtu.html             # Modbus RTU 参考表
-│   │   │   ├── modbus-address-calc.html    # Modbus 地址计算器
+│   │   │   ├── modbus-address-calc.html    # Modbus RTU 地址 快捷工具
 │   │   │   └── poll-slave-table.html       # Poll 主站 / Slave 工具
 │   │   └── ...                            # 其他西门子系列
 │   └── ...                        # 其他品牌（三菱、欧姆龙等）
