@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S7-200 SMART Modbus RTU 地址计算器</title>
+<style>
+:root{--bg:#f0f2f5;--card:#fff;--pri:#0066cc;--ph:#0052a3;--txt:#1a1a2e;--t2:#555;--bdr:#dce1e8;--err:#d93025;--ok:#0d7b43;--sh:0 2px 12px rgba(0,0,0,.08)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--txt);line-height:1.6}
+.c{max-width:900px;margin:0 auto;padding:24px 16px}
+
+.hdr{text-align:center;margin-bottom:28px}
+.hdr h1{font-size:26px;font-weight:700;margin-bottom:6px}
+.hdr p{font-size:14px;color:var(--t2)}
+
+/* Main calc card */
+.card{background:var(--card);border-radius:14px;padding:28px;margin-bottom:20px;box-shadow:var(--sh)}
+
+/* Type selector */
+.typesel{margin-bottom:24px;display:flex;align-items:center;gap:12px}
+.typesel label{font-size:13px;font-weight:600;color:var(--t2);white-space:nowrap}
+.typesel select{width:200px;padding:10px 14px;border:1.5px solid var(--bdr);border-radius:8px;font-size:15px;background:#fafbfc;cursor:pointer;transition:.2s;font-family:inherit}
+.typesel select:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px rgba(0,102,204,.12)}
+
+/* Two-way converter layout */
+.conv{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px}
+.conv-col{flex:1;min-width:0}
+.conv-col label{display:block;font-size:12px;font-weight:600;color:var(--t2);margin-bottom:6px;letter-spacing:.5px}
+.conv-col input{width:100%;padding:12px 14px;border:1.5px solid var(--bdr);border-radius:8px;font-size:16px;font-family:Consolas,'Courier New','Microsoft YaHei',monospace;background:#fafbfc;transition:.2s}
+.conv-col input:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px rgba(0,102,204,.12);background:#fff}
+.conv-col input.inp-bad{border-color:var(--err);background:#fff5f5}
+.conv-col input.inp-ok{border-color:var(--ok);background:#f8fdf9}
+.conv-col .hint{font-size:12px;margin-top:5px;min-height:18px;transition:.15s;color:#999}
+.conv-col .hint.hint-err{color:var(--err)}
+.conv-col .hint.hint-ok{color:var(--ok)}
+
+/* Arrow between */
+.arrow{display:flex;align-items:center;padding-top:28px;flex-shrink:0}
+.arrow svg{width:32px;height:32px;color:#999}
+.arrow span{font-size:13px;color:#999;writing-mode:vertical-lr;margin:4px 0}
+
+/* Formula area */
+.formula-area{background:#f8f9fb;border-radius:10px;padding:16px 18px;margin-top:4px;display:none}
+.formula-area.show{display:block}
+.formula-area .title{font-size:12px;font-weight:600;color:var(--t2);margin-bottom:10px;letter-spacing:.5px}
+.formula-area .formulas{display:flex;gap:20px;flex-wrap:wrap}
+.formula-area .fm-item{flex:1;min-width:280px}
+.formula-area .fm-item .dir{font-size:13px;font-weight:600;color:var(--pri);margin-bottom:4px}
+.formula-area .fm-item code{display:block;background:#fff;border:1px solid var(--bdr);padding:8px 12px;border-radius:6px;font-family:Consolas,'Courier New',monospace;font-size:14px;word-break:break-all}
+.formula-area .hw-warn{margin-top:12px;padding:10px 14px;background:#fff5f5;border:1px solid #f5c6c6;border-radius:6px;font-size:13px;line-height:1.6;display:none}
+.formula-area .hw-warn.show{display:block}
+.formula-area .hw-warn .hw-label{color:var(--err);font-weight:600}
+
+/* Info sections */
+.info{background:var(--card);border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:var(--sh)}
+.info h3{font-size:17px;margin-bottom:12px;color:var(--pri)}
+.info p{font-size:14px;color:var(--t2);margin-bottom:8px}
+.fmb{background:#f7f8fa;border-left:3px solid var(--pri);padding:12px 16px;margin:10px 0;border-radius:0 6px 6px 0;font-family:Consolas,'Courier New',monospace;font-size:14px}
+
+.tbl{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
+.tbl th{background:#f0f3f7;padding:10px 12px;text-align:left;font-weight:600;font-size:12px}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--bdr)}
+.tbl code{background:#eef1f5;padding:2px 6px;border-radius:4px;font-size:12px}
+.tbl tr.z{background:#f6fafe}
+
+@media(max-width:700px){
+  .conv{flex-direction:column}
+  .arrow{flex-direction:row;padding-top:0;justify-content:center}
+  .arrow span{writing-mode:horizontal-tb;margin:0 4px}
+  .arrow svg{transform:rotate(90deg)}
+  .typesel{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+<div class="c">
+
+<div class="hdr">
+  <h1>S7-200 SMART Modbus RTU 地址计算器</h1>
+  <p>双向换算：Modbus RTU 地址 ↔ PLC 地址 &nbsp;·&nbsp; 输入任意一边自动算出另一边</p>
+</div>
+
+<!-- Main Calculator -->
+<div class="card">
+  <!-- Type Selector -->
+  <div class="typesel">
+    <label>数据类型：</label>
+    <select id="ty" onchange="onTypeChange()">
+      <option value="coil">线圈 (0xxxx) ↔ Q 区</option>
+      <option value="di">离散输入 (1xxxx) ↔ I 区</option>
+      <option value="ir">输入寄存器 (3xxxx) ↔ AIW 区</option>
+      <option value="hr" selected>保持寄存器 (4xxxx) ↔ V 区</option>
+    </select>
+  </div>
+
+  <!-- Two-way inputs -->
+  <div class="conv">
+    <div class="conv-col">
+      <label>Modbus RTU 地址</label>
+      <input id="mi" placeholder="例：40001" oninput="fromModbus()">
+      <div class="hint" id="mih">范围：40001 ~ 49999</div>
+    </div>
+    <div class="arrow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      <span>双向换算</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 5l-7 7 7 7"/></svg>
+    </div>
+    <div class="conv-col">
+      <label id="pl">PLC 地址</label>
+      <input id="pi" placeholder="例：100" oninput="fromPlc()">
+      <div class="hint" id="pih">请输入 VB 字节地址（偶数）</div>
+    </div>
+  </div>
+
+  <!-- Formula & Result -->
+  <div class="formula-area" id="fa">
+    <div class="formulas">
+      <div class="fm-item">
+        <div class="dir" id="fm-label-m">从站（Modbus → PLC）</div>
+        <code id="fm-m">—</code>
+      </div>
+      <div class="fm-item">
+        <div class="dir" id="fm-label-p">主站（PLC → Modbus）</div>
+        <code id="fm-p">—</code>
+      </div>
+    </div>
+    <div class="explain" id="explain" style="display:none;margin-top:12px;padding:12px 14px;background:#fefdf5;border:1px solid #e8dca0;border-radius:6px;font-size:13px;color:#5c4a00;line-height:1.7"></div>
+    <div class="hw-warn" id="hw"></div>
+  </div>
+</div>
+
+<!-- Mapping Table -->
+<div class="info">
+  <h3>Modbus ↔ S7-200 SMART 地址映射表</h3>
+  <table class="tbl">
+    <thead><tr><th>Modbus 范围</th><th>功能码</th><th>PLC 区</th><th>寻址</th><th>换算公式</th></tr></thead>
+    <tbody>
+      <tr><td><code>00001 ~ 09999</code></td><td>01/05/15</td><td>Q（线圈）</td><td>位</td><td><code>Q_Byte×8 + Q_Bit + 1</code></td></tr>
+      <tr><td><code>10001 ~ 19999</code></td><td>02</td><td>I（离散输入）</td><td>位</td><td><code>I_Byte×8 + I_Bit + 10001</code></td></tr>
+      <tr><td><code>30001 ~ 39999</code></td><td>04</td><td>AIW（输入寄存器）</td><td>字</td><td><code>(Modbus − 30001)×2</code></td></tr>
+      <tr class="z"><td><code>40001 ~ 49999</code></td><td>03/06/16</td><td>V（保持寄存器）</td><td>字</td><td><code>(Modbus − 40001)×2</code></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Explanation -->
+<div class="info">
+  <h3>关键说明</h3>
+  <p><strong>1. 从站（MBUS_INIT）</strong> — HoldStart 指向 V 区起始字节。如 <code>HoldStart=&amp;VB200</code>，Modbus <code>40001</code> 映射到 <code>VW200</code>（即 VB200）。</p>
+  <div class="fmb"><strong>从站公式：</strong> VB地址 = (Modbus地址 − 40001) × 2 + HoldStart偏移</div>
+  <p style="margin-top:12px"><strong>2. 主站（MBUS_MSG）</strong> — Addr 为目标 Modbus 地址，DataPtr 指向本机 V 区起始。</p>
+  <div class="fmb"><strong>主站公式：</strong> Modbus地址 = 40001 + VB地址 / 2</div>
+  <p style="margin-top:12px"><strong>3. 字对齐</strong> — V 区 / AIW 按<strong>字</strong>寻址，VB 必须为偶数。线圈 / 离散输入按<strong>位</strong>寻址。</p>
+  <p><strong>4. 注意</strong> — MaxHold 参数指定 VW 个数，不是 VB 个数。分配 V 区时避免与程序变量重叠。</p>
+</div>
+
+</div>
+
+<script>
+const R={
+  coil:{lo:1,hi:9999,baseModbus:1,plcBase:0,step:1,plcName:'Q',plcUnit:'位偏移',plcHint:'Q 位偏移 (0,1,2,…)',plcLabel:'Q 位偏移',hasWordAlign:false},
+  di:{lo:10001,hi:19999,baseModbus:10001,plcBase:0,step:1,plcName:'I',plcUnit:'位偏移',plcHint:'I 位偏移 (0,1,2,…)',plcLabel:'I 位偏移',hasWordAlign:false},
+  ir:{lo:30001,hi:39999,baseModbus:30001,plcBase:0,step:2,plcName:'AIW',plcUnit:'字偏移',plcHint:'AIW 字偏移 (0,2,4,…)',plcLabel:'AIW 字偏移',hasWordAlign:true},
+  hr:{lo:40001,hi:49999,baseModbus:40001,plcBase:0,step:2,plcName:'V',plcUnit:'字节地址',plcHint:'VB 字节地址（必须为偶数）',plcLabel:'VB 字节地址 / HoldStart',hasWordAlign:true}
+};
+
+const CPU_VMAX=[
+  {name:'CPU SR20 / ST20', max:8191},
+  {name:'CPU SR30 / ST30', max:12287},
+  {name:'CPU SR40 / ST40', max:16383},
+  {name:'CPU SR60 / ST60', max:20479},
+];
+
+// Prevent reciprocal update loops
+let updating=false;
+
+// ── Convert Modbus → PLC offset ──
+function modbusToPlc(t,n){
+  const r=R[t];
+  if(r.hasWordAlign) return (n-r.baseModbus)*r.step;
+  return n-r.baseModbus; // bit offset
+}
+// ── Convert PLC offset → Modbus ──
+function plcToModbus(t,n){
+  const r=R[t];
+  if(r.hasWordAlign) return (n/r.step)+r.baseModbus;
+  return n+r.baseModbus;
+}
+
+// ── Format PLC address for display ──
+function formatPlc(t,offset){
+  const r=R[t];
+  if(t==='coil'||t==='di'){
+    const by=Math.floor(offset/8),bi=offset%8;
+    return `${r.plcName}${by}.${bi}`;
+  }
+  if(t==='ir') return `${r.plcName}${offset}`;
+  return `VB${offset}（即 VW${offset}）`;
+}
+
+// ── Hardware note ──
+function hwNote(vb){
+  if(vb<=8191)return'';
+  const ok=CPU_VMAX.filter(c=>c.max>=vb);
+  const fail=CPU_VMAX.filter(c=>c.max<vb);
+  if(ok.length===CPU_VMAX.length)return'';
+  return `<span class="hw-label">⚠ 硬件提醒：</span>VB${vb} 超出 ${fail.map(c=>c.name.replace('CPU ','')).join('、')} 的 V 区容量。<br>可用型号：${ok.map(c=>c.name).join('、')}（最大 VB${ok[ok.length-1].max}）`;
+}
+
+// ── Update hints & labels for current type ──
+function updateLabels(){
+  const t=document.getElementById('ty').value,r=R[t];
+  document.getElementById('mih').textContent=`范围：${r.lo} ~ ${r.hi}`;
+  document.getElementById('pih').textContent=r.plcHint;
+  document.getElementById('pl').textContent=r.plcLabel;
+  document.getElementById('fm-label-m').textContent=`从站（Modbus → ${r.plcName}）`;
+  document.getElementById('fm-label-p').textContent=`主站（${r.plcName} → Modbus）`;
+}
+
+// ── Type change: clear all ──
+function onTypeChange(){
+  updateLabels();
+  document.getElementById('mi').value='';
+  document.getElementById('pi').value='';
+  document.getElementById('mi').className='';
+  document.getElementById('pi').className='';
+  document.getElementById('mih').className='hint';
+  document.getElementById('pih').className='hint';
+  document.getElementById('mi').placeholder=`例：${R[document.getElementById('ty').value].baseModbus}`;
+  document.getElementById('pi').placeholder=`例：${document.getElementById('ty').value==='hr'?'100':'0'}`;
+  document.getElementById('fa').classList.remove('show');
+  document.getElementById('hw').classList.remove('show');
+  document.getElementById('explain').style.display='none';
+}
+
+// ── User typed in Modbus field ──
+function fromModbus(){
+  if(updating)return;
+  const t=document.getElementById('ty').value,r=R[t];
+  const miEl=document.getElementById('mi'),piEl=document.getElementById('pi');
+  const miVal=miEl.value.trim();
+
+  // Reset
+  piEl.className='';document.getElementById('pih').className='hint';
+  document.getElementById('fa').classList.remove('show');
+  document.getElementById('hw').classList.remove('show');
+
+  if(miVal===''){miEl.className='';document.getElementById('mih').className='hint';piEl.value='';return}
+
+  // Validate numeric
+  if(!/^\d+$/.test(miVal)){
+    miEl.className='inp-bad';document.getElementById('mih').className='hint hint-err';
+    document.getElementById('mih').textContent='✗ 只能输入数字';
+    piEl.value='';return;
+  }
+  const n=parseInt(miVal,10);
+
+  // Range check
+  if(n<r.lo||n>r.hi){
+    miEl.className='inp-bad';document.getElementById('mih').className='hint hint-err';
+    document.getElementById('mih').textContent=`✗ 超出范围，应介于 ${r.lo} ~ ${r.hi}`;
+    piEl.value='';return;
+  }
+
+  // Valid → calculate PLC address
+  const plcOff=modbusToPlc(t,n);
+  updating=true;
+  piEl.value=r.hasWordAlign?plcOff:plcOff;
+  miEl.className='inp-ok';piEl.className='inp-ok';
+  document.getElementById('mih').className='hint hint-ok';
+  document.getElementById('mih').textContent='✓ 输入合法';
+  document.getElementById('pih').className='hint hint-ok';
+  document.getElementById('pih').textContent='✓ 自动算出';
+  updating=false;
+
+  // Show formula + hardware note
+  showResult(t,n,plcOff);
+}
+
+// ── User typed in PLC field ──
+function fromPlc(){
+  if(updating)return;
+  const t=document.getElementById('ty').value,r=R[t];
+  const miEl=document.getElementById('mi'),piEl=document.getElementById('pi');
+  const piVal=piEl.value.trim();
+
+  // Reset
+  miEl.className='';document.getElementById('mih').className='hint';
+  document.getElementById('fa').classList.remove('show');
+  document.getElementById('hw').classList.remove('show');
+
+  if(piVal===''){piEl.className='';document.getElementById('pih').className='hint';miEl.value='';return}
+
+  // Validate numeric
+  if(!/^\d+$/.test(piVal)){
+    piEl.className='inp-bad';document.getElementById('pih').className='hint hint-err';
+    document.getElementById('pih').textContent='✗ 只能输入数字';
+    miEl.value='';return;
+  }
+  const n=parseInt(piVal,10);
+
+  // Word alignment check
+  if(r.hasWordAlign && n%r.step!==0){
+    piEl.className='inp-bad';document.getElementById('pih').className='hint hint-err';
+    document.getElementById('pih').textContent=`✗ ${r.plcName}${r.plcUnit}必须为 ${r.step} 的倍数（${r.step},${r.step*2},${r.step*3}…）`;
+    miEl.value='';return;
+  }
+
+  // Calculate Modbus
+  const modbus=plcToModbus(t,n);
+
+  // Modbus range check for reverse direction
+  if(modbus<r.lo||modbus>r.hi){
+    piEl.className='inp-bad';document.getElementById('pih').className='hint hint-err';
+    document.getElementById('pih').textContent=`✗ 反算 Modbus=${modbus}，超出 ${r.lo}~${r.hi}，请减小输入`;
+    miEl.value='';return;
+  }
+
+  // Valid
+  updating=true;
+  miEl.value=modbus;
+  piEl.className='inp-ok';miEl.className='inp-ok';
+  document.getElementById('pih').className='hint hint-ok';
+  document.getElementById('pih').textContent='✓ 输入合法';
+  document.getElementById('mih').className='hint hint-ok';
+  document.getElementById('mih').textContent='✓ 自动算出';
+  updating=false;
+
+  showResult(t,modbus,n);
+}
+
+// ── Show formula area ──
+function showResult(t,modbus,plcOff){
+  const r=R[t],fa=document.getElementById('fa'),hw=document.getElementById('hw');
+  fa.classList.add('show');
+
+  // Slave formula: Modbus → PLC
+  let fmM, fmP;
+  if(r.hasWordAlign){
+    fmM=`(${modbus} − ${r.baseModbus}) × ${r.step} = ${(modbus-r.baseModbus)}×${r.step} = ${r.plcName==='V'?'VB':'AIW'}${plcOff}`;
+    if(r.plcName==='V') fmM+=` → VW${plcOff}`;
+    fmP=`${r.plcName==='V'?'VB':'AIW'}${plcOff} → (${plcOff}/${r.step}) + ${r.baseModbus} = ${plcOff/r.step} + ${r.baseModbus} = ${modbus}`;
+  }else{
+    const by=Math.floor(plcOff/8),bi=plcOff%8;
+    fmM=`${modbus} − ${r.baseModbus} = ${plcOff} → Byte=${by}, Bit=${bi} → ${r.plcName}${by}.${bi}`;
+    fmP=`${r.plcName}${by}.${bi} → Byte×8+Bit+${r.baseModbus} = ${by}×8+${bi}+${r.baseModbus} = ${modbus}`;
+  }
+  document.getElementById('fm-m').textContent=fmM;
+  document.getElementById('fm-p').textContent=fmP;
+
+  // VB/VW explanation for V area only
+  const explainEl=document.getElementById('explain');
+  if(t==='hr'){
+    explainEl.style.display='block';
+    explainEl.innerHTML=
+      `<strong>为什么同时显示 VB 和 VW？</strong><br>`+
+      `S7-200 SMART 的 V 存储区以<strong>字节</strong>（VB, 8bit）为最小寻址单位，而 Modbus 保持寄存器是<strong>16 位字</strong>。`+
+      `因此 <code>MBUS_INIT</code> 的 HoldStart 参数填写的是<strong> VB 字节地址</strong>（如 <code>&VB${plcOff}</code>），`+
+      `但在梯形图程序中通常用 <code>VW${plcOff}</code> 来读写这个保持寄存器的值。<br>`+
+      `<span style="color:#888;">（VW${plcOff} 实际占用 VB${plcOff} + VB${plcOff+1} 两个字节）</span><br><br>`+
+      `<strong>其他区有这种情况吗？没有。</strong>`+
+      `${plcOff%2===0?'':'<br>'}<strong>Q/I 区</strong>按位寻址（Q0.0, I1.5），无双重表示；<strong>AIW 区</strong>仅支持字访问，无字节级寻址。只有 <strong>V 区</strong>同时存在 VB（字节）和 VW（字）两种视角。`;
+  }else{
+    explainEl.style.display='none';
+  }
+
+  // Hardware warning for HR mode only
+  if(t==='hr'){
+    const note=hwNote(plcOff);
+    if(note){hw.innerHTML=note;hw.classList.add('show')}
+    else{hw.classList.remove('show')}
+  }else{hw.classList.remove('show')}
+}
+
+// Init
+updateLabels();
+</script>
+</body>
+</html>

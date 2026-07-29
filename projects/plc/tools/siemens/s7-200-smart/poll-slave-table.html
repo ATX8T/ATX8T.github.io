@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poll主站 / Slave 快捷工具</title>
+<style>
+::root{--bg:#f0f2f5;--card:#fff;--pri:#0066cc;--txt:#1a1a2e;--t2:#555;--bdr:#dce1e8;--err:#d93025;--ok:#0d7b43}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--txt);line-height:1.6}
+.c{max-width:780px;margin:0 auto;padding:24px 16px}
+.hdr{text-align:center;margin-bottom:28px}
+.hdr h1{font-size:24px;font-weight:700;margin-bottom:6px}
+.hdr p{font-size:14px;color:var(--t2)}
+
+.card{background:var(--card);border-radius:14px;padding:28px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+
+/* Input row */
+.inp-row{display:flex;gap:20px;margin-bottom:20px;flex-wrap:wrap;align-items:flex-end}
+.inp-grp{display:flex;flex-direction:column;gap:4px}
+.inp-grp label{font-size:12px;font-weight:600;color:var(--t2)}
+.inp-grp input{width:120px;padding:10px 12px;border:1.5px solid var(--bdr);border-radius:8px;font-size:16px;font-family:Consolas,monospace;background:#fafbfc;transition:.2s}
+.inp-grp input:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px rgba(0,102,204,.12)}
+.inp-grp input.inp-bad{border-color:var(--err);background:#fff5f5}
+.inp-grp .hint{font-size:11px;color:#999;min-height:16px}
+.inp-grp .hint.hint-err{color:var(--err)}
+.inp-grp .sep{color:#999;font-size:14px;font-weight:700;padding-top:28px}
+
+/* Type selector */
+.typesel{margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.typesel label{font-size:13px;font-weight:600;color:var(--t2)}
+.typesel select{padding:8px 12px;border:1.5px solid var(--bdr);border-radius:6px;font-size:14px;background:#fafbfc;font-family:inherit}
+.typesel select:focus{outline:none;border-color:var(--pri)}
+
+/* Summary */
+.summary{margin-bottom:16px;padding:10px 14px;background:#f6f9fc;border-radius:8px;border:1px solid #e3eaf0;font-size:13px;color:var(--t2);display:none}
+.summary.show{display:block}
+.summary code{font-family:Consolas,monospace;background:#eef1f5;padding:1px 6px;border-radius:4px;font-size:12px}
+
+/* Table */
+.tbl-wrap{overflow-x:auto}
+table.mbtbl{width:100%;border-collapse:collapse;font-size:14px}
+table.mbtbl th{background:#f0f3f7;padding:10px 14px;text-align:left;font-weight:600;font-size:12px;border-bottom:2px solid var(--bdr);position:sticky;top:0}
+table.mbtbl th:nth-child(1){width:60px}
+table.mbtbl td{padding:8px 14px;border-bottom:1px solid var(--bdr)}
+table.mbtbl td:nth-child(1){color:#999;font-size:12px;text-align:center}
+table.mbtbl td:nth-child(2){font-family:Consolas,monospace;font-weight:600}
+table.mbtbl td:nth-child(2) code{background:#eef1f5;padding:2px 8px;border-radius:4px;font-size:13px}
+table.mbtbl td:nth-child(3){font-family:Consolas,monospace;color:var(--t2);font-size:12px}
+table.mbtbl td input.val-inp{width:100%;padding:6px 10px;border:1px solid var(--bdr);border-radius:6px;font-size:14px;font-family:Consolas,monospace;background:#fffffc;text-align:center;transition:.2s}
+table.mbtbl td input.val-inp:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 2px rgba(0,102,204,.1);background:#fff}
+table.mbtbl tr:hover{background:#fafbfd}
+
+/* Buttons */
+.btn-row{display:flex;gap:10px;margin-top:20px}
+.btn{padding:9px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:.2s}
+.btn-pri{background:var(--pri);color:#fff}
+.btn-pri:hover{background:#0052a3}
+.btn-sec{background:#f0f2f5;color:var(--txt);border:1px solid var(--bdr)}
+.btn-sec:hover{background:#e4e6ea}
+.btn-danger{background:#fff;color:var(--err);border:1px solid #f5c6c6}
+.btn-danger:hover{background:#fff5f5}
+
+.empty{text-align:center;padding:60px 0;color:#f90;font-size:18px;font-weight:700}
+
+/* Hint below summary */
+.plc-diff-hint{margin-top:6px;padding:8px 14px;background:#fefdf5;border:1px solid #e8dca0;border-radius:6px;font-size:12px;color:#7a6500;line-height:1.6;display:none}
+.plc-diff-hint.show{display:block}
+.plc-diff-hint code{background:#fdf3e0;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:12px}
+</style>
+</head>
+<body>
+<div class="c">
+
+<div class="hdr">
+  <h1>Poll主站 / Slave 快捷工具</h1>
+</div>
+
+<div class="card">
+  <!-- Type selector -->
+  <div class="typesel">
+    <label>数据类型：</label>
+    <select id="ty" onchange="onTypeChange()">
+      <option value="coil">线圈 (0xxxx) ↔ Q 区</option>
+      <option value="di">离散输入 (1xxxx) ↔ I 区</option>
+      <option value="ir">输入寄存器 (3xxxx) ↔ AIW 区</option>
+      <option value="hr" selected>保持寄存器 (4xxxx) ↔ V 区</option>
+    </select>
+  </div>
+
+  <!-- Input row -->
+  <div class="inp-row">
+    <div class="inp-grp">
+      <label>Poll主站 / Slave 地址</label>
+      <input id="addr" type="text" value="" placeholder="例：100" oninput="generateTable()">
+      <div class="hint" id="addrHint">→ 寄存器号</div>
+    </div>
+    <div class="sep" style="padding-top:28px">～</div>
+    <div class="inp-grp">
+      <label>数量</label>
+      <input id="cnt" type="text" value="10" placeholder="例：10" oninput="generateTable()">
+      <div class="hint" id="cntHint">最多 200 条</div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary" id="summary"></div>
+
+  <!-- PLC diff hint -->
+  <div class="plc-diff-hint" id="diffHint"></div>
+
+  <!-- Table -->
+  <div id="tableArea">
+    <div class="empty">在 Poll主站 / Slave 地址 输入起始地址后自动生成表格</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const R={
+  coil:{lo:1,hi:9999,bReg:1,plc:'Q',fc:'01/05/15',isBit:true},
+  di:{lo:10001,hi:19999,bReg:10001,plc:'I',fc:'02',isBit:true},
+  ir:{lo:30001,hi:39999,bReg:30001,plc:'AIW',fc:'04',isBit:false},
+  hr:{lo:40001,hi:49999,bReg:40001,plc:'V',fc:'03/06/16',isBit:false}
+};
+
+let lastAddr=100,lastCnt=10;
+
+function g(id){return document.getElementById(id)}
+
+// PDU → VW: VW = PDU × 2 + 100
+const VB_OFFSET = 100;
+
+function generateTable(){
+  const t=g('ty').value,r=R[t];
+  const addrEl=g('addr'),cntEl=g('cnt');
+  const addrVal=addrEl.value.trim(),cntVal=cntEl.value.trim();
+  const addrHint=g('addrHint'),cntHint=g('cntHint');
+
+  // Reset
+  addrEl.className='';cntEl.className='';
+  addrHint.className='hint';cntHint.className='hint';
+
+  // Validate address: empty defaults to 0
+  let pdu, addr;
+  if(addrVal===''){
+    addr=0; pdu=0;
+    addrHint.className='hint';
+    addrHint.textContent=`→ 寄存器号 ${r.bReg}`;
+  }else if(!/^\d+$/.test(addrVal)){
+    addrEl.className='inp-bad';addrHint.className='hint hint-err';
+    addrHint.textContent='✗ 只能输入数字';return;
+  }else{
+    addr=parseInt(addrVal,10);
+    if(addr>=r.lo && addr<=r.hi){
+      pdu=addr-r.bReg;
+      addrHint.className='hint hint-ok';
+      addrHint.textContent=`→ PDU 地址 ${pdu}`;
+    }else{
+      const testReg=addr+r.bReg;
+      if(testReg<r.lo||testReg>r.hi){
+        addrEl.className='inp-bad';addrHint.className='hint hint-err';
+        if(addr<r.lo)addrHint.textContent=`✗ PDU=${addr} → 寄存器${testReg}，超出 ${r.lo}~${r.hi}`;
+        else addrHint.textContent='✗ PDU 地址过大';
+        return;
+      }
+      pdu=addr;
+      addrHint.className='hint hint-ok';
+      addrHint.textContent=`→ 寄存器号 ${testReg}`;
+    }
+  }
+
+  // Validate count
+  if(cntVal===''){cntHint.className='hint hint-err';cntHint.textContent='✗ 不能为空';renderEmpty();return}
+  if(!/^\d+$/.test(cntVal)){
+    cntEl.className='inp-bad';cntHint.className='hint hint-err';
+    cntHint.textContent='✗ 只能输入数字';renderEmpty();return;
+  }
+  const cnt=parseInt(cntVal,10);
+  if(cnt<1){cntEl.className='inp-bad';cntHint.className='hint hint-err';cntHint.textContent='✗ 数量必须 ≥ 1';renderEmpty();return}
+  if(cnt>200){cntEl.className='inp-bad';cntHint.className='hint hint-err';cntHint.textContent='✗ 最多 200 条';renderEmpty();return}
+
+  // Check endpoint
+  const lastReg=pdu+r.bReg+cnt-1;
+  if(lastReg>r.hi){
+    cntEl.className='inp-bad';cntHint.className='hint hint-err';
+    cntHint.textContent=`✗ 最后一条寄存器号=${lastReg}，超出 ${r.hi}（最多 ${r.hi-r.bReg-pdu+1} 条）`;
+    renderEmpty();return;
+  }
+  cntHint.className='hint hint-ok';
+
+  // Remember last valid
+  lastAddr=addr;lastCnt=cnt;
+  addrEl.className='';cntEl.className='';
+  addrHint.className='hint hint-ok';cntHint.className='hint hint-ok';
+
+  // Summary
+  const firstReg=pdu+r.bReg;
+  const s=g('summary');
+  s.className='summary show';
+  let extra=r.plc==='V'?' &nbsp;|&nbsp; VW = PDU×2 + 100':'';
+  s.innerHTML=`共 <strong>${cnt}</strong> 条记录 · 功能码：<code>${r.fc}</code> · PLC 区：<code>${r.plc}</code> &nbsp;|&nbsp; PDU 范围：<code>${pdu}</code> ~ <code>${pdu+cnt-1}</code> &nbsp;|&nbsp; 寄存器号：<code>${firstReg.toString().padStart(5,'0')}</code> ~ <code>${(firstReg+cnt-1).toString().padStart(5,'0')}</code>`+extra;
+
+  // Mapping hint
+  const dh=g('diffHint');
+  if(r.plc==='V'){
+    dh.className='plc-diff-hint show';
+    dh.innerHTML=`参考映射：PDU <code>0</code> → <code>VW100</code>，PDU <code>1</code> → <code>VW102</code>，PDU <code>100</code> → <code>VW300</code>`;
+  }else{
+    dh.className='plc-diff-hint';
+  }
+
+  // Build table
+  let html='<div class="tbl-wrap"><table class="mbtbl"><thead><tr>';
+  html+=`<th>#</th><th>Name（寄存器号）</th><th>PLC 地址</th><th>Value（赋值）</th></tr></thead><tbody>`;
+
+  for(let i=0;i<cnt;i++){
+    const reg=firstReg+i;
+    const idx=i+1;
+    let plcAddr;
+    if(r.isBit){
+      const off=i+pdu,by=Math.floor(off/8),bi=off%8;
+      plcAddr=`${r.plc}${by}.${bi}`;
+    }else{
+      const woff=(i+pdu)*2 + (r.plc==='V'?VB_OFFSET:0);
+      if(r.plc==='V')plcAddr=`VW${woff}`;
+      else plcAddr=`${r.plc}${woff}`;
+    }
+    html+=`<tr><td>${idx}</td><td><code>${reg.toString().padStart(5,'0')}</code></td><td>${plcAddr}</td>`;
+    html+=`<td><input class="val-inp" type="text" placeholder="输入赋值值" id="v${i}" oninput="onValChange(${i})"></td></tr>`;
+  }
+
+  html+='</tbody></table></div>';
+
+  // Buttons
+  html+=`<div class="btn-row">`;
+  html+=`<button class="btn btn-pri" onclick="exportTable()">导出表数据</button>`;
+  html+=`<button class="btn btn-sec" onclick="clearValues()">清空赋值列</button>`;
+  html+=`<button class="btn btn-sec" onclick="fillSequential()">顺序填充 10，20，30…</button>`;
+  html+=`<button class="btn btn-sec" onclick="fillConstant()">批量填充固定值</button>`;
+  html+=`</div>`;
+
+  g('tableArea').innerHTML=html;
+}
+
+function renderEmpty(){
+  g('summary').className='summary';
+  g('diffHint').className='plc-diff-hint';
+  g('tableArea').innerHTML='<div class="empty">在 Poll主站 / Slave 地址 输入起始地址后自动生成表格</div>';
+}
+
+function onValChange(i){
+  const el=g('v'+i);
+  if(!el)return;
+  el.className='val-inp';
+}
+
+function clearValues(){
+  for(let i=0;i<lastCnt;i++){const el=g('v'+i);if(el)el.value='';}
+}
+
+function fillSequential(){
+  for(let i=0;i<lastCnt;i++){const el=g('v'+i);if(el)el.value=(i+1)*10;}
+}
+
+function fillConstant(){
+  const val=prompt('请输入要填充的固定值：','0');
+  if(val===null)return;
+  for(let i=0;i<lastCnt;i++){const el=g('v'+i);if(el)el.value=val;}
+}
+
+function exportTable(){
+  const t=g('ty').value,r=R[t];
+  const addr=parseInt(g('addr').value.trim(),10)||0;
+  let pdu=(addr>=r.lo&&addr<=r.hi)?addr-r.bReg:addr;
+  const firstReg=pdu+r.bReg;
+  const rows=[];
+  for(let i=0;i<lastCnt;i++){
+    const el=g('v'+i);
+    const reg=firstReg+i;
+    let plc;
+    if(r.isBit){const off=i+pdu,by=Math.floor(off/8),bi=off%8;plc=r.plc+by+'.'+bi;}
+    else{const woff=(i+pdu)*2+(r.plc==='V'?VB_OFFSET:0);plc=r.plc==='V'?'VW'+woff:r.plc+woff;}
+    rows.push({index:i+1,name:reg.toString().padStart(5,'0'),plc:plc,value:el?el.value.trim():''});
+  }
+  // Copy as TSV
+  const tsv=rows.map(r=>r.name+'\t'+r.value+'\t'+r.plc).join('\n');
+  navigator.clipboard.writeText('[Name]\t[Value]\t[PLC]\n'+tsv).then(()=>{
+    alert(`已复制 ${lastCnt} 条记录到剪贴板（Tab 分隔）`);
+  }).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value='Name\tValue\tPLC\n'+tsv;
+    document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+    alert(`已复制 ${lastCnt} 条记录到剪贴板`);
+  });
+}
+
+// Auto-detect register vs PDU: show hint as user types
+g('addr').addEventListener('input',function(){
+  const t=g('ty').value,r=R[t];
+  const v=this.value.trim();
+  if(!/^\d+$/.test(v))return;
+  const n=parseInt(v,10);
+  if(n>=r.lo&&n<=r.hi){g('addrHint').textContent=`→ PDU 地址 ${n-r.bReg}（检测到寄存器号输入）`}
+  else{g('addrHint').textContent=`→ 寄存器号 ${n+r.bReg}（检测到 PDU 地址输入）`}
+});
+
+// Type change
+onTypeChange = function(){
+  const r=R[g('ty').value];
+  ['addr','cnt'].forEach(id=>{g(id).value='';});
+  g('addrHint').className='hint';g('cntHint').className='hint';
+  g('addrHint').textContent='→ 寄存器号';
+  g('cntHint').textContent='最多 200 条';
+  g('summary').className='summary';g('diffHint').className='plc-diff-hint';
+  g('tableArea').innerHTML='<div class="empty">在 Poll主站 / Slave 地址 输入起始地址后自动生成表格</div>';
+};
+
+// Init
+generateTable();
+</script>
+</body>
+</html>
